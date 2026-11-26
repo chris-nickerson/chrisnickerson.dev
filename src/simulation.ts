@@ -263,8 +263,11 @@ export class Simulation {
       window.addEventListener(
         "storage",
         (event) => {
-          if (event.key === SAVE_KEY || event.key === null)
-            this.storage.refresh(this.watershed);
+          if (
+            (event.key === SAVE_KEY || event.key === null) &&
+            this.storage.refresh(this.watershed)
+          )
+            this.redrawPausedWatershed();
         },
         options,
       );
@@ -442,7 +445,13 @@ export class Simulation {
     this.resize();
   }
   save() {
-    this.storage.save(this.watershed);
+    if (this.storage.save(this.watershed)) this.redrawPausedWatershed();
+  }
+  private redrawPausedWatershed() {
+    if (this.ready && this.paused) {
+      this.world.update(this.elapsed);
+      this.render();
+    }
   }
   clear() {
     this.watershed.clear();

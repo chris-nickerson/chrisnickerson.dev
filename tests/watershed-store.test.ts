@@ -50,3 +50,25 @@ test("malformed JSON does not disable saving a replacement", () => {
   store.save(watershed);
   assert.equal(JSON.parse(saved).version, 1);
 });
+
+test("an unreadable save version preserves the live flight and the foreign snapshot", () => {
+  let stored: string | null = null;
+  const store = new WatershedStore(() => ({
+    getItem: () => stored,
+    setItem: (_key, value) => {
+      stored = value;
+    },
+  }));
+  const watershed = new Watershed();
+  watershed.deposit(0, 0, 5);
+  stored = '{"version":2}';
+  store.refresh(watershed);
+  store.save(watershed);
+  assert.equal(watershed.delivered, 5);
+  assert.equal(store.available, false);
+  assert.equal(stored, '{"version":2}');
+  stored = null;
+  store.refresh(watershed);
+  assert.equal(store.available, true);
+  assert.equal(watershed.delivered, 0);
+});

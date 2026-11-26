@@ -175,6 +175,11 @@ await run(
     await page.locator("#water").click();
     await page.locator("#scene").focus();
     await page.keyboard.press("Space");
+    const toggledAt = (await stats(page)).elapsed;
+    await page.waitForFunction(
+      (at) => window.__AFTER_RAIN__.stats().elapsed > at + 0.4,
+      toggledAt,
+    );
     await expect(page.locator("#water")).toHaveAttribute(
       "aria-pressed",
       "true",
@@ -564,7 +569,8 @@ for (const action of ["fly-in", "departure", "rain run"])
       const now = new Date();
       await page.clock.install({ time: now });
       await page.clock.pauseAt(new Date(now.getTime() + 1000));
-      const before = await stats(page);
+      const flight = await page.evaluateHandle(() => window.__AFTER_RAIN__);
+      const before = await flight.evaluate((api) => api.stats());
       await trigger.evaluate((button) => {
         button.click();
         document
@@ -574,11 +580,12 @@ for (const action of ["fly-in", "departure", "rain run"])
           .loseContext();
       });
       await expect(page.locator("#fallback-note")).toBeVisible();
-      const stopped = await stats(page);
+      const stopped = await flight.evaluate((api) => api.stats());
       expect(stopped.paused).toBe(false);
       await page.clock.runFor(500);
       await expect(page.locator("#travel-veil")).not.toHaveClass(/cover/);
-      const after = await stats(page);
+      const after = await flight.evaluate((api) => api.stats());
+      await flight.dispose();
       expect(after.elapsed).toBe(stopped.elapsed);
       if (action === "rain run") expect(after.rainRun).toBeNull();
       else expect(after.arrival?.place).toBe(before.arrival?.place);

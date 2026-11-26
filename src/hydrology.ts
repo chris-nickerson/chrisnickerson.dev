@@ -119,6 +119,9 @@ export class Watershed {
       s.moisture.some((v) => !Number.isFinite(v) || v < 0 || v > 1000000)
     )
       return false;
+    this.surface.fill(0);
+    this.seaDischarge = 0;
+    this.evaporated = 0;
     this.moisture.set(s.moisture);
     this.delivered = s.delivered;
     for (let i = 0; i < this.moisture.length; i++)

@@ -40,7 +40,7 @@ Pull requests run `npm ci`, `npm test`, and `npm run build` on the Node version 
 
 `npm test` replays flights, landings, water, and swans through the same modules the page runs. It also checks the string references between files: ids the source looks up by literal, `data-*` hooks, and the `#id` selectors and `Simulation` members the browser scripts use. Selectors by role or class are only checked in the browser.
 
-For browser-facing changes, install Playwright’s browsers once with `npx playwright install chromium webkit`. Run `npm run verify` for Chromium or `npm run verify:webkit` for WebKit. Each command builds and serves its own production preview.
+For browser-facing changes, install Playwright’s browsers once with `npx playwright install chromium webkit`. Run `npm run verify` for Chromium or `npm run verify:webkit` for WebKit. Each command builds and serves its own production preview. The Chromium command also runs the stability studio locally to exercise frame interpolation and map-boundary recovery.
 
 | You changed | Run |
 | --- | --- |

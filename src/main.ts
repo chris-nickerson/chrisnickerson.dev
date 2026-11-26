@@ -367,7 +367,7 @@ function setPilot(pilot: boolean) {
     depart();
     return;
   }
-  if (!pilot) releaseControls();
+  if (!pilot) releaseHeldControls();
   sim.setPilot(pilot);
   if (pilot) {
     sim.setPaused(false);
@@ -519,7 +519,7 @@ document
   .forEach((b) =>
     b.addEventListener("click", () => readStory(b.dataset.story as PlaceId)),
   );
-const releaseControls = bindFlightControls({
+const { releaseControls, releaseHeldControls } = bindFlightControls({
   simulation: () => sim,
   dialogOpen: () => !!dialogSession,
   setPilot,

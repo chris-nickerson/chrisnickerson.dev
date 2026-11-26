@@ -789,7 +789,15 @@ kbd {
 }
 .awaiting-flight .no-script,
 .profile-ready .no-script,
-html:not(.profile-ready) :is(.world-caption, .hero-actions, .bottom-bar, .instruments, .site-header, .skip-link) {
+html:not(.profile-ready)
+  :is(
+    .world-caption,
+    .hero-actions,
+    .bottom-bar,
+    .instruments,
+    .site-header,
+    .skip-link
+  ) {
   display: none;
 }
 html:not(.profile-ready) .introduction {

@@ -8,7 +8,7 @@
     "build": "npm run typecheck && vite build",
     "preview": "vite preview --host 0.0.0.0",
     "test": "tsx --test tests/*.test.ts",
-    "verify": "node scripts/verify-build.mjs",
+    "verify": "node scripts/verify-build.mjs && node scripts/verify-stability.mjs",
     "format": "prettier --write src tests scripts index.html vite.config.ts",
     "verify:webkit": "node scripts/verify-build.mjs webkit",
     "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.tools.json"

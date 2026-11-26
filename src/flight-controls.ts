@@ -55,7 +55,7 @@ export function bindFlightControls({
     const sim = simulation();
     if (sim) sim.heldWater = spaceDown || sprayPointer !== undefined;
   }
-  function releaseControls() {
+  function releaseHeldControls() {
     keys.clear();
     spaceDown = false;
     if (stick && joystick.hasPointerCapture(stick.pointer))
@@ -65,7 +65,7 @@ export function bindFlightControls({
     stick = undefined;
     sprayPointer = undefined;
     knob.style.transform = "";
-    simulation()?.stopWater();
+    holdWater();
     updateSteering();
   }
   window.addEventListener("keydown", (e) => {
@@ -131,6 +131,10 @@ export function bindFlightControls({
       holdWater();
     }
   });
+  function releaseControls() {
+    releaseHeldControls();
+    simulation()?.stopWater();
+  }
   window.addEventListener("blur", releaseControls);
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) releaseControls();
@@ -180,5 +184,5 @@ export function bindFlightControls({
       holdWater();
     });
   }
-  return releaseControls;
+  return { releaseControls, releaseHeldControls };
 }

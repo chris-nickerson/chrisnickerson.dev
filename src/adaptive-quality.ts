@@ -4,6 +4,7 @@ export class AdaptiveQuality {
   private frameTimes: number[] = [];
   private elapsed = 0;
   private recoveryWindows = 0;
+  private unmeasuredCeiling = Infinity;
 
   get meanFrameMs() {
     return this.frameTimes.length
@@ -13,6 +14,7 @@ export class AdaptiveQuality {
   }
 
   reset() {
+    this.unmeasuredCeiling = Infinity;
     this.frameTimes.length = 0;
     this.elapsed = 0;
     this.recoveryWindows = 0;
@@ -31,14 +33,21 @@ export class AdaptiveQuality {
     const mean = this.meanFrameMs;
     if (mean > 22 || (gpu && gpu.medianMs > 15)) {
       this.recoveryWindows = 0;
-      return Math.min(current, Math.max(0.8, current * 0.82));
+      const lower = Math.min(current, Math.max(0.8, current * 0.82));
+      if (!gpu && lower < current)
+        this.unmeasuredCeiling = Math.min(
+          this.unmeasuredCeiling,
+          (current + lower) / 2,
+        );
+      return lower;
     }
-    if (current >= base || mean >= 18 || (gpu && gpu.p95Ms >= 10)) {
+    const ceiling = gpu ? base : Math.min(base, this.unmeasuredCeiling);
+    if (current >= ceiling || mean >= 18 || (gpu && gpu.p95Ms >= 10)) {
       this.recoveryWindows = 0;
       return current;
     }
     if (++this.recoveryWindows < 3) return current;
     this.recoveryWindows = 0;
-    return Math.min(base, current * 1.1);
+    return Math.min(ceiling, current * 1.1);
   }
 }

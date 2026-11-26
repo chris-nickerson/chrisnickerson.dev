@@ -29,11 +29,24 @@ test("adaptive resolution stays within the available pixel ratios at fractional 
   const base = 0.8375;
   function sample(ms: number, current: number) {
     for (let i = 0; i < 520; i++) quality.record(ms / 1000);
-    return quality.nextRatio(current, base, () => null);
+    return quality.nextRatio(current, base, () => ({ medianMs: 5, p95Ms: 7 }));
   }
   assert.equal(sample(30, base), 0.8);
   assert.equal(sample(30, 0.8), 0.8);
   assert.equal(sample(16, 0.8), 0.8);
   assert.equal(sample(16, 0.8), 0.8);
   assert.equal(sample(16, 0.8), base);
+});
+
+test("without GPU timings recovery stays below a ratio that missed its frame budget", () => {
+  const quality = new AdaptiveQuality();
+  function sample(ms: number, ratio: number) {
+    for (let i = 0; i < 520; i++) quality.record(ms / 1000);
+    return quality.nextRatio(ratio, 1, () => null);
+  }
+  const lower = sample(30, 1);
+  let recovered = lower;
+  for (let n = 0; n < 24; n++) recovered = sample(16, recovered);
+  assert.ok(recovered > lower && recovered < 1);
+  assert.equal(sample(16, recovered), recovered);
 });
