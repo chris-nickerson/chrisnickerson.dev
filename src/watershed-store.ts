@@ -3,21 +3,22 @@ import { SAVE_KEY, type Watershed } from "./hydrology";
 export class WatershedStore {
   available = true;
   private incompatible = false;
-  private adoptedDelivery: number | undefined = 0;
+  private savedDelivery: number | undefined = 0;
   private previous: string | null = null;
 
   constructor(
     private readonly storage: () => Pick<Storage, "getItem" | "setItem">,
+    private readonly isFocused: () => boolean = () => false,
   ) {}
 
   private adopt(watershed: Watershed, stored: string | null) {
     this.previous = stored;
     this.incompatible = false;
-    this.adoptedDelivery = undefined;
+    this.savedDelivery = undefined;
     this.available = true;
     if (stored === null) {
       watershed.clear();
-      this.adoptedDelivery = 0;
+      this.savedDelivery = 0;
       return true;
     }
     let data: unknown;
@@ -40,7 +41,7 @@ export class WatershedStore {
       return false;
     }
     if (!watershed.restore(data)) return false;
-    this.adoptedDelivery = watershed.delivered;
+    this.savedDelivery = watershed.delivered;
     return true;
   }
 
@@ -63,7 +64,7 @@ export class WatershedStore {
           return this.adopt(watershed, stored);
         }
         if (this.incompatible) return false;
-        if (this.adoptedDelivery === watershed.delivered) {
+        if (this.savedDelivery === watershed.delivered && !this.isFocused()) {
           this.available = true;
           return false;
         }
@@ -72,7 +73,7 @@ export class WatershedStore {
       if (snapshot !== this.previous || reset)
         storage.setItem(SAVE_KEY, snapshot);
       this.incompatible = false;
-      this.adoptedDelivery = reset ? watershed.delivered : undefined;
+      this.savedDelivery = watershed.delivered;
       this.previous = snapshot;
       this.available = true;
     } catch {

@@ -47,16 +47,18 @@ const recovery = await p.evaluate(() => {
   const { sim, frames } = window.stability;
   sim.startRainRun(0, true);
   sim.flight.position.x = 6801;
-  frames(60, 2);
+  frames(30, 1);
   return {
     assisted: sim.flight.assisted,
     mission: sim.rainRun.active,
+    accumulator: sim.accumulator,
     gap: sim.aircraft.root.position.distanceTo(sim.flight.position),
   };
 });
 expect(recovery.assisted).toBe(true);
 expect(recovery.mission).toBe(false);
-expect(recovery.gap).toBeLessThan(2);
+expect(recovery.gap).toBe(0);
+expect(recovery.accumulator).toBe(0);
 const continuity = await p.evaluate(() => {
   const { sim } = window.stability;
   sim.setPaused(true);

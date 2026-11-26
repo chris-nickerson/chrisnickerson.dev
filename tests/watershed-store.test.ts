@@ -99,3 +99,24 @@ test("evaporation in a passive tab cannot roll back watering in the active tab",
   observer.refresh(passive);
   assert.equal(passive.delivered, 24);
 });
+
+test("a focused flight persists evaporation even without depositing more water", () => {
+  const original = new Watershed();
+  original.moisture[0] = 20;
+  let saved = JSON.stringify(original.snapshot());
+  const storage = () => ({
+    getItem: () => saved,
+    setItem: (_key: string, value: string) => {
+      saved = value;
+    },
+  });
+  const store = new WatershedStore(storage, () => true);
+  const active = new Watershed();
+  store.refresh(active);
+  active.step(5);
+  store.save(active);
+  const next = new Watershed();
+  new WatershedStore(storage).refresh(next);
+  assert.ok(next.moisture[0] < 20);
+  assert.equal(next.moisture[0], active.moisture[0]);
+});

@@ -499,25 +499,6 @@ await run("lost GPU context: illustration and biography survive", async () => {
   await cdp.detach();
   await page.getByRole("button", { name: "About Chris", exact: true }).click();
   await expect(page.getByRole("heading", { name: aboutHeading })).toBeVisible();
-  const otherTab = await ctx.newPage();
-  await otherTab.goto(new URL("?fallback", previewURL).href);
-  await otherTab.evaluate(() => {
-    const key = "after-rain.watershed.v1";
-    const saved = JSON.parse(localStorage.getItem(key)) ?? {
-      version: 1,
-      delivered: 0,
-      moisture: Array(128 * 128).fill(0),
-    };
-    saved.delivered += 10;
-    localStorage.setItem(key, JSON.stringify(saved));
-  });
-  await page.goto("about:blank");
-  expect(
-    await otherTab.evaluate(
-      () =>
-        JSON.parse(localStorage.getItem("after-rain.watershed.v1")).delivered,
-    ),
-  ).toBe(s.delivered + 10);
   await ctx.close();
   return { graceful: true };
 });

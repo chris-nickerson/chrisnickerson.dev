@@ -70,7 +70,10 @@ export class Simulation {
   growing = false;
   groundTime = 0;
   ready = false;
-  private readonly storage = new WatershedStore(() => localStorage);
+  private readonly storage = new WatershedStore(
+    () => localStorage,
+    () => document.hasFocus(),
+  );
   get storageAvailable() {
     return this.storage.available;
   }
