@@ -7,6 +7,14 @@ export const loadingScreen = (page) =>
   page.getByRole("status").filter({ hasText: /^\s*Loading\s*$/ });
 
 export async function verifyOpening(browser) {
+  const noScript = await browser.newPage({ javaScriptEnabled: false });
+  try {
+    await noScript.goto(previewURL);
+    await expect(noScript.locator(".no-script")).toBeVisible();
+    await expect(noScript.locator("#fallback-note")).toBeVisible();
+  } finally {
+    await noScript.close();
+  }
   const offlineEntry = await browser.newPage();
   try {
     await offlineEntry.route(

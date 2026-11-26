@@ -222,3 +222,13 @@ test("detail boundaries interpolate the actual terrain mesh orientation and tria
     );
   }
 });
+
+test("crossing the world boundary reports a cut and restores assisted flight", () => {
+  const flight = new Flight();
+  flight.assisted = false;
+  flight.position.x = 6801;
+  const input = { roll: 0, pitch: 0, throttle: 0 };
+  assert.equal(flight.step(1 / 60, input), "boundary-reset");
+  assert.equal(flight.assisted, true);
+  assert.equal(flight.step(1 / 60, input), undefined);
+});

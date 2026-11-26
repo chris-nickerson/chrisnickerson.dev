@@ -52,10 +52,8 @@ for (const [width, height] of [
       window.__AFTER_RAIN__?.stats().ready ||
       document.querySelector(".fallback-mode"),
   );
-  const initial = await page.evaluate(
-    () => window.__AFTER_RAIN__?.stats() || { fallback: true },
-  );
-  expect(initial.ready).toBe(true);
+  const initial = await page.evaluate(() => window.__AFTER_RAIN__?.stats());
+  expect(initial?.ready).toBe(true);
   await page.waitForTimeout(4000);
   await page.screenshot({
     path: `${captureDir}/webkit-${width}x${height}.png`,
@@ -101,16 +99,13 @@ for (const [width, height] of [
   expect(Math.abs(manual.look.yaw)).toBeGreaterThan(0.3);
   expect(Math.abs(manual.aircraftBounds.right)).toBeLessThan(0.95);
   expect(Math.abs(manual.aircraftBounds.left)).toBeLessThan(0.95);
-  const stats = await page.evaluate(
-    () => window.__AFTER_RAIN__?.stats() || null,
-  );
   results.push({
     width,
     height,
     initial,
-    stats,
+    stats: manual,
     performance,
-    arrivalPerformance: initial.ready ? await measure(page) : null,
+    arrivalPerformance: await measure(page),
     errors,
   });
   console.log(JSON.stringify(results.at(-1)));

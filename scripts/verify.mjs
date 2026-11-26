@@ -147,6 +147,23 @@ await run(
     await page.keyboard.press("Escape");
     await page.getByRole("button", { name: "Go flying", exact: true }).click();
     const before = await stats(page);
+    const scene = page.locator("#scene");
+    await scene.dispatchEvent("keydown", { key: "=", code: "Equal" });
+    await page.waitForFunction(
+      (start) => window.__AFTER_RAIN__.stats().throttle > start,
+      before.throttle,
+    );
+    await scene.dispatchEvent("keyup", {
+      key: "+",
+      code: "Equal",
+      shiftKey: true,
+    });
+    const released = await stats(page);
+    await page.waitForFunction(
+      (at) => window.__AFTER_RAIN__.stats().elapsed > at + 0.2,
+      released.elapsed,
+    );
+    expect((await stats(page)).throttle).toBe(released.throttle);
     await page.keyboard.down("d");
     await page.keyboard.down("w");
     await page.waitForTimeout(1800);
@@ -155,9 +172,22 @@ await run(
     const after = await stats(page);
     expect(after.assisted).toBe(false);
     expect(after.position[0]).not.toBe(before.position[0]);
+    await page.locator("#water").click();
+    await page.locator("#scene").focus();
+    await page.keyboard.press("Space");
+    await expect(page.locator("#water")).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await page.locator("#water").click();
+    await page.locator("#scene").focus();
     await page.keyboard.down("Space");
     await page.waitForTimeout(1200);
     await page.keyboard.up("Space");
+    await expect(page.locator("#water")).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
     await shot(page, "final-piloting");
     await page.keyboard.press("Escape");
     expect((await stats(page)).assisted).toBe(true);

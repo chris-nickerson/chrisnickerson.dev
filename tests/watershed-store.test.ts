@@ -15,20 +15,25 @@ test("a stale tab cannot save over newer progress or resurrect a reset", () => {
     b = new WatershedStore(storage);
   const old = new Watershed(),
     current = new Watershed();
-  a.load(old);
-  b.load(current);
+  a.refresh(old);
+  b.refresh(current);
   current.deposit(0, 0, 10);
   b.save(current);
   a.save(old);
   const loaded = new Watershed();
-  new WatershedStore(storage).load(loaded);
+  new WatershedStore(storage).refresh(loaded);
   assert.equal(loaded.delivered, 10);
   old.clear();
   a.save(old, true);
   current.deposit(0, 0, 3);
   b.save(current);
-  new WatershedStore(storage).load(loaded);
+  new WatershedStore(storage).refresh(loaded);
   assert.equal(loaded.delivered, 0);
+  assert.equal(current.delivered, 0);
+  current.deposit(0, 0, 4);
+  b.save(current);
+  new WatershedStore(storage).refresh(loaded);
+  assert.equal(loaded.delivered, 4);
 });
 
 test("malformed JSON does not disable saving a replacement", () => {
@@ -40,7 +45,7 @@ test("malformed JSON does not disable saving a replacement", () => {
     },
   }));
   const watershed = new Watershed();
-  store.load(watershed);
+  store.refresh(watershed);
   assert.equal(store.available, true);
   store.save(watershed);
   assert.equal(JSON.parse(saved).version, 1);

@@ -8,7 +8,7 @@ import { FlightPresentation } from "./flight-presentation";
 import { RenderMetrics } from "./render-metrics";
 import { compositeFragment } from "./composite";
 import { Flight, type FlightInput } from "./flight";
-import { Watershed, GRID } from "./hydrology";
+import { SAVE_KEY, Watershed, GRID } from "./hydrology";
 import { createWorld } from "./world";
 import { createAircraft } from "./aircraft";
 import type { AircraftId } from "./fleet";
@@ -60,6 +60,7 @@ export class Simulation {
   }
   toggleWater() {
     this.toggledWater = !this.toggledWater;
+    return this.toggledWater;
   }
   stopWater() {
     this.toggledWater = this.heldWater = false;
@@ -175,7 +176,7 @@ export class Simulation {
         new T.Mesh(new T.PlaneGeometry(2, 2), screenMaterial),
       );
       this.renderer.domElement.setAttribute("aria-hidden", "true");
-      this.storage.load(this.watershed);
+      this.storage.refresh(this.watershed);
       this.world = createWorld(this.scene, this.low, this.watershed, this.seed);
       this.flight.valley = this.world.wind;
       this.flight.enterInlet(inletRoute(this.seed).start);
@@ -256,6 +257,14 @@ export class Simulation {
             this.last = 0;
             this.frame = requestAnimationFrame(this.animate);
           }
+        },
+        options,
+      );
+      window.addEventListener(
+        "storage",
+        (event) => {
+          if (event.key === SAVE_KEY || event.key === null)
+            this.storage.refresh(this.watershed);
         },
         options,
       );
@@ -691,7 +700,9 @@ export class Simulation {
         );
         if (next !== current) {
           this.renderer.setPixelRatio(next);
-          this.world.setLowPower(next < this.basePixelRatio * 0.95);
+          this.world.setLowPower(
+            next < current || next < this.basePixelRatio * 0.95,
+          );
           this.resize();
         }
       }

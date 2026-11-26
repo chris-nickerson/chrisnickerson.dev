@@ -23,3 +23,17 @@ for (const timer of [true, false]) {
     assert.equal(window(1 / 60, low), low);
   });
 }
+
+test("adaptive resolution stays within the available pixel ratios at fractional zoom", () => {
+  const quality = new AdaptiveQuality();
+  const base = 0.8375;
+  function sample(ms: number, current: number) {
+    for (let i = 0; i < 520; i++) quality.record(ms / 1000);
+    return quality.nextRatio(current, base, () => null);
+  }
+  assert.equal(sample(30, base), 0.8);
+  assert.equal(sample(30, 0.8), 0.8);
+  assert.equal(sample(16, 0.8), 0.8);
+  assert.equal(sample(16, 0.8), 0.8);
+  assert.equal(sample(16, 0.8), base);
+});

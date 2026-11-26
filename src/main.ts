@@ -393,10 +393,9 @@ function togglePause() {
 }
 function toggleWater() {
   if (!sim || sim.arrival || sim.flight.onWater) return;
-  sim.toggleWater();
-  if (sim.manualWater && sim.paused)
-    toast("Resume the simulation to release water.");
-  else if (sim.manualWater) toast("Aim for the hillside to water it.");
+  const enabled = sim.toggleWater();
+  if (enabled && sim.paused) toast("Resume the simulation to release water.");
+  else if (enabled) toast("Aim for the hillside to water it.");
   updateUI();
 }
 $("autopilot").addEventListener("click", () => setPilot(false));
