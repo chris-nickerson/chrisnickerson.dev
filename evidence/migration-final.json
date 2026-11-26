@@ -1,0 +1,34 @@
+[
+  {
+    "width": 1280,
+    "height": 800,
+    "section": "flight",
+    "frames": 4430,
+    "fps": 59.9,
+    "p95": 16.7,
+    "p99": 16.8,
+    "worst": 166.6,
+    "over33": 1,
+    "slowFrames": [
+      {
+        "section": "flight",
+        "ms": 166.6,
+        "flightSeconds": 0.3,
+        "onWater": false
+      }
+    ],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "section": "flight",
+    "frames": 4435,
+    "fps": 60,
+    "p95": 16.7,
+    "p99": 16.8,
+    "worst": 16.8,
+    "over33": 0,
+    "errors": []
+  }
+]

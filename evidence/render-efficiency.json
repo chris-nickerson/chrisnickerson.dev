@@ -1,0 +1,371 @@
+{
+  "base": "7fc937744da0b2b819dcebda4788be92dced8a5a",
+  "branch": "072961ba4181f8cbc74fb4b8dda49e57a859f32e",
+  "host": "macOS-26.7.3-arm64-arm-64bit",
+  "startup": {
+    "method": "Chromium, 1440 x 900, reduced motion, seven fresh browser contexts per local production preview, alternating order, seed 108. Navigation start to the first animation frame observing stats().ready.",
+    "baselineMs": [
+      1105.6,
+      950.4,
+      945.9,
+      960.1,
+      978.3,
+      983.9,
+      978.2
+    ],
+    "candidateMs": [
+      932.2,
+      777.4,
+      761.7,
+      748,
+      776.7,
+      775.3,
+      767.4
+    ]
+  },
+  "terrainGrid": {
+    "shape": [
+      641,
+      641
+    ],
+    "maxAbsoluteHeightDelta": 5.002220859751105e-12,
+    "differentFloat32Vertices": 0,
+    "finalAlternatingMedianMs": {
+      "baseline": 104.25,
+      "candidate": 60.65
+    },
+    "method": "Nine timed desktop grids per revision after four warmups. Execution order alternated. Compared every float32 vertex separately.",
+    "matchedTierGeometry": {
+      "method": "SHA-256 of the Float32 position, normal and UV attributes and triangle indices, before tiling. Compared both grid sizes and the focused patch at each destination against origin/main.",
+      "matched": {
+        "300-grid": "a473ffb78a2de37b42faf2941afdfd7350801f04d9afebb910cd718a3ee20124",
+        "300-memory": "f6a5035c06e7f375a27bee7375e5ea9ca4aaed6358db51d475b7ebfbb5b1d4de",
+        "300-workshop": "01a1cc220373a416acb7bbe01b4658e10eb0e80242fbc948cd90ed9b6c5b4ed0",
+        "300-dock": "7ccdfeb323b1f052a3dfe52bbf3a3edbb08334bcbdac51cec4df0f2907e6d006",
+        "640-grid": "8860c0de0c2b3385f73d4f00fc1c74abc149d68db61a6b5c1e2a2c368139fdf2",
+        "640-memory": "fdf4bfa6e7d77b34148b8fc84001ce49fee131dfaf78349fb8a1892511f825f2",
+        "640-workshop": "370661d64051e7edb35a52148bd7118d29cef410c873c1d559b6e5da9d5441a5",
+        "640-dock": "cc39637072eeb7f8337fc778cde9b62519e71cbb035576f10e019f30b307665e"
+      }
+    }
+  },
+  "landscape": {
+    "finalAlternatingMedianMs": {
+      "baseline": 63.27,
+      "candidate": 39.54
+    },
+    "mapByteEquality": "Full RGBA arrays matched across 31 seeds.",
+    "method": "25 timed map builds per revision after six warmups. Execution order alternated. Each pair used the same sun and seed."
+  },
+  "graphics": {
+    "method": "scripts/verify-graphics.mjs, production previews, seed 937, five seconds per view, phone viewport and touch emulated. GPU timers varied across runs.",
+    "measurements": {
+      "base": [
+        {
+          "width": 1440,
+          "scene": "sky",
+          "fps": 60.0,
+          "p95FrameMs": 16.7,
+          "meanTriangles": 932676,
+          "meanDrawCalls": 252.84,
+          "pixelRatio": 1,
+          "cpuSubmit": {
+            "medianMs": 1.2,
+            "p95Ms": 1.5
+          },
+          "gpu": {
+            "medianMs": 5.175374,
+            "p95Ms": 10.009791
+          },
+          "errors": []
+        },
+        {
+          "width": 1440,
+          "scene": "dock",
+          "fps": 60.0,
+          "p95FrameMs": 16.7,
+          "meanTriangles": 2208949,
+          "meanDrawCalls": 240.97,
+          "pixelRatio": 1,
+          "cpuSubmit": {
+            "medianMs": 1.3,
+            "p95Ms": 1.6
+          },
+          "gpu": {
+            "medianMs": 8.923166,
+            "p95Ms": 11.253749
+          },
+          "errors": []
+        },
+        {
+          "width": 390,
+          "scene": "sky",
+          "fps": 60.0,
+          "p95FrameMs": 16.7,
+          "meanTriangles": 302736,
+          "meanDrawCalls": 123.39,
+          "pixelRatio": 1.35,
+          "cpuSubmit": {
+            "medianMs": 0.8,
+            "p95Ms": 1
+          },
+          "gpu": {
+            "medianMs": 3.337,
+            "p95Ms": 4.766
+          },
+          "errors": []
+        },
+        {
+          "width": 390,
+          "scene": "dock",
+          "fps": 60.0,
+          "p95FrameMs": 16.8,
+          "meanTriangles": 635009,
+          "meanDrawCalls": 165.34,
+          "pixelRatio": 1.35,
+          "cpuSubmit": {
+            "medianMs": 1,
+            "p95Ms": 1.3
+          },
+          "gpu": {
+            "medianMs": 2.152708,
+            "p95Ms": 6.367333
+          },
+          "errors": []
+        }
+      ],
+      "final": [
+        {
+          "width": 1440,
+          "scene": "sky",
+          "fps": 60.0,
+          "p95FrameMs": 16.7,
+          "meanTriangles": 928715,
+          "meanDrawCalls": 250.47,
+          "pixelRatio": 1,
+          "cpuSubmit": {
+            "medianMs": 1,
+            "p95Ms": 1.3
+          },
+          "gpu": {
+            "medianMs": 6.008249,
+            "p95Ms": 9.818499
+          },
+          "errors": []
+        },
+        {
+          "width": 1440,
+          "scene": "dock",
+          "fps": 60.0,
+          "p95FrameMs": 16.8,
+          "meanTriangles": 2219125,
+          "meanDrawCalls": 242.28,
+          "pixelRatio": 1,
+          "cpuSubmit": {
+            "medianMs": 1.1,
+            "p95Ms": 1.5
+          },
+          "gpu": {
+            "medianMs": 5.87875,
+            "p95Ms": 9.729875
+          },
+          "errors": []
+        },
+        {
+          "width": 390,
+          "scene": "sky",
+          "fps": 60.0,
+          "p95FrameMs": 16.7,
+          "meanTriangles": 302721,
+          "meanDrawCalls": 123.31,
+          "pixelRatio": 1.35,
+          "cpuSubmit": {
+            "medianMs": 0.7,
+            "p95Ms": 1
+          },
+          "gpu": {
+            "medianMs": 2.093208,
+            "p95Ms": 7.114125
+          },
+          "errors": []
+        },
+        {
+          "width": 390,
+          "scene": "dock",
+          "fps": 60.0,
+          "p95FrameMs": 16.7,
+          "meanTriangles": 597295,
+          "meanDrawCalls": 176.01,
+          "pixelRatio": 1.35,
+          "cpuSubmit": {
+            "medianMs": 0.9,
+            "p95Ms": 1.3
+          },
+          "gpu": {
+            "medianMs": 1.705624,
+            "p95Ms": 6.129958
+          },
+          "errors": []
+        }
+      ]
+    },
+    "candidateBuild": "d1788cc (before comment and arithmetic naming cleanup)"
+  },
+  "cameraSweep": {
+    "method": {
+      "frames": 10,
+      "cameraStepMetres": 0.08,
+      "regions": {
+        "island": [
+          575,
+          365,
+          770,
+          440
+        ],
+        "near-shore": [
+          565,
+          480,
+          700,
+          800
+        ],
+        "far-shore": [
+          890,
+          340,
+          1280,
+          465
+        ],
+        "land": [
+          100,
+          450,
+          500,
+          650
+        ],
+        "water": [
+          750,
+          500,
+          1000,
+          700
+        ]
+      },
+      "seed": 108,
+      "metric": "Mean absolute per-channel change between consecutive 8-bit RGB captures. Includes legitimate camera motion."
+    },
+    "variants": {
+      "control-near8": {
+        "island": {
+          "meanAbsDelta": 0.122077,
+          "fractionAbove5": 0.006617,
+          "fractionAbove15": 0.002028
+        },
+        "near-shore": {
+          "meanAbsDelta": 0.334982,
+          "fractionAbove5": 0.020159,
+          "fractionAbove15": 0.004007
+        },
+        "far-shore": {
+          "meanAbsDelta": 0.120457,
+          "fractionAbove5": 0.008424,
+          "fractionAbove15": 0.001083
+        },
+        "land": {
+          "meanAbsDelta": 0.266018,
+          "fractionAbove5": 0.011985,
+          "fractionAbove15": 0.000381
+        },
+        "water": {
+          "meanAbsDelta": 0.015327,
+          "fractionAbove5": 0.0,
+          "fractionAbove15": 0.0
+        }
+      },
+      "final-near8": {
+        "island": {
+          "meanAbsDelta": 0.120658,
+          "fractionAbove5": 0.006617,
+          "fractionAbove15": 0.001998
+        },
+        "near-shore": {
+          "meanAbsDelta": 0.328375,
+          "fractionAbove5": 0.020175,
+          "fractionAbove15": 0.003999
+        },
+        "far-shore": {
+          "meanAbsDelta": 0.120189,
+          "fractionAbove5": 0.008431,
+          "fractionAbove15": 0.00108
+        },
+        "land": {
+          "meanAbsDelta": 0.266018,
+          "fractionAbove5": 0.011985,
+          "fractionAbove15": 0.000381
+        },
+        "water": {
+          "meanAbsDelta": 0.01257,
+          "fractionAbove5": 0.0,
+          "fractionAbove15": 0.0
+        }
+      }
+    }
+  },
+  "dockTilingTrial": {
+    "method": "Same Chromium WebGL context, fixed seed 73, dock camera, geometry and material. Swapped one mesh and 4 x 4 tiles. Five runs each, 196 draws per run with the latest 180 GPU timings averaged. Order alternated. Desktop and touch-emulated portrait.",
+    "meanGpuMsByRun": {
+      "1440": {
+        "singleMesh": [
+          5.75,
+          6.22,
+          6.14,
+          6.68,
+          6.1
+        ],
+        "tiled": [
+          6.07,
+          6.16,
+          6.98,
+          7.87,
+          6.13
+        ]
+      },
+      "390": {
+        "singleMesh": [
+          3.52,
+          4.33,
+          4.56,
+          3.9,
+          3.97
+        ],
+        "tiled": [
+          3.03,
+          3.37,
+          3.36,
+          3.72,
+          3.7
+        ]
+      }
+    },
+    "selection": "Keep one mesh in the standard tier. Tile the low-tier mesh to cull offscreen terrain. The low tier applies at widths up to 700 CSS pixels or up to four reported hardware threads."
+  },
+  "flightChartStartup": {
+    "candidate": "0b257b95d92e888092a5cb32be8c772cc0bb6ec0",
+    "method": "Chromium, 1440 x 900, reduced motion, seven fresh browser contexts per local production preview, alternating order, seed 108. Navigation start to the first animation frame observing stats().ready.",
+    "chartBytes": 53110,
+    "baselineMs": [
+      1040.3,
+      979.8,
+      966.4,
+      992.8,
+      947.8,
+      952.9,
+      947.4
+    ],
+    "candidateMs": [
+      788.3,
+      759,
+      751.5,
+      795.2,
+      757.5,
+      812.7,
+      749.4
+    ]
+  }
+}

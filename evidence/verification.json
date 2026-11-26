@@ -1,0 +1,216 @@
+{
+  "date": "2026-11-23T14:07:26.765Z",
+  "platform": "darwin arm64",
+  "browser": "158.0.8127.37",
+  "baseURL": "http://127.0.0.1:5275",
+  "cases": [
+    {
+      "name": "desktop 1440×900: profile, keyboard, simulation, persistence, travel",
+      "status": "passed",
+      "readyMs": 880,
+      "performance": {
+        "frames": 241,
+        "averageFPS": 60.00099586715132,
+        "p95FrameMs": 16.799999999999272,
+        "worstFrameMs": 16.800000000000182
+      },
+      "arrivalPerformance": {
+        "frames": 151,
+        "averageFPS": 60.00158944607803,
+        "p95FrameMs": 16.700000000000728,
+        "worstFrameMs": 16.80000000000109
+      },
+      "persistence": "survived reload",
+      "consoleErrors": [],
+      "externalRequests": [],
+      "final": {
+        "ready": true,
+        "fps": 57.4,
+        "frameTime": 17.407037037037018,
+        "renderedFrames": 1021,
+        "drawCalls": 434,
+        "triangles": 1409684,
+        "pixelRatio": 0.8,
+        "rendering": {
+          "cpuSubmit": {
+            "medianMs": 1.1000000014901161,
+            "p95Ms": 1.400000000372529
+          },
+          "gpu": {
+            "medianMs": 6.482833,
+            "p95Ms": 7.911124
+          },
+          "gpuTimerAvailable": true
+        },
+        "cloudResolution": [
+          576,
+          360
+        ],
+        "trees": 82000,
+        "headwaters": 8,
+        "rainRun": null,
+        "onWater": false,
+        "waterTime": 0,
+        "throttle": 0.65,
+        "sink": -1.0975355371968554,
+        "heading": 0.034194977185013034,
+        "landingCount": 0,
+        "takingOff": false,
+        "shoreBlocked": false,
+        "manualApproach": null,
+        "look": {
+          "yaw": 0,
+          "tilt": 0,
+          "dragging": false
+        },
+        "aircraftBounds": {
+          "left": 0.09945947341687876,
+          "right": 0.6452611299898813,
+          "top": -0.07395959055949462,
+          "bottom": -0.6762676156473567,
+          "depth": 0.9004258195931855
+        },
+        "arrival": null,
+        "paused": false,
+        "map": false,
+        "assisted": true,
+        "position": [
+          -898.5130196742405,
+          1079.7543569700579,
+          3370.8491004409293
+        ],
+        "speed": 53.160604461314705,
+        "delivered": 1950,
+        "wateredCells": 33,
+        "storageAvailable": true,
+        "worldSize": 15000,
+        "gridSize": 128,
+        "elapsed": 17.21666666666697,
+        "groundTime": 17.116666666666664,
+        "growing": false
+      }
+    },
+    {
+      "name": "phone 390×844 DPR 2: touch flight and portrait composition",
+      "status": "passed",
+      "performance": {
+        "frames": 211,
+        "averageFPS": 60.00284373666998,
+        "p95FrameMs": 16.799999999999727,
+        "worstFrameMs": 16.800000000000182
+      },
+      "consoleErrors": [],
+      "final": {
+        "ready": true,
+        "fps": 56.8,
+        "frameTime": 17.59148148148148,
+        "renderedFrames": 605,
+        "drawCalls": 119,
+        "triangles": 531750,
+        "pixelRatio": 1.35,
+        "rendering": {
+          "cpuSubmit": {
+            "medianMs": 0.900000000372529,
+            "p95Ms": 1.299999998882413
+          },
+          "gpu": {
+            "medianMs": 1.748958,
+            "p95Ms": 4.583666
+          },
+          "gpuTimerAvailable": true
+        },
+        "cloudResolution": [
+          263,
+          570
+        ],
+        "trees": 22000,
+        "headwaters": 8,
+        "rainRun": null,
+        "onWater": true,
+        "waterTime": 0,
+        "throttle": 0.65,
+        "sink": 0.10444889185736385,
+        "heading": 0,
+        "landingCount": 0,
+        "takingOff": false,
+        "shoreBlocked": false,
+        "manualApproach": null,
+        "look": {
+          "yaw": 0,
+          "tilt": 0,
+          "dragging": false
+        },
+        "aircraftBounds": {
+          "left": -0.7778369812013163,
+          "right": -0.2094521099984095,
+          "top": -0.1298632164402159,
+          "bottom": -0.2546867880224406,
+          "depth": 0.9534307612871826
+        },
+        "arrival": {
+          "place": "dock",
+          "stage": "water"
+        },
+        "paused": false,
+        "map": false,
+        "assisted": true,
+        "position": [
+          -1120,
+          6.542103050752932,
+          -1332.2839985651558
+        ],
+        "speed": 3.1763498894453197,
+        "delivered": 0,
+        "wateredCells": 0,
+        "storageAvailable": true,
+        "worldSize": 15000,
+        "gridSize": 128,
+        "elapsed": 10.466666666666766,
+        "groundTime": 10.400000000000004,
+        "growing": false
+      }
+    },
+    {
+      "name": "layout 1920×1080",
+      "status": "passed",
+      "consoleErrors": []
+    },
+    {
+      "name": "layout 320×568",
+      "status": "passed",
+      "consoleErrors": []
+    },
+    {
+      "name": "layout 844×390",
+      "status": "passed",
+      "consoleErrors": []
+    },
+    {
+      "name": "reduced motion: still first frame and keyboard access",
+      "status": "passed",
+      "elapsed": 0,
+      "paused": true
+    },
+    {
+      "name": "storage denied: world remains usable",
+      "status": "passed",
+      "graceful": true
+    },
+    {
+      "name": "lost GPU context: illustration and biography survive",
+      "status": "passed",
+      "graceful": true
+    },
+    {
+      "name": "WebGL unavailable: original fallback and direct profile",
+      "status": "passed",
+      "graceful": true
+    }
+  ],
+  "failures": [],
+  "limitations": [
+    "Phone viewports are emulated on the development Mac, not physical phone GPUs.",
+    "Physical audio output, native Safari, and physical mobile devices have not been verified. Separate WebKit engine results are recorded.",
+    "Rendering FPS and recorded-video FPS are different; the recording is an evidence artifact."
+  ]
+}

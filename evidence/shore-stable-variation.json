@@ -1,0 +1,148 @@
+{
+  "method": {
+    "frames": 10,
+    "cameraStepMetres": 0.08,
+    "regions": {
+      "island": [
+        575,
+        365,
+        770,
+        440
+      ],
+      "near-shore": [
+        565,
+        480,
+        700,
+        800
+      ],
+      "far-shore": [
+        890,
+        340,
+        1280,
+        465
+      ],
+      "land": [
+        100,
+        450,
+        500,
+        650
+      ],
+      "water": [
+        750,
+        500,
+        1000,
+        700
+      ]
+    }
+  },
+  "variants": {
+    "near1": {
+      "island": {
+        "meanAbsDelta": 0.16444697689142135,
+        "fractionAbove5": 0.00862298195631529,
+        "fractionAbove15": 0.0006305792972459639
+      },
+      "near-shore": {
+        "meanAbsDelta": 0.4813383058984911,
+        "fractionAbove5": 0.02364969135802469,
+        "fractionAbove15": 0.008685699588477366
+      },
+      "far-shore": {
+        "meanAbsDelta": 0.1966670465337132,
+        "fractionAbove5": 0.011952136752136753,
+        "fractionAbove15": 0.0016273504273504272
+      },
+      "land": {
+        "meanAbsDelta": 0.293212037037037,
+        "fractionAbove5": 0.01230138888888889,
+        "fractionAbove15": 0.00038333333333333334
+      },
+      "water": {
+        "meanAbsDelta": 0.018242222222222222,
+        "fractionAbove5": 0.0,
+        "fractionAbove15": 0.0
+      }
+    },
+    "near8": {
+      "island": {
+        "meanAbsDelta": 0.13467806267806268,
+        "fractionAbove5": 0.006655270655270655,
+        "fractionAbove15": 0.0005394112060778727
+      },
+      "near-shore": {
+        "meanAbsDelta": 0.3294615912208505,
+        "fractionAbove5": 0.015118312757201647,
+        "fractionAbove15": 0.0021296296296296298
+      },
+      "far-shore": {
+        "meanAbsDelta": 0.16383285849952517,
+        "fractionAbove5": 0.008847863247863248,
+        "fractionAbove15": 0.0014108262108262109
+      },
+      "land": {
+        "meanAbsDelta": 0.29195,
+        "fractionAbove5": 0.012204166666666667,
+        "fractionAbove15": 0.00038333333333333334
+      },
+      "water": {
+        "meanAbsDelta": 0.01327851851851852,
+        "fractionAbove5": 0.0,
+        "fractionAbove15": 0.0
+      }
+    },
+    "final-near8": {
+      "island": {
+        "meanAbsDelta": 0.11164292497625831,
+        "fractionAbove5": 0.006472934472934473,
+        "fractionAbove15": 0.0005394112060778727
+      },
+      "near-shore": {
+        "meanAbsDelta": 0.2777366255144033,
+        "fractionAbove5": 0.014912551440329219,
+        "fractionAbove15": 0.0020704732510288064
+      },
+      "far-shore": {
+        "meanAbsDelta": 0.13012193732193733,
+        "fractionAbove5": 0.008756695156695157,
+        "fractionAbove15": 0.0014085470085470086
+      },
+      "land": {
+        "meanAbsDelta": 0.26606712962962964,
+        "fractionAbove5": 0.0121125,
+        "fractionAbove15": 0.00037222222222222225
+      },
+      "water": {
+        "meanAbsDelta": 0.01327851851851852,
+        "fractionAbove5": 0.0,
+        "fractionAbove15": 0.0
+      }
+    },
+    "stable-near8": {
+      "island": {
+        "meanAbsDelta": 0.11163786008230453,
+        "fractionAbove5": 0.006472934472934473,
+        "fractionAbove15": 0.0005394112060778727
+      },
+      "near-shore": {
+        "meanAbsDelta": 0.27775377229080933,
+        "fractionAbove5": 0.014925411522633745,
+        "fractionAbove15": 0.002067901234567901
+      },
+      "far-shore": {
+        "meanAbsDelta": 0.1300831908831909,
+        "fractionAbove5": 0.008756695156695157,
+        "fractionAbove15": 0.0014062678062678063
+      },
+      "land": {
+        "meanAbsDelta": 0.26606712962962964,
+        "fractionAbove5": 0.012109722222222221,
+        "fractionAbove15": 0.00037222222222222225
+      },
+      "water": {
+        "meanAbsDelta": 0.01327851851851852,
+        "fractionAbove5": 0.0,
+        "fractionAbove15": 0.0
+      }
+    }
+  }
+}

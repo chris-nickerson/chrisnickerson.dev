@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#203d3f" />
+    <meta
+      name="description"
+      content="I’m Chris Nickerson, a staff software engineer at WRITER. I work on the harness and memory for WRITER Agent. Before WRITER, I built GhostHost."
+    />
+    <title>Chris Nickerson</title>
+    <script>
+      document.documentElement.classList.add("awaiting-flight");
+      setTimeout(
+        () => document.documentElement.classList.remove("awaiting-flight"),
+        8000,
+      );
+    </script>
+    <link rel="icon" sizes="16x16 32x32 48x48" href="./favicon.ico" />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      sizes="any"
+      href="./favicon.svg?v=2"
+    />
+  </head>
+  <body>
+    <div class="loading-screen" role="status">
+      <template>
+        <picture aria-hidden="true">
+          <source media="(orientation: portrait)" srcset="./images/moonwater-portrait.webp" />
+          <img src="./images/moonwater.webp" fetchpriority="high" alt="" />
+        </picture>
+      </template>
+      <script>
+        if (document.documentElement.classList.contains("awaiting-flight")) {
+          const artwork = document.currentScript.previousElementSibling;
+          artwork.replaceWith(artwork.content);
+        }
+      </script>
+      <canvas aria-hidden="true"></canvas>
+      <span>Loading</span>
+    </div>
+    <a class="skip-link" href="#about-heading" id="skip">About Chris</a>
+    <main
+      id="experience"
+      aria-label="Chris’s personal world, an interactive alpine inlet"
+    >
+      <div
+        id="scene"
+        tabindex="0"
+        role="region"
+        aria-label="A biplane over a procedural alpine inlet"
+      ></div>
+      <div id="fallback" aria-hidden="true">
+        <svg
+          class="flight-chart"
+          viewBox="0 0 1280 800"
+          preserveAspectRatio="xMidYMid slice"
+          focusable="false"
+        >
+          <image href="./images/inlet-chart.webp" width="1280" height="800" />
+          <g class="chart-places">
+            <circle data-chart-place="memory" cx="774" cy="625" r="4" />
+            <text x="786" y="629">Field station</text>
+            <circle data-chart-place="workshop" cx="904" cy="240" r="4" />
+            <text x="916" y="244">Workshop</text>
+            <circle data-chart-place="dock" cx="681" cy="223" r="4" />
+            <text x="666" y="227" text-anchor="end">Quiet dock</text>
+          </g>
+          <path
+            id="chart-course"
+            d="M774 625 C823 608 873 574 856 524 S765 462 775 390 S846 292 799 251 S724 245 681 223"
+          />
+          <g class="chart-aircraft">
+            <circle r="17" class="chart-fix" />
+            <path
+              d="m12 0-3-2-6-.5-5-10-2 .3 2 10-6 .8-3-3-1 .4 1 4-1 4 1 .4 3-3 6 .8-2 10 2 .3 5-10 6-.5z"
+            />
+          </g>
+        </svg>
+      </div>
+      <div class="scrim" aria-hidden="true"></div>
+      <header class="site-header">
+        <button class="identity" data-open="about" aria-label="About Chris">
+          <img
+            class="mark"
+            src="./favicon.svg?v=2"
+            width="35"
+            height="35"
+            alt=""
+          />
+          <span
+            ><strong id="header-name">Chris</strong
+            ><span>Staff engineer at WRITER</span></span
+          >
+        </button>
+        <nav aria-label="Main">
+          <button data-open="places">Meet Chris</button>
+          <button
+            id="open-hangar"
+            data-flight-control
+            data-open="hangar"
+            disabled
+          >
+            Hangar
+          </button>
+          <button data-open="contact">My links</button>
+        </nav>
+      </header>
+      <div class="world-caption">
+        <span class="live-mark" aria-hidden="true"></span
+        ><span id="world-status">Loading the inlet…</span
+        ><button id="autopilot" hidden>Let it fly</button>
+      </div>
+      <section class="introduction" aria-labelledby="title">
+        <p class="small-intro">Hi, I’m</p>
+        <h1 id="title"><b id="hero-name">Chris</b><span>.</span></h1>
+        <p class="intro-copy">
+          I’m a software engineer in California. I build AI agents that help
+          people get work done. I also like airplanes. Want to fly one?
+        </p>
+        <div class="hero-actions">
+          <button class="primary" data-open="places">Get to know me</button>
+          <button
+            id="fly"
+            class="flight-invitation"
+            data-flight-control
+            disabled
+          >
+            <span>Go flying</span>
+          </button>
+        </div>
+      </section>
+      <section
+        id="watershed-panel"
+        class="watershed-panel"
+        aria-labelledby="watershed-title"
+        hidden
+      >
+        <h2 id="watershed-title">The watershed</h2>
+        <p>
+          Water the hillside and you can watch the runoff make its way down to
+          the inlet.
+        </p>
+        <div class="map-metrics">
+          <div>
+            <strong id="watered">0</strong><span>patches taking root</span>
+          </div>
+          <div>
+            <strong id="released">0</strong><span>litres released</span>
+          </div>
+        </div>
+        <button id="grow" class="growth-button" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <use href="./icons.svg#growth"></use></svg
+          ><span id="growth-label">Watch it grow</span><small>12× time</small>
+        </button>
+        <p class="map-legend">
+          <span></span> Moisture in the soil <i></i> Your flight path
+        </p>
+        <p id="persistence-note">Soil moisture is saved on this device.</p>
+        <button id="reset-world" class="text-button">
+          Reset the watershed
+        </button>
+      </section>
+      <section
+        id="rain-panel"
+        class="rain-panel"
+        hidden
+        aria-label="Rain run progress"
+      >
+        <div class="rain-topline">
+          <span id="rain-count">Grove 1 of 3</span
+          ><button id="end-run">End run</button>
+        </div>
+        <h2 id="rain-name">The south meadow</h2>
+        <p id="rain-instruction">Follow the small cross on the ground.</p>
+        <div
+          class="rain-progress"
+          role="progressbar"
+          aria-label="Grove watered"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+        >
+          <i id="rain-progress-fill"></i>
+        </div>
+        <div class="rain-bottom">
+          <span id="rain-percent">0% watered</span
+          ><button id="rain-next" hidden>Next grove</button
+          ><button id="rain-retry" hidden>Try this pass again</button>
+        </div>
+      </section>
+      <div id="water-aim" hidden aria-hidden="true">
+        <i></i><i></i><i></i><i></i>
+      </div>
+      <div id="grove-label" hidden aria-hidden="true">
+        <span id="grove-label-name"></span><small id="grove-distance"></small>
+      </div>
+      <section
+        id="landing-panel"
+        class="landing-panel"
+        hidden
+        aria-label="Water landing"
+      >
+        <p id="landing-kicker">Your approach</p>
+        <h2 id="landing-title">Set it down gently.</h2>
+        <p id="landing-guidance">
+          Lower the power, level the wings, and ease the nose up just above the
+          water.
+        </p>
+        <div>
+          <button id="takeoff" class="primary" hidden>Take off</button
+          ><button id="landing-story" hidden>Read the story</button>
+        </div>
+      </section>
+      <div id="pilot-power" class="pilot-power" hidden>
+        <label for="throttle"
+          >Power <output id="power-value">65%</output></label
+        >
+        <input
+          id="throttle"
+          type="range"
+          min="0"
+          max="100"
+          value="65"
+          step="1"
+          aria-label="Engine power"
+        />
+      </div>
+      <button
+        id="reset-view"
+        class="reset-view"
+        hidden
+        aria-label="Reset camera view"
+      >
+        Reset view <span>R</span>
+      </button>
+      <aside class="instruments" aria-label="Flight instruments">
+        <div>
+          <span>Altitude</span>
+          <p><strong id="altitude">380</strong><small>m</small></p>
+        </div>
+        <span class="instrument-rule"></span>
+        <div>
+          <span>Airspeed</span>
+          <p><strong id="airspeed">103</strong><small>kn</small></p>
+        </div>
+        <div class="compass" aria-hidden="true">
+          <span>N</span
+          ><svg viewBox="0 0 50 50">
+            <circle cx="25" cy="25" r="21.5" />
+            <path
+              class="dial-ticks"
+              d="M25 4v4m21 17h-4M25 46v-4M4 25h4m2.3-14.7 2 2m27.4-2-2 2m2 27.4-2-2m-27.4 2 2-2"
+            />
+            <g id="compass-needle">
+              <path fill="#efba88" d="m25 9 5 16-5-2-5 2z" />
+              <path fill="#eff0df" d="m25 41-5-16 5 2 5-2z" />
+            </g>
+          </svg>
+        </div>
+      </aside>
+      <div id="pilot-help" class="pilot-help" hidden>
+        <span><kbd>W</kbd><kbd>S</kbd> climb / descend</span
+        ><span><kbd>A</kbd><kbd>D</kbd> bank</span
+        ><span><kbd>Space</kbd> water</span><span><kbd>R</kbd> reset view</span
+        ><span><kbd>Esc</kbd> let it fly</span>
+      </div>
+      <div id="touch-controls" class="touch-controls" hidden>
+        <div id="joystick" role="group" aria-label="Touch flight stick">
+          <span></span><i></i>
+        </div>
+        <button id="touch-water" aria-label="Hold to release water">
+          Spray
+        </button>
+      </div>
+      <div class="bottom-bar">
+        <div class="world-tools">
+          <button id="view" data-flight-control disabled aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <use href="./icons.svg#map"></use></svg
+            ><span>Watershed</span></button
+          ><span class="divider"></span
+          ><button id="water" data-flight-control disabled aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <use href="./icons.svg#drop"></use></svg
+            ><span>Release water</span>
+          </button>
+        </div>
+        <div class="quiet-controls">
+          <button
+            id="sound"
+            data-flight-control
+            disabled
+            aria-pressed="false"
+            aria-label="Enable sound"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <use href="./icons.svg#speaker"></use>
+              <use class="icon-off" href="./icons.svg#mute"></use>
+              <use class="icon-on" href="./icons.svg#waves"></use></svg
+            ><span>Sound off</span></button
+          ><button
+            id="pause"
+            data-flight-control
+            disabled
+            aria-pressed="false"
+            aria-label="Pause simulation"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <use class="icon-off" href="./icons.svg#pause"></use>
+              <use class="icon-on" href="./icons.svg#play"></use></svg
+            ><span>Pause</span></button
+          ><button
+            id="fullscreen"
+            aria-pressed="false"
+            aria-label="Enter full screen"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <use class="icon-off" href="./icons.svg#expand"></use>
+              <use class="icon-on" href="./icons.svg#collapse"></use>
+            </svg></button
+          ><button
+            id="help"
+            data-open="notes"
+            aria-label="How this world works"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <use href="./icons.svg#help"></use>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div id="travel-veil" aria-hidden="true"></div>
+      <section
+        id="place-panel"
+        class="place-panel"
+        hidden
+        aria-labelledby="place-title"
+      >
+        <p id="place-subtitle"></p>
+        <h2 id="place-title"></h2>
+        <p id="place-copy"></p>
+        <div>
+          <button id="place-read" class="primary">Read the story</button
+          ><button id="leave-place">Back to the sky</button>
+        </div>
+      </section>
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+      <p id="fallback-note" hidden>
+        Flying requires WebGL 2. You can still read all three stories.
+      </p>
+    </main>
+    <dialog id="hangar" class="sheet hangar-sheet" aria-labelledby="hangar-heading">
+      <div class="sheet-tools">
+        <button class="close" aria-label="Close hangar">Close
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./icons.svg#close"></use></svg>
+        </button>
+      </div>
+      <div class="sheet-inner">
+        <h2 id="hangar-heading">The hangar</h2>
+        <p class="hangar-intro">Choose a floatplane for the inlet.</p>
+        <div id="hangar-options" aria-label="Aircraft choices" role="group"></div>
+      </div>
+    </dialog>
+    <dialog
+      id="rain-brief"
+      class="sheet rain-sheet"
+      aria-labelledby="rain-heading"
+    >
+      <div class="sheet-tools">
+        <button class="close" aria-label="Close rain run">
+          Close
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <use href="./icons.svg#close"></use>
+          </svg>
+        </button>
+      </div>
+      <div class="sheet-inner">
+        <h2 id="rain-heading">The rain run</h2>
+        <p class="bio">See if you can water all three groves from the plane.</p>
+        <svg class="rain-diagram" viewBox="0 0 440 170" aria-hidden="true">
+          <path class="diagram-route" d="M10 48c95-30 170-22 270 5" />
+          <path
+            d="m281 53-18-5 1-8 22 5 11-16 5 1-5 18 23 5-1 5-26-1-9 11-5-1 3-13z"
+          />
+          <path
+            class="diagram-drops"
+            d="m260 68-8 15m-6-3-8 16m-6-1-7 15m-5 3-6 14m-14-3-5 13"
+          />
+          <path
+            d="M15 153c93-10 130 14 180-11s113-15 228-7m-214 9v-19m-6 7 6 6 7-9m19 10v-28m-8 7 8 10 9-15"
+          />
+          <ellipse cx="223" cy="142" rx="52" ry="13" />
+        </svg>
+        <ol class="rain-steps">
+          <li>
+            <span>Line up</span> Bank with A / D or the touch stick. W / S
+            changes height.
+          </li>
+          <li>
+            <span>Watch the cross</span> It predicts where your water will land.
+            Keep it inside the outlined grove.
+          </li>
+          <li>
+            <span>Release water</span> Hold Space or Spray. Drops count when
+            they hit the grove.
+          </li>
+        </ol>
+        <p class="contact-note">You can retry a pass as often as you like.</p>
+        <button id="start-run" class="dark-button">Start the rain run</button>
+      </div>
+    </dialog>
+    <dialog
+      id="places"
+      class="sheet places-sheet"
+      aria-labelledby="places-heading"
+    >
+      <div class="sheet-tools">
+        <button class="close" aria-label="Close Meet Chris">
+          Close
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <use href="./icons.svg#close"></use>
+          </svg>
+        </button>
+      </div>
+      <div class="sheet-inner">
+        <h2 id="places-heading">Around the inlet</h2>
+        <p class="bio">
+          Pick a spot to land. The flight takes about six seconds.
+        </p>
+        <div class="place-list">
+          <article>
+            <svg viewBox="0 0 80 72" aria-hidden="true" focusable="false">
+              <use href="./icons.svg#field-station"></use>
+            </svg>
+            <div>
+              <h3>A little about me</h3>
+              <p>The field station · Where I’m from and how I think</p>
+              <div class="place-actions">
+                <button data-visit="memory" disabled>
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <use href="./icons.svg#flight"></use></svg
+                  >Fly in
+                </button>
+                <button data-story="memory">Read now</button>
+              </div>
+            </div>
+          </article>
+          <article>
+            <svg viewBox="0 0 80 72" aria-hidden="true" focusable="false">
+              <use href="./icons.svg#workshop"></use>
+            </svg>
+            <div>
+              <h3>Things I’ve built</h3>
+              <p>The workshop · WRITER Agent, iOS apps, and side projects</p>
+              <div class="place-actions">
+                <button data-visit="workshop" disabled>
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <use href="./icons.svg#flight"></use></svg
+                  >Fly in
+                </button>
+                <button data-story="workshop">Read now</button>
+              </div>
+            </div>
+          </article>
+          <article>
+            <svg viewBox="0 0 80 72" aria-hidden="true" focusable="false">
+              <use href="./icons.svg#dock"></use>
+            </svg>
+            <div>
+              <h3>Away from the keyboard</h3>
+              <p>The quiet dock · Airplanes and travel</p>
+              <div class="place-actions">
+                <button data-visit="dock" disabled>
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <use href="./icons.svg#flight"></use></svg
+                  >Fly in
+                </button>
+                <button data-story="dock">Read now</button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </dialog>
+    <template id="trip-photos">
+      <section class="trip-photos" aria-label="Travel photos">
+        <h3>Trip photos coming soon</h3>
+        <div class="trip-prints">
+          <figure>
+            <div class="trip-frame" aria-hidden="true"></div>
+            <figcaption>Tanzania</figcaption>
+          </figure>
+          <figure>
+            <div class="trip-frame" aria-hidden="true"></div>
+            <figcaption>Japan</figcaption>
+          </figure>
+          <figure>
+            <div class="trip-frame" aria-hidden="true"></div>
+            <figcaption>Alaska</figcaption>
+          </figure>
+        </div>
+      </section>
+    </template>
+    <template id="workshop-stories">
+      <div class="project-stories">
+        <section>
+          <h3>Rewriting the WRITER Agent harness</h3>
+          <p>
+            I led the rewrite of the harness behind WRITER Agent. It’s the
+            part of the product that lets the agent carry a task through
+            several steps, like finding information in a set of documents and
+            using it to put together a presentation. As more people on our
+            team began building tools for the agent, I wanted them to be able
+            to add something new with confidence that the workflows customers
+            already depended on would keep working.
+          </p>
+        </section>
+        <section>
+          <h3>Giving people a say in what the agent remembers</h3>
+          <p>
+            I led our work on agent memory. If you’ve shown the agent how
+            your team writes a weekly report, it’s handy to have it remember
+            that next Friday. And when your team changes how it works, you
+            can ask the agent to remember the new instructions or forget the
+            old ones.
+          </p>
+        </section>
+        <section>
+          <h3>Building presentations in WRITER Agent</h3>
+          <p>
+            I built the feature that lets you create a PowerPoint
+            presentation with the agent. You can start from scratch or give
+            it a template your team already uses. I cared about that second
+            case because teams put real thought into how they present their
+            work, down to how they lay out a chart or a comparison.
+          </p>
+        </section>
+        <section>
+          <h3>Alibi Shift</h3>
+          <p>
+            Alibi Shift is a deduction game I built for iOS. A theft took
+            place, and you have three snapshots of the evening, ten minutes
+            apart. You know which room the theft happened in. To find out who
+            was there, you piece together where everyone was from sightings
+            and clues about who moved between rooms. The puzzles run offline.
+          </p>
+          <p>
+            I recently reworked the first lesson. At nine o’clock, Ada is in
+            the study and Beck is in the gallery. There are three people,
+            three rooms, and one person in each room. Where does that leave
+            Cleo? Tap a room and you’ve made your first move on the actual
+            board. That was a much better way to explain the game than asking
+            someone to read the rules up front.
+          </p>
+        </section>
+        <section>
+          <h3>Anchors</h3>
+          <p>
+            Anchors is an iOS app for saving places. The part of a
+            recommendation I want to keep is usually what my friend said
+            about the place. In Anchors, if you save a spot from a friend’s
+            list, their advice comes with it. You can add a private note of
+            your own and have it come up when you get there.
+          </p>
+          <p>
+            I spent a surprising amount of time on one question the app asks
+            after a visit. “Would you go back?” makes sense after you’ve
+            stayed a while and left. It’s a strange thing for your phone to
+            ask while you’re still there. The app works out visits on the
+            device, and if you come back before it asks, it withdraws the
+            question. What you write down afterward is there the next time
+            you visit.
+          </p>
+        </section>
+        <section>
+          <h3>Software Factory</h3>
+          <p>
+            I want to be able to hand a coding agent a hard bug and go work
+            on something else. When I come back, I want to see how it
+            reproduced the failure, why it chose that fix, and what happened
+            when it tried the same thing again. Software Factory is where
+            I’m teaching agents to do the engineering I’d want from a teammate.
+          </p>
+          <p>
+            Take the eclipse that opens this site. My first test checked that
+            the “Go flying” button was enabled during the fade. Factory gave
+            the change to a model that hadn’t written it. The reviewer caught
+            something the test had missed. A button can be enabled while the
+            fading artwork still covers it. The test now pauses the fade, clicks
+            the button, and checks that you’re piloting the plane.
+          </p>
+          <p>
+            Once I trust one agent to carry a change that far, I can give
+            several agents different problems at the same time. One can be
+            tracing a slowdown while another compares two designs against the
+            same workload. I can pick up either branch, see what the agent
+            learned, and decide whether it’s ready to ship without doing the
+            work a second time.
+          </p>
+          <p>
+            <a href="https://github.com/chris-nickerson/factory">Software Factory on GitHub</a>
+          </p>
+        </section>
+        <section>
+          <h3>GhostHost</h3>
+          <p>
+            Before WRITER, I built a chatbot that small businesses could put
+            on their websites. Each business supplied its own material. For a
+            restaurant, that might include a menu, opening hours, and details
+            about the space. GhostHost looked up the relevant passages in
+            Pinecone when a guest asked a question.
+          </p>
+          <p>
+            I liked working on what came after the answer. If you asked where
+            the pub was, GhostHost could put a directions button underneath
+            the address. If you wanted a table, an OpenTable integration let
+            you make a reservation from the chat.
+          </p>
+          <figure>
+            <img
+              src="/images/ghost-host-directions.webp"
+              width="1300"
+              height="548"
+              alt="A guest asks where the pub is. GhostHost replies with its address and a Get Directions button."
+            />
+            <figcaption>
+              GhostHost is offline now. This screenshot is from the original service.
+              <a href="https://ghosthost.ai/learn-more"
+                >More GhostHost screenshots</a
+              >.
+            </figcaption>
+          </figure>
+        </section>
+      </div>
+    </template>
+    <dialog id="story" class="sheet" aria-labelledby="story-heading">
+      <div class="sheet-tools">
+        <button class="close" aria-label="Close story">
+          Close
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <use href="./icons.svg#close"></use>
+          </svg>
+        </button>
+      </div>
+      <div class="sheet-inner">
+        <p class="sheet-kicker" id="story-kicker"></p>
+        <h2 id="story-heading"></h2>
+        <div id="story-body"></div>
+        <button id="story-visit" class="dark-button">Visit this place</button>
+      </div>
+    </dialog>
+    <dialog id="about" class="sheet" aria-labelledby="about-heading">
+      <div class="sheet-tools">
+        <button class="close" aria-label="Close about">
+          Close
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <use href="./icons.svg#close"></use>
+          </svg>
+        </button>
+      </div>
+      <div class="sheet-inner">
+
+        <h2 id="about-heading" tabindex="-1">
+          Hi, I’m <span id="about-name">Chris</span>.
+        </h2>
+        <p class="bio" id="bio">I’m a staff software engineer at WRITER.</p>
+        <div id="about-personal" class="personal-copy"></div>
+        <div id="selected-custom" class="personal-copy" hidden></div>
+        <div class="sheet-footer">
+          <button class="dark-button" data-open="contact">
+            Find me elsewhere
+          </button>
+          <button class="text-button" data-story="workshop">See my work</button>
+        </div>
+      </div>
+    </dialog>
+    <dialog
+      id="contact"
+      class="sheet contact-sheet"
+      aria-labelledby="contact-heading"
+    >
+      <div class="sheet-tools">
+        <button class="close" aria-label="Close contact">
+          Close
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <use href="./icons.svg#close"></use>
+          </svg>
+        </button>
+      </div>
+      <div class="sheet-inner">
+
+        <h2 id="contact-heading">My links</h2>
+        <div class="contact-links" id="contact-links"></div>
+        <p class="contact-note" id="contact-note">No public links yet.</p>
+      </div>
+    </dialog>
+    <dialog
+      id="notes"
+      class="sheet notes-sheet"
+      aria-labelledby="notes-heading"
+    >
+      <div class="sheet-tools">
+        <button class="close" aria-label="Close field notes">
+          Close
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <use href="./icons.svg#close"></use>
+          </svg>
+        </button>
+      </div>
+      <div class="sheet-inner">
+        <h2 id="notes-heading">How the inlet works</h2>
+        <p class="bio">
+          The browser generates the terrain and simulates the flight. You can
+          grab the controls or leave the plane on autopilot.
+        </p>
+        <dl>
+          <dt>In the air</dt>
+          <dd>Bank to turn. Wind changes as you fly through the valley.</dd>
+          <dt>On the water</dt>
+          <dd>
+            Descend over the inlet and gently lift the nose before contact. The
+            floats settle into the water. Power drops to idle on touchdown.
+            Steer with A/D or the touch stick, add power to taxi, or choose Take
+            off.
+          </dd>
+          <dt>On the ground</dt>
+          <dd>
+            The hillside is a 128 × 128 grid. Each patch of soil absorbs some
+            water and passes the runoff downhill. Wet patches gradually turn
+            green.
+          </dd>
+          <dt>Over time</dt>
+          <dd>Your browser saves the soil moisture between visits.</dd>
+        </dl>
+        <div class="key-guide">
+          <p>
+            <kbd>W</kbd><kbd>S</kbd> climb / descend <kbd>A</kbd
+            ><kbd>D</kbd> turn
+          </p>
+          <p>
+            <kbd>Space</kbd> release water <kbd>M</kbd> watershed
+            <kbd>P</kbd> pause
+          </p>
+          <p>
+            Drag the view to orbit the plane. <kbd>R</kbd> resets the view.
+            <kbd>Esc</kbd> returns to automatic flight. On the water it idles
+            power.
+          </p>
+        </div>
+        <button
+          class="rain-invitation notes-expedition"
+          id="rain-invitation"
+          data-flight-control
+          data-open="rain-brief"
+          disabled
+        >
+          Try a rain run
+        </button>
+        <div class="quality-label">
+          <label for="quality">Rendering</label
+          ><select id="quality" data-flight-control disabled>
+            <option value="auto">Adaptive</option>
+            <option value="high">High detail</option>
+            <option value="low">Low power</option>
+          </select>
+        </div>
+        <p class="performance" id="performance">Measuring frame rate…</p>
+      </div>
+    </dialog>
+    <noscript
+      ><style>
+        .world-caption,
+        .hero-actions,
+        .bottom-bar,
+        .instruments,
+        nav,
+        .identity {
+          display: none;
+        }
+        .introduction {
+          bottom: 20%;
+        }
+        #fallback-note {
+          display: block !important;
+        }
+      </style>
+      <div class="no-script">
+        I’m Chris Nickerson. I built GhostHost and now work on agent tools and
+        memory at WRITER. You can see the
+        <a href="https://ghosthost.ai/learn-more"
+          >original GhostHost screenshots</a
+        >
+        or find me on <a href="https://github.com/chris-nickerson">GitHub</a>.
+      </div></noscript
+    >
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

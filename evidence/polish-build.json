@@ -1,0 +1,23 @@
+{
+  "buildFiles": {
+    "dist/THIRD_PARTY_NOTICES.txt": "25ad5b99d301f0b953a1edd8658685e7d3d223e01828fefd9cae6441ac2746d6",
+    "dist/assets/index-Cz8pDj1k.js": "13cff37b91bcbe7c0258053bbce6ab63f45f4df4a230ce786e198568434b859f",
+    "dist/assets/index-q7MhPD4A.css": "bc43c6a3bf61bac20f1e7f48c9f8c05f7a813dc04bee07855ba5645126eb9cf8",
+    "dist/assets/simulation-DUbRGtfn.js": "e794717991f40ce3179d7a81f7d518a219aeda69ec658fb295e839ac8aa072ff",
+    "dist/assets/three-Dl2yhj3w.js": "2eaf763ebbc648c0fbb85c6aaa049e19658f63f1d0a5d38e39f35f308707a0ce",
+    "dist/favicon.svg": "3e716caa1bc425c1de4816358c93b7d22ce1c5114e36efa01c4bb711ba448b33",
+    "dist/index.html": "d6a0bcd7578a63a4d5f89722101fdb413a478e89a8b11840e02f0f0f1bfcbca9"
+  },
+  "systemsTestsPassed": 11,
+  "browserReports": [
+    "verification.json",
+    "rainrun-verification.json",
+    "webkit-verification.json",
+    "final-touchup.json"
+  ],
+  "hardware": "Apple M4 Pro Mac; phone viewports emulated",
+  "limits": [
+    "Physical phone GPUs and physical sound output not verified",
+    "Short shader/geometry compilation hitches can occur on first visit"
+  ]
+}

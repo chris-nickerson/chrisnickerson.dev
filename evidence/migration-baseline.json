@@ -1,0 +1,74 @@
+[
+  {
+    "width": 1280,
+    "height": 800,
+    "section": "opening",
+    "frames": 593,
+    "fps": 59.6,
+    "p95": 16.8,
+    "p99": 16.8,
+    "worst": 66.6,
+    "over33": 1,
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "height": 800,
+    "section": "turn",
+    "frames": 172,
+    "fps": 57,
+    "p95": 16.7,
+    "p99": 16.8,
+    "worst": 166.7,
+    "over33": 1,
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "height": 800,
+    "section": "touchdown",
+    "frames": 172,
+    "fps": 29.1,
+    "p95": 16.8,
+    "p99": 16.8,
+    "worst": 2583.2,
+    "over33": 2,
+    "errors": []
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "section": "opening",
+    "frames": 595,
+    "fps": 59.9,
+    "p95": 16.8,
+    "p99": 16.8,
+    "worst": 33.4,
+    "over33": 1,
+    "errors": []
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "section": "turn",
+    "frames": 177,
+    "fps": 59.7,
+    "p95": 16.8,
+    "p99": 16.8,
+    "worst": 33.4,
+    "over33": 0,
+    "errors": []
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "section": "touchdown",
+    "frames": 201,
+    "fps": 54.3,
+    "p95": 16.7,
+    "p99": 16.8,
+    "worst": 366.7,
+    "over33": 1,
+    "errors": []
+  }
+]

@@ -1,0 +1,296 @@
+[
+  {
+    "width": 1440,
+    "height": 900,
+    "place": "sky",
+    "fps": 60.001993421708356,
+    "p95": 16.799999999999727,
+    "triangles": 2344824.2325581396,
+    "draws": 104.32558139534883,
+    "stats": {
+      "ready": true,
+      "fps": 60,
+      "frameTime": 16.66611111111111,
+      "renderedFrames": 436,
+      "drawCalls": 89,
+      "triangles": 1566364,
+      "pixelRatio": 1,
+      "rendering": {
+        "cpuSubmit": {
+          "medianMs": 0.5,
+          "p95Ms": 0.7000000476837158
+        },
+        "gpu": {
+          "medianMs": 5.958999,
+          "p95Ms": 7.567875
+        },
+        "gpuTimerAvailable": true
+      },
+      "trees": 82000,
+      "headwaters": 8,
+      "rainRun": null,
+      "onWater": false,
+      "waterTime": 0,
+      "throttle": 0.65,
+      "sink": -3.503971250118446,
+      "heading": 0.4732817841813451,
+      "landingCount": 0,
+      "takingOff": false,
+      "shoreBlocked": false,
+      "manualApproach": null,
+      "look": {
+        "yaw": 0,
+        "tilt": 0,
+        "dragging": false
+      },
+      "aircraftBounds": {
+        "left": 0.1002001699932478,
+        "right": 0.624550831255951,
+        "top": -0.1961333619967187,
+        "bottom": -0.5613848703890718,
+        "depth": 0.9877061690385838
+      },
+      "arrival": null,
+      "paused": false,
+      "map": false,
+      "assisted": true,
+      "position": [
+        -770.8545092146851,
+        1052.8669104141754,
+        3027.1343398012623
+      ],
+      "speed": 56.593299247297224,
+      "delivered": 0,
+      "wateredCells": 0,
+      "storageAvailable": true,
+      "worldSize": 15000,
+      "gridSize": 128,
+      "elapsed": 7.333333333333313,
+      "groundTime": 7.150000000000002,
+      "growing": false
+    },
+    "errors": []
+  },
+  {
+    "width": 1440,
+    "height": 900,
+    "place": "dock",
+    "fps": 60.00318953831433,
+    "p95": 16.799999999999272,
+    "triangles": 3670834.9368770765,
+    "draws": 227.7109634551495,
+    "stats": {
+      "ready": true,
+      "fps": 60,
+      "frameTime": 16.665555555555553,
+      "renderedFrames": 928,
+      "drawCalls": 154,
+      "triangles": 2449978,
+      "pixelRatio": 1,
+      "rendering": {
+        "cpuSubmit": {
+          "medianMs": 0.7000000476837158,
+          "p95Ms": 0.9000000953674316
+        },
+        "gpu": {
+          "medianMs": 5.242833,
+          "p95Ms": 7.544458
+        },
+        "gpuTimerAvailable": true
+      },
+      "trees": 82000,
+      "headwaters": 8,
+      "rainRun": null,
+      "onWater": true,
+      "waterTime": 0,
+      "throttle": 0.65,
+      "sink": 0.14181953730358204,
+      "heading": 0,
+      "landingCount": 0,
+      "takingOff": false,
+      "shoreBlocked": false,
+      "manualApproach": null,
+      "look": {
+        "yaw": 0,
+        "tilt": 0,
+        "dragging": false
+      },
+      "aircraftBounds": {
+        "left": -0.3287608560218424,
+        "right": 0.07735255176931666,
+        "top": -0.21709302106698622,
+        "bottom": -0.576012412147702,
+        "depth": 0.9902890500734894
+      },
+      "arrival": {
+        "place": "dock",
+        "stage": "water"
+      },
+      "paused": false,
+      "map": false,
+      "assisted": true,
+      "position": [
+        -1120,
+        6.590743312395685,
+        -1343.5629209948672
+      ],
+      "speed": 1.0659727547754558,
+      "delivered": 412,
+      "wateredCells": 9,
+      "storageAvailable": true,
+      "worldSize": 15000,
+      "gridSize": 128,
+      "elapsed": 15.600000000000355,
+      "groundTime": 15.600000000000007,
+      "growing": false
+    },
+    "errors": []
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "place": "sky",
+    "fps": 60.00199342170837,
+    "p95": 16.700000000000728,
+    "triangles": 756570.6710963455,
+    "draws": 109.45514950166113,
+    "stats": {
+      "ready": true,
+      "fps": 60,
+      "frameTime": 16.665555555555557,
+      "renderedFrames": 430,
+      "drawCalls": 132,
+      "triangles": 1127912,
+      "pixelRatio": 1.35,
+      "rendering": {
+        "cpuSubmit": {
+          "medianMs": 0.5999999046325684,
+          "p95Ms": 0.7000000476837158
+        },
+        "gpu": {
+          "medianMs": 4.167708,
+          "p95Ms": 6.059125
+        },
+        "gpuTimerAvailable": true
+      },
+      "trees": 22000,
+      "headwaters": 8,
+      "rainRun": null,
+      "onWater": false,
+      "waterTime": 0,
+      "throttle": 0.65,
+      "sink": -3.503971250118446,
+      "heading": 0.4732817841813451,
+      "landingCount": 0,
+      "takingOff": false,
+      "shoreBlocked": false,
+      "manualApproach": null,
+      "look": {
+        "yaw": 0,
+        "tilt": 0,
+        "dragging": false
+      },
+      "aircraftBounds": {
+        "left": -0.3663781011881615,
+        "right": 0.6301881939642358,
+        "top": 0.15399759165828847,
+        "bottom": -0.033186015437823936,
+        "depth": 0.9904748903452081
+      },
+      "arrival": null,
+      "paused": false,
+      "map": false,
+      "assisted": true,
+      "position": [
+        -770.8545092146851,
+        1052.8669104141754,
+        3027.1343398012623
+      ],
+      "speed": 56.593299247297224,
+      "delivered": 0,
+      "wateredCells": 0,
+      "storageAvailable": true,
+      "worldSize": 15000,
+      "gridSize": 128,
+      "elapsed": 7.333333333333313,
+      "groundTime": 7.150000000000002,
+      "growing": false
+    },
+    "errors": []
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "place": "dock",
+    "fps": 60.001993421708356,
+    "p95": 16.700000000000728,
+    "triangles": 1226322.1395348837,
+    "draws": 199.57142857142858,
+    "stats": {
+      "ready": true,
+      "fps": 60,
+      "frameTime": 16.666666666666668,
+      "renderedFrames": 917,
+      "drawCalls": 152,
+      "triangles": 920570,
+      "pixelRatio": 1.35,
+      "rendering": {
+        "cpuSubmit": {
+          "medianMs": 0.7000000476837158,
+          "p95Ms": 1
+        },
+        "gpu": {
+          "medianMs": 4.579291,
+          "p95Ms": 6.861875
+        },
+        "gpuTimerAvailable": true
+      },
+      "trees": 22000,
+      "headwaters": 8,
+      "rainRun": null,
+      "onWater": true,
+      "waterTime": 0,
+      "throttle": 0.65,
+      "sink": 0.14058672072323924,
+      "heading": 0,
+      "landingCount": 0,
+      "takingOff": false,
+      "shoreBlocked": false,
+      "manualApproach": null,
+      "look": {
+        "yaw": 0,
+        "tilt": 0,
+        "dragging": false
+      },
+      "aircraftBounds": {
+        "left": -0.860694168957928,
+        "right": -0.23961992167698026,
+        "top": -0.13548301492926976,
+        "bottom": -0.27075379470126576,
+        "depth": 0.9941431818853859
+      },
+      "arrival": {
+        "place": "dock",
+        "stage": "water"
+      },
+      "paused": false,
+      "map": false,
+      "assisted": true,
+      "position": [
+        -1120,
+        6.586025322988574,
+        -1343.5276554793775
+      ],
+      "speed": 1.0716423169373273,
+      "delivered": 395,
+      "wateredCells": 8,
+      "storageAvailable": true,
+      "worldSize": 15000,
+      "gridSize": 128,
+      "elapsed": 15.56666666666702,
+      "groundTime": 15.38333333333334,
+      "growing": false
+    },
+    "errors": []
+  }
+]

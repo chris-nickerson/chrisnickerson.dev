@@ -1,0 +1,88 @@
+{
+  "date": "2026-11-21T00:47:06.339Z",
+  "hardware": "Apple M4 Pro, macOS, Chrome headless",
+  "recording": true,
+  "cases": [
+    {
+      "viewport": [
+        1440,
+        900
+      ],
+      "place": "sky",
+      "fps": 60.001993421708356,
+      "trianglesBefore": 2344824,
+      "trianglesAfter": 1018728,
+      "triangleReductionPercent": 56.6,
+      "gpuBefore": {
+        "medianMs": 5.958999,
+        "p95Ms": 7.567875
+      },
+      "gpuAfter": {
+        "medianMs": 8.188874,
+        "p95Ms": 10.365291
+      }
+    },
+    {
+      "viewport": [
+        1440,
+        900
+      ],
+      "place": "dock",
+      "fps": 60.001993421708356,
+      "trianglesBefore": 3670835,
+      "trianglesAfter": 2231373,
+      "triangleReductionPercent": 39.2,
+      "gpuBefore": {
+        "medianMs": 5.242833,
+        "p95Ms": 7.544458
+      },
+      "gpuAfter": {
+        "medianMs": 7.157749,
+        "p95Ms": 10.515083
+      }
+    },
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "place": "sky",
+      "fps": 60.001993421708356,
+      "trianglesBefore": 756571,
+      "trianglesAfter": 389625,
+      "triangleReductionPercent": 48.5,
+      "gpuBefore": {
+        "medianMs": 4.167708,
+        "p95Ms": 6.059125
+      },
+      "gpuAfter": {
+        "medianMs": 3.828208,
+        "p95Ms": 5.544125
+      }
+    },
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "place": "dock",
+      "fps": 60.001993421708356,
+      "trianglesBefore": 1226322,
+      "trianglesAfter": 550135,
+      "triangleReductionPercent": 55.1,
+      "gpuBefore": {
+        "medianMs": 4.579291,
+        "p95Ms": 6.861875
+      },
+      "gpuAfter": {
+        "medianMs": 3.711041,
+        "p95Ms": 5.016874
+      }
+    }
+  ],
+  "limitations": [
+    "Short local samples; clock state and browser recording affect GPU timing.",
+    "Final desktop GPU times are higher than baseline despite fewer submitted triangles; detailed foliage and atmospheric composition spend part of the saved geometry budget.",
+    "Phone viewport testing uses the Mac GPU, not physical mobile hardware."
+  ]
+}

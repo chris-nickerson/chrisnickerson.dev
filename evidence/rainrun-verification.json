@@ -1,0 +1,183 @@
+[
+  {
+    "width": 1440,
+    "height": 900,
+    "completed": [
+      {
+        "grove": "The south meadow",
+        "index": 0,
+        "progress": 1,
+        "complete": true,
+        "finished": false,
+        "aimed": false,
+        "missed": false,
+        "impact": [
+          -871.0947650434902,
+          114.74993534585008,
+          2148.028642002664
+        ]
+      },
+      {
+        "grove": "The willow bank",
+        "index": 1,
+        "progress": 1,
+        "complete": true,
+        "finished": false,
+        "aimed": false,
+        "missed": false,
+        "impact": [
+          1333.1216787304877,
+          109.07515886450571,
+          -954.7413022595524
+        ]
+      },
+      {
+        "grove": "The high clearing",
+        "index": 2,
+        "progress": 1,
+        "complete": true,
+        "finished": true,
+        "aimed": false,
+        "missed": false,
+        "impact": [
+          783.1709049341982,
+          113.08859637085331,
+          -2409.0167571088086
+        ]
+      }
+    ],
+    "errors": [],
+    "final": {
+      "ready": true,
+      "fps": 60,
+      "frameTime": 16.666666666666668,
+      "renderedFrames": 5098,
+      "drawCalls": 159,
+      "triangles": 2453636,
+      "pixelRatio": 1,
+      "trees": 82000,
+      "headwaters": 8,
+      "rainRun": null,
+      "onWater": true,
+      "waterTime": 0,
+      "throttle": 0.65,
+      "sink": -0.08583051541640582,
+      "heading": 0,
+      "landingCount": 0,
+      "takingOff": false,
+      "shoreBlocked": false,
+      "manualApproach": null,
+      "look": {
+        "yaw": 0.4961812114378248,
+        "tilt": -0.04666666666665705,
+        "dragging": false
+      },
+      "aircraftBounds": {
+        "left": 0.10523885378594992,
+        "right": 0.5064769169683745,
+        "top": -0.11551362072869381,
+        "bottom": -0.49711111271193636,
+        "depth": 0.9901105704037154
+      },
+      "arrival": {
+        "place": "memory",
+        "stage": "water"
+      },
+      "paused": false,
+      "map": false,
+      "assisted": true,
+      "position": [
+        -220,
+        6.53205528629433,
+        1770.3237176827329
+      ],
+      "speed": 3.7949558190942536,
+      "delivered": 2145,
+      "wateredCells": 70,
+      "storageAvailable": true,
+      "worldSize": 15000,
+      "gridSize": 128,
+      "elapsed": 85.16666666666312,
+      "groundTime": 85.15000000000035,
+      "growing": false
+    }
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "completed": [
+      {
+        "grove": "The south meadow",
+        "index": 0,
+        "progress": 1,
+        "complete": true,
+        "finished": false,
+        "aimed": false,
+        "missed": false,
+        "impact": [
+          -871.0933335740301,
+          114.75525001971937,
+          2147.11929506393
+        ]
+      }
+    ],
+    "errors": [],
+    "final": {
+      "ready": true,
+      "fps": 58.4,
+      "frameTime": 17.128888888888874,
+      "renderedFrames": 1191,
+      "drawCalls": 88,
+      "triangles": 657238,
+      "pixelRatio": 1.35,
+      "trees": 22000,
+      "headwaters": 8,
+      "rainRun": null,
+      "onWater": false,
+      "waterTime": 0,
+      "throttle": 0.65,
+      "sink": 0.23832427623183358,
+      "heading": 0,
+      "landingCount": 0,
+      "takingOff": false,
+      "shoreBlocked": false,
+      "manualApproach": null,
+      "look": {
+        "yaw": 0,
+        "tilt": 0,
+        "dragging": false
+      },
+      "aircraftBounds": {
+        "left": -0.28430162240357965,
+        "right": 0.4775025879997519,
+        "top": 0.11099272542910803,
+        "bottom": -0.07348723831502656,
+        "depth": 0.9925486264789828
+      },
+      "arrival": null,
+      "paused": false,
+      "map": false,
+      "assisted": true,
+      "position": [
+        -873.5286758451933,
+        254.79178587304284,
+        2249.052117980622
+      ],
+      "speed": 53.258920743520726,
+      "delivered": 358,
+      "wateredCells": 10,
+      "storageAvailable": true,
+      "worldSize": 15000,
+      "gridSize": 128,
+      "elapsed": 20.06666666666681,
+      "groundTime": 19.93333333333331,
+      "growing": false
+    }
+  },
+  {
+    "width": 320,
+    "height": 568,
+    "missAndRetry": "passed",
+    "escape": "passed"
+  }
+]

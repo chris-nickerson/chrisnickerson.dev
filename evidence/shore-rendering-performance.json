@@ -1,0 +1,169 @@
+{
+  "base": "4a2e5ac",
+  "rendererRevision": "ac01187",
+  "browserWorkload": "Apple M4 Pro, macOS 26.7.3, Chromium 159.0.8154.6. BASE_URL='http://127.0.0.1:4173/?seed=937' node scripts/verify-graphics.mjs against each production preview. Phone viewport and touch emulated. Five seconds per sample.",
+  "graphics": [
+    {
+      "viewport": [
+        1440,
+        900
+      ],
+      "scene": "sky",
+      "base": {
+        "meanTriangles": 1055452,
+        "fps": 59.8,
+        "p95FrameMs": 16.7,
+        "medianGpuMs": 6.36,
+        "pixelRatio": 1,
+        "meanDrawCalls": 254.12
+      },
+      "candidate": {
+        "meanTriangles": 932626,
+        "fps": 60.0,
+        "p95FrameMs": 16.7,
+        "medianGpuMs": 4.81,
+        "pixelRatio": 1,
+        "meanDrawCalls": 253.24
+      }
+    },
+    {
+      "viewport": [
+        1440,
+        900
+      ],
+      "scene": "dock",
+      "base": {
+        "meanTriangles": 2383992,
+        "fps": 60.0,
+        "p95FrameMs": 16.7,
+        "medianGpuMs": 5.92,
+        "pixelRatio": 1,
+        "meanDrawCalls": 239.48
+      },
+      "candidate": {
+        "meanTriangles": 2205334,
+        "fps": 60.0,
+        "p95FrameMs": 16.8,
+        "medianGpuMs": 5.31,
+        "pixelRatio": 1,
+        "meanDrawCalls": 240.55
+      }
+    },
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "scene": "sky",
+      "base": {
+        "meanTriangles": 412053,
+        "fps": 60.0,
+        "p95FrameMs": 16.7,
+        "medianGpuMs": 3.7,
+        "pixelRatio": 1.35,
+        "meanDrawCalls": 124.51
+      },
+      "candidate": {
+        "meanTriangles": 302756,
+        "fps": 60.0,
+        "p95FrameMs": 16.7,
+        "medianGpuMs": 3.39,
+        "pixelRatio": 1.35,
+        "meanDrawCalls": 123.5
+      }
+    },
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "scene": "dock",
+      "base": {
+        "meanTriangles": 828640,
+        "fps": 60.0,
+        "p95FrameMs": 16.8,
+        "medianGpuMs": 3.44,
+        "pixelRatio": 1.35,
+        "meanDrawCalls": 165.66
+      },
+      "candidate": {
+        "meanTriangles": 635025,
+        "fps": 60.0,
+        "p95FrameMs": 16.7,
+        "medianGpuMs": 4.62,
+        "pixelRatio": 1.35,
+        "meanDrawCalls": 165.33
+      }
+    }
+  ],
+  "visualChanges": [
+    "Shore rocks use face normals calculated after deformation.",
+    "Runoff pulses and survey tint follow the frame clock between hydrology steps. A dry watershed omits the empty runoff draw."
+  ],
+  "cpuWorkload": "Seven warmed, alternating Node samples. Medians in milliseconds. Shoreline and terrain use the same 640 \u00d7 640 segment grid and produce identical index and attribute bytes.",
+  "cpuMedianMs": {
+    "shoreline": {
+      "base": 32.31,
+      "candidate": 2.28
+    },
+    "terrainTiles": {
+      "base": 18.59,
+      "candidate": 4.56
+    },
+    "fullyWetRunoffRepeat": {
+      "base": 28.31,
+      "candidate": 0.41
+    }
+  },
+  "terrainTileIndexBytes": {
+    "base": 4915200,
+    "candidate": 76800
+  },
+  "runoff": {
+    "sparseVisibleVertices": 440,
+    "baseRecurringAttributeUploadBytes": 2097152,
+    "candidateRecurringAttributeUploadBytes": 7040,
+    "candidateDryUploadBytes": 0,
+    "comparison": "All visible positions and strengths matched across 24 dense, sparse, shifted and dry states."
+  },
+  "shorePlacement": "All instance transforms and rock colors matched. Memory, workshop and dock have 284, 180 and 72 stones and 337, 249 and 124 reeds respectively.",
+  "commentReview": "pstack Comment Sicko cleared the renderer changes, including the shared Three.js index buffer disposal constraint.",
+  "phoneDockRepeats": {
+    "workload": "Three additional visits per revision with the same seed, viewport and dock sampling interval. Candidate/base, base/candidate, candidate/base. Draw calls stayed within one call per frame across builds. GPU sample ranges overlap, so a GPU time change is inconclusive.",
+    "base": [
+      {
+        "medianGpuMs": 3.84,
+        "meanDrawCalls": 165.66,
+        "meanTriangles": 828623
+      },
+      {
+        "medianGpuMs": 2.89,
+        "meanDrawCalls": 165.66,
+        "meanTriangles": 828657
+      },
+      {
+        "medianGpuMs": 3.84,
+        "meanDrawCalls": 165.66,
+        "meanTriangles": 828640
+      }
+    ],
+    "candidate": [
+      {
+        "medianGpuMs": 2.45,
+        "meanDrawCalls": 165.33,
+        "meanTriangles": 635025
+      },
+      {
+        "medianGpuMs": 2.95,
+        "meanDrawCalls": 165.33,
+        "meanTriangles": 635009
+      },
+      {
+        "medianGpuMs": 4.69,
+        "meanDrawCalls": 165.33,
+        "meanTriangles": 635025
+      }
+    ]
+  },
+  "cpuReplay": "node --import tsx scripts/measure-render-setup.mjs <checkout> with dependencies installed in each checkout."
+}

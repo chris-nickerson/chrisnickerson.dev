@@ -1,0 +1,26 @@
+[
+  {
+    "width": 1280,
+    "height": 800,
+    "section": "opening",
+    "frames": 1014,
+    "fps": 60,
+    "p95": 16.7,
+    "p99": 16.8,
+    "worst": 16.8,
+    "over33": 0,
+    "errors": []
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "section": "opening",
+    "frames": 1014,
+    "fps": 60,
+    "p95": 16.7,
+    "p99": 16.8,
+    "worst": 16.8,
+    "over33": 0,
+    "errors": []
+  }
+]

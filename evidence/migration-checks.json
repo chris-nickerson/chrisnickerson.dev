@@ -1,0 +1,196 @@
+{
+  "navigation": [
+    {
+      "name": "desktop 1440×900: profile, keyboard, simulation, persistence, travel",
+      "status": "passed"
+    },
+    {
+      "name": "phone 390×844 DPR 2: touch flight and portrait composition",
+      "status": "passed"
+    },
+    {
+      "name": "layout 1920×1080",
+      "status": "passed"
+    },
+    {
+      "name": "layout 320×568",
+      "status": "passed"
+    },
+    {
+      "name": "layout 844×390",
+      "status": "passed"
+    },
+    {
+      "name": "reduced motion: still first frame and keyboard access",
+      "status": "passed"
+    },
+    {
+      "name": "storage denied: world remains usable",
+      "status": "passed"
+    },
+    {
+      "name": "lost GPU context: illustration and biography survive",
+      "status": "passed"
+    },
+    {
+      "name": "WebGL unavailable: original fallback and direct profile",
+      "status": "passed"
+    }
+  ],
+  "profile": [
+    {
+      "width": 1440,
+      "height": 900,
+      "errors": [],
+      "personalNavigation": true,
+      "flight": true,
+      "rainBrief": true
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "errors": [],
+      "personalNavigation": true,
+      "flight": true,
+      "rainBrief": true
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "errors": [],
+      "personalNavigation": true,
+      "flight": true,
+      "rainBrief": true
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "errors": [],
+      "personalNavigation": true,
+      "flight": true,
+      "rainBrief": true
+    },
+    {
+      "editableProfile": true,
+      "paragraphs": true,
+      "customLinks": true,
+      "plainText": true
+    }
+  ],
+  "camera": [
+    {
+      "width": 390,
+      "height": 844,
+      "touchLanding": true,
+      "errors": []
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "touchLanding": true,
+      "errors": []
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "touchLanding": false,
+      "errors": []
+    }
+  ],
+  "webkit": [
+    {
+      "width": 1440,
+      "height": 900,
+      "ready": true,
+      "onWater": true,
+      "orbit": 1.4427678125423264,
+      "errors": []
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "ready": true,
+      "onWater": true,
+      "orbit": 1.4428239297641001,
+      "errors": []
+    }
+  ],
+  "rain": [
+    {
+      "width": 1440,
+      "height": 900,
+      "completed": [
+        {
+          "grove": "The south meadow",
+          "index": 0,
+          "progress": 1,
+          "complete": true,
+          "finished": false,
+          "aimed": false,
+          "missed": false,
+          "impact": [
+            -886.374561396524,
+            118.70661116730035,
+            2177.8242629717433
+          ]
+        },
+        {
+          "grove": "The willow bank",
+          "index": 1,
+          "progress": 1,
+          "complete": true,
+          "finished": false,
+          "aimed": false,
+          "missed": false,
+          "impact": [
+            1353.1991726343063,
+            141.52405992146277,
+            -1027.526648597516
+          ]
+        },
+        {
+          "grove": "The high clearing",
+          "index": 2,
+          "progress": 1,
+          "complete": true,
+          "finished": true,
+          "aimed": false,
+          "missed": false,
+          "impact": [
+            855.4508282119413,
+            168.25044997585684,
+            -2456.3617787904755
+          ]
+        }
+      ],
+      "errors": []
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "completed": [
+        {
+          "grove": "The south meadow",
+          "index": 0,
+          "progress": 1,
+          "complete": true,
+          "finished": false,
+          "aimed": false,
+          "missed": false,
+          "impact": [
+            -886.443294144126,
+            116.67120838562973,
+            2183.6381666250713
+          ]
+        }
+      ],
+      "errors": []
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "missAndRetry": "passed",
+      "escape": "passed"
+    }
+  ]
+}

@@ -1,0 +1,182 @@
+[
+  {
+    "width": 320,
+    "height": 568,
+    "landed": {
+      "ready": true,
+      "fps": 60,
+      "frameTime": 16.66611111111111,
+      "renderedFrames": 858,
+      "drawCalls": 164,
+      "triangles": 929746,
+      "pixelRatio": 1,
+      "trees": 22000,
+      "headwaters": 8,
+      "rainRun": null,
+      "onWater": true,
+      "waterTime": 8.083333333333314,
+      "throttle": 0,
+      "sink": 0.006183194244850055,
+      "heading": 0,
+      "landingCount": 1,
+      "takingOff": false,
+      "shoreBlocked": false,
+      "manualApproach": "memory",
+      "look": {
+        "yaw": 0,
+        "tilt": 0,
+        "dragging": false
+      },
+      "aircraftBounds": {
+        "left": -0.38012675671615315,
+        "right": 0.45433209714547085,
+        "top": -0.0072231586180549244,
+        "bottom": -0.20809188593069075,
+        "depth": 0.99031752931301
+      },
+      "arrival": null,
+      "paused": false,
+      "map": false,
+      "assisted": false,
+      "position": [
+        -86.93469138299902,
+        6.516062026246635,
+        2053.6476135820208
+      ],
+      "speed": 7.5046006644388,
+      "delivered": 118,
+      "wateredCells": 3,
+      "storageAvailable": true,
+      "worldSize": 15000,
+      "gridSize": 128,
+      "elapsed": 14.416666666666963,
+      "groundTime": 14.300000000000006,
+      "growing": false
+    },
+    "takeoff": {
+      "ready": true,
+      "fps": 60,
+      "frameTime": 16.666111111111118,
+      "renderedFrames": 2234,
+      "drawCalls": 91,
+      "triangles": 633146,
+      "pixelRatio": 1,
+      "trees": 22000,
+      "headwaters": 8,
+      "rainRun": null,
+      "onWater": false,
+      "waterTime": 25.98333333333314,
+      "throttle": 1,
+      "sink": 7.587170948751057,
+      "heading": -0.0003213673350722697,
+      "landingCount": 1,
+      "takingOff": false,
+      "shoreBlocked": false,
+      "manualApproach": null,
+      "look": {
+        "yaw": 12.566370614359172,
+        "tilt": 0,
+        "dragging": false
+      },
+      "aircraftBounds": {
+        "left": -0.3088581855368979,
+        "right": 0.5354512909049551,
+        "top": 0.4902881657837541,
+        "bottom": 0.2646830336190192,
+        "depth": 0.9903182376803662
+      },
+      "arrival": null,
+      "paused": false,
+      "map": false,
+      "assisted": false,
+      "position": [
+        -80.2154133346847,
+        30.803062077360156,
+        1666.4440445514726
+      ],
+      "speed": 54.147855399154736,
+      "delivered": 122,
+      "wateredCells": 15,
+      "storageAvailable": true,
+      "worldSize": 15000,
+      "gridSize": 128,
+      "elapsed": 37.31666666666583,
+      "groundTime": 37.266666666666595,
+      "growing": false
+    },
+    "bounds": [
+      {
+        "left": -0.3029252374271703,
+        "right": 0.2597159896757454,
+        "top": 0.005797571275631589,
+        "bottom": -0.24608669166010053,
+        "depth": 0.9906869967421151
+      },
+      {
+        "left": -0.43322719308934804,
+        "right": 0.45179402529320206,
+        "top": -0.003554373008038279,
+        "bottom": -0.2323094228823097,
+        "depth": 0.9903757893781945
+      },
+      {
+        "left": -0.34255951884940566,
+        "right": 0.36254251171855884,
+        "top": -0.0019058364442619054,
+        "bottom": -0.29722313241751674,
+        "depth": 0.990960687255045
+      },
+      {
+        "left": -0.408264850259663,
+        "right": 0.4750035522573066,
+        "top": -0.006282274406145061,
+        "bottom": -0.28157344236611215,
+        "depth": 0.9908643251401903
+      },
+      {
+        "left": -0.4096773689520096,
+        "right": 0.40765610263139274,
+        "top": -0.0013381545518575523,
+        "bottom": -0.2950417276348785,
+        "depth": 0.9909857593950148
+      },
+      {
+        "left": -0.40083910315217103,
+        "right": 0.47833595714803717,
+        "top": 0.005214053296644507,
+        "bottom": -0.23511172034820987,
+        "depth": 0.9906584489588854
+      },
+      {
+        "left": -0.42893110602978807,
+        "right": 0.4741068566917561,
+        "top": 0.005002544056801177,
+        "bottom": -0.23215766659762066,
+        "depth": 0.9905997405910458
+      },
+      {
+        "left": -0.3345513248561121,
+        "right": 0.4554146979956707,
+        "top": 0.006842995497128877,
+        "bottom": -0.23580734548773516,
+        "depth": 0.9907158890926419
+      },
+      {
+        "left": -0.3461651655250219,
+        "right": 0.34881454682768515,
+        "top": 0.007347449115374925,
+        "bottom": -0.2351449594083629,
+        "depth": 0.9907284005659607
+      },
+      {
+        "left": -0.4181072544768165,
+        "right": 0.4338580142770139,
+        "top": 0.005261559084698147,
+        "bottom": -0.24753050493265003,
+        "depth": 0.9907766155807068
+      }
+    ],
+    "fps": 60.051093197215394,
+    "errors": []
+  }
+]

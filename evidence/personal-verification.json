@@ -1,0 +1,40 @@
+[
+  {
+    "width": 1440,
+    "height": 900,
+    "errors": [],
+    "personalNavigation": true,
+    "flight": true,
+    "rainBrief": true
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "errors": [],
+    "personalNavigation": true,
+    "flight": true,
+    "rainBrief": true
+  },
+  {
+    "width": 320,
+    "height": 568,
+    "errors": [],
+    "personalNavigation": true,
+    "flight": true,
+    "rainBrief": true
+  },
+  {
+    "width": 844,
+    "height": 390,
+    "errors": [],
+    "personalNavigation": true,
+    "flight": true,
+    "rainBrief": true
+  },
+  {
+    "editableProfile": true,
+    "paragraphs": true,
+    "customLinks": true,
+    "plainText": true
+  }
+]
