@@ -15,7 +15,6 @@ export class AdaptiveQuality {
 
   reset() {
     this.unmeasuredCeiling = Infinity;
-    this.frameTimes.length = 0;
     this.elapsed = 0;
     this.recoveryWindows = 0;
   }

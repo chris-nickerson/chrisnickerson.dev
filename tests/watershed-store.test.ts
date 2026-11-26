@@ -146,3 +146,22 @@ test("the outgoing window flushes its final soil change even after losing focus"
   assert.equal(JSON.parse(saved).version, 1);
   assert.equal(JSON.parse(saved).delivered, 0);
 });
+
+test("an idle tab retains the failed write status until a write succeeds", () => {
+  let focused = true;
+  const store = new WatershedStore(
+    () => ({
+      getItem: () => null,
+      setItem: () => {
+        throw new Error("quota full");
+      },
+    }),
+    () => focused,
+  );
+  const watershed = new Watershed();
+  store.save(watershed);
+  assert.equal(store.available, false);
+  focused = false;
+  store.save(watershed);
+  assert.equal(store.available, false);
+});

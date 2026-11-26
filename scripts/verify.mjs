@@ -417,6 +417,50 @@ await run("reduced motion: still first frame and keyboard access", async () => {
   await ctx.close();
   return { elapsed: first.elapsed, paused: second.paused };
 });
+await run("cross-tab progress survives a focus handoff", async () => {
+  const ctx = await context();
+  try {
+    const flight = await ctx.newPage();
+    await flight.goto(previewURL);
+    await ready(flight);
+    const writer = await ctx.newPage();
+    await writer.goto(new URL("?fallback", previewURL).href);
+    await writer.evaluate(() => {
+      localStorage.setItem(
+        "after-rain.watershed.v1",
+        JSON.stringify({
+          version: 1,
+          moisture: Array(128 * 128).fill(0),
+          delivered: 31,
+        }),
+      );
+    });
+    await flight.waitForFunction(
+      () => window.__AFTER_RAIN__.stats().delivered === 31,
+    );
+    await flight.bringToFront();
+    await flight
+      .getByRole("button", { name: "Go flying", exact: true })
+      .click();
+    await flight.locator("#water").click();
+    await flight.waitForFunction(
+      () => window.__AFTER_RAIN__.stats().delivered > 31,
+    );
+    const delivered = await flight.evaluate(() => {
+      window.dispatchEvent(new Event("blur"));
+      return window.__AFTER_RAIN__.stats().delivered;
+    });
+    expect(
+      await writer.evaluate(
+        () =>
+          JSON.parse(localStorage.getItem("after-rain.watershed.v1")).delivered,
+      ),
+    ).toBe(delivered);
+    return { delivered };
+  } finally {
+    await ctx.close();
+  }
+});
 await run("storage denied: world remains usable", async () => {
   const ctx = await context();
   const page = await ctx.newPage();

@@ -72,13 +72,12 @@ export class WatershedStore {
           this.savedDelivery === watershed.delivered &&
           !this.isFocused()
         ) {
-          this.available = true;
           return false;
         }
       }
       const snapshot = JSON.stringify(watershed.snapshot());
-      if (snapshot !== this.previous || reason === "reset")
-        storage.setItem(SAVE_KEY, snapshot);
+      if (snapshot === this.previous && reason !== "reset") return false;
+      storage.setItem(SAVE_KEY, snapshot);
       this.incompatible = false;
       this.savedDelivery = watershed.delivered;
       this.previous = snapshot;

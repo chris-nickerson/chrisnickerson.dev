@@ -125,7 +125,14 @@ export function bindFlightControls({
   });
 
   window.addEventListener("keyup", (event) => {
-    if (keys.delete(event.code || event.key.toLowerCase())) updateSteering();
+    if (event.code) {
+      if (keys.delete(event.code)) updateSteering();
+    } else {
+      for (const [code, key] of keys) {
+        if (key === event.key.toLowerCase()) keys.delete(code);
+      }
+      updateSteering();
+    }
     if (event.key === " " && spaceDown) {
       spaceDown = false;
       holdWater();
