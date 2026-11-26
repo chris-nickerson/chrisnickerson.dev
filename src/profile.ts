@@ -20,7 +20,9 @@ Taylor and I like to get outside here in California, and we travel together when
   linkedin: "https://www.linkedin.com/in/christopherjnickerson",
   email: "",
   resume: "",
-  links: [] as Array<{ label: string; url: string }>,
+  links: [
+    { label: "View source", url: "https://github.com/chris-nickerson/chrisnickerson.dev" },
+  ],
 };
 export const isConfigured = (value: string) =>
   !!value.trim() && !value.includes("{{");
