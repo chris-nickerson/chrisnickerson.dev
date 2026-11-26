@@ -36,11 +36,9 @@ export class CameraFraming {
       aim.set(0, portrait ? 6 : 2, portrait ? -90 : -150);
     } else {
       const place = places[arrival.place];
-      const side = Math.sign(place.x - place.berth.x);
-      // From the water side the plane is in silhouette against the light
-      // pontoon edge. Look more nearly along the pier on narrow screens.
+      const waterSide = Math.sign(place.berth.x - place.x);
       eye.set(
-        -side * (portrait ? 133 : 79),
+        waterSide * (portrait ? 133 : 79),
         portrait ? 43 : 29,
         portrait ? 55 : 89,
       );
