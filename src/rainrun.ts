@@ -137,8 +137,11 @@ export function createGroves(scene: T.Scene, run: RainRun) {
     return line;
   });
   const growth = [0, 0, 0];
+  let lastTime = 0;
   return {
-    update(dt: number) {
+    update(time: number) {
+      const dt = time - lastTime;
+      lastTime = time;
       root.visible = run.active;
       if (!run.active) return;
       for (let j = 0; j < 3; j++)
@@ -163,7 +166,7 @@ export function createGroves(scene: T.Scene, run: RainRun) {
       leaves.instanceColor!.needsUpdate = true;
       rings.forEach((r, i) => {
         r.visible = i === run.index;
-        r.material.opacity = 0.65 + Math.sin(performance.now() * 0.0015) * 0.1;
+        r.material.opacity = 0.65 + Math.sin(time * 1.5) * 0.1;
         r.material.color.set(run.complete ? 0xbad780 : 0xf5d094);
       });
     },

@@ -1,3 +1,4 @@
+import { bindFlightControls } from "./flight-controls";
 import "./style.css";
 import { animateEclipse } from "./eclipse";
 import { placeContent, populateProfile, renderStory } from "./profile-view";
@@ -366,6 +367,7 @@ function setPilot(pilot: boolean) {
     depart();
     return;
   }
+  if (!pilot) releaseControls();
   sim.setPilot(pilot);
   if (pilot) {
     sim.setPaused(false);
@@ -391,7 +393,7 @@ function togglePause() {
 }
 function toggleWater() {
   if (!sim || sim.arrival || sim.flight.onWater) return;
-  sim.manualWater = !sim.manualWater;
+  sim.toggleWater();
   if (sim.manualWater && sim.paused)
     toast("Resume the simulation to release water.");
   else if (sim.manualWater) toast("Aim for the hillside to water it.");
@@ -518,137 +520,15 @@ document
   .forEach((b) =>
     b.addEventListener("click", () => readStory(b.dataset.story as PlaceId)),
   );
-const keys = new Set<string>();
-const steeringKeys = [
-  "a",
-  "d",
-  "s",
-  "w",
-  "arrowup",
-  "arrowdown",
-  "arrowleft",
-  "arrowright",
-];
-const controlKeys = [...steeringKeys, "=", "-"];
-function releaseControls() {
-  keys.clear();
-  if (!sim) return;
-  sim.input.roll = sim.input.pitch = sim.input.throttle = 0;
-  sim.manualWater = false;
-}
-function updateInput() {
-  if (!sim) return;
-  sim.input.roll =
-    Number(keys.has("d") || keys.has("arrowright")) -
-    Number(keys.has("a") || keys.has("arrowleft"));
-  sim.input.pitch =
-    Number(keys.has("w") || keys.has("arrowup")) -
-    Number(keys.has("s") || keys.has("arrowdown"));
-  sim.input.throttle = Number(keys.has("=")) - Number(keys.has("-"));
-}
-window.addEventListener("keydown", (e) => {
-  if (
-    dialogSession ||
-    !sim ||
-    e.ctrlKey ||
-    e.metaKey ||
-    e.altKey ||
-    e.target instanceof HTMLInputElement ||
-    e.target instanceof HTMLSelectElement
-  )
-    return;
-  const k = e.key.toLowerCase();
-  if (k === "escape") {
-    setPilot(false);
-    return;
-  }
-  if (
-    document.activeElement === document.body &&
-    steeringKeys.includes(k) &&
-    sim.flight.assisted &&
-    !sim.arrival &&
-    !sim.map
-  )
-    setPilot(true);
-  if (document.activeElement !== $("scene")) return;
-  if (sim.arrival && k !== "p" && k !== "r") return;
-  if (
-    [" ", "arrowup", "arrowdown", "arrowleft", "arrowright"].includes(k) &&
-    !(e.target instanceof HTMLButtonElement)
-  )
-    e.preventDefault();
-  if (e.repeat) return;
-  if (k === "r") {
-    sim.resetView();
-    return;
-  }
-  if (k === "p") {
-    togglePause();
-    return;
-  }
-  if (k === "m") {
-    toggleView();
-    return;
-  }
-  if (k === " " && !(e.target instanceof HTMLButtonElement)) {
-    sim.manualWater = true;
-  }
-  if (controlKeys.includes(k)) {
-    if (sim.flight.assisted) setPilot(true);
-    keys.add(k);
-    updateInput();
-  }
+const releaseControls = bindFlightControls({
+  simulation: () => sim,
+  dialogOpen: () => !!dialogSession,
+  setPilot, togglePause, toggleView,
+  scene: $("scene"), joystick: $("joystick"), spray: $("touch-water"),
 });
-window.addEventListener("keyup", (e) => {
-  keys.delete(e.key.toLowerCase());
-  if (e.key === " " && sim && !(e.target instanceof HTMLButtonElement))
-    sim.manualWater = false;
-  updateInput();
-});
-window.addEventListener("blur", releaseControls);
 document.addEventListener("visibilitychange", () =>
   sound.update(sim?.flight.speed ?? 50, document.hidden || !!sim?.paused),
 );
-const joystick = $("joystick");
-let stickPointer: number | undefined;
-function moveStick(event: PointerEvent) {
-  if (!sim || stickPointer !== event.pointerId) return;
-  const r = joystick.getBoundingClientRect();
-  const x = Math.max(
-      -1,
-      Math.min(1, (event.clientX - r.left - r.width / 2) / 40),
-    ),
-    y = Math.max(-1, Math.min(1, (event.clientY - r.top - r.height / 2) / 40));
-  sim.input.roll = x;
-  sim.input.pitch = -y;
-  joystick.querySelector("i")!.style.transform =
-    `translate(${x * 32}px,${y * 32}px)`;
-}
-joystick.addEventListener("pointerdown", (e) => {
-  stickPointer = e.pointerId;
-  joystick.setPointerCapture(e.pointerId);
-  moveStick(e);
-});
-joystick.addEventListener("pointermove", moveStick);
-function releaseStick() {
-  stickPointer = undefined;
-  joystick.querySelector("i")!.style.transform = "";
-  if (sim) {
-    sim.input.roll = 0;
-    sim.input.pitch = 0;
-  }
-}
-joystick.addEventListener("pointerup", releaseStick);
-joystick.addEventListener("pointercancel", releaseStick);
-$("touch-water").addEventListener("pointerdown", (e) => {
-  if (!sim) return;
-  (e.target as HTMLElement).setPointerCapture(e.pointerId);
-  sim.manualWater = true;
-});
-for (const type of ["pointerup", "pointercancel"])
-  $("touch-water").addEventListener(type, () => {
-    if (sim) sim.manualWater = false;
-  });
 function setFlightAvailable(available: boolean) {
   document
     .querySelectorAll<
@@ -658,8 +538,14 @@ function setFlightAvailable(available: boolean) {
 }
 function fallback() {
   const focused = document.activeElement;
-  sim?.stop();
-  sim = undefined;
+  if (sim) {
+    sim.stop();
+    const finalStats = sim.stats();
+    Object.assign(window, {
+      __AFTER_RAIN__: { stats: () => structuredClone(finalStats), practiceLanding: () => {} },
+    });
+    sim = undefined;
+  }
   sound.stop();
   if (
     dialogSession &&
@@ -697,6 +583,7 @@ reduced.addEventListener("change", (e) => {
     updateUI();
   }
 });
+document.documentElement.classList.add("profile-ready");
 requestAnimationFrame(() =>
   requestAnimationFrame(async () => {
     try {
@@ -720,15 +607,14 @@ requestAnimationFrame(() =>
       setFlightAvailable(true);
       if (dialogSession) sim.setPaused(true);
       updateUI();
-      (window as unknown as { __AFTER_RAIN__: unknown }).__AFTER_RAIN__ = {
+      Object.assign(window, { __AFTER_RAIN__: {
         stats: () => started.stats(),
-        // Start manual-flight diagnostics at a repeatable approach.
         practiceLanding: (id: PlaceId) => {
           if (!sim) return;
           sim.practiceLanding(id);
           setPilot(true);
         },
-      };
+      }});
     } catch (error) {
       console.error("The world could not start:", error);
       fallback();

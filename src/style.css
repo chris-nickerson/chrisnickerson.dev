@@ -787,6 +787,14 @@ kbd {
   color: #6b7c6d;
   margin-top: 20px;
 }
+.awaiting-flight .no-script,
+.profile-ready .no-script,
+html:not(.profile-ready) :is(.world-caption, .hero-actions, .bottom-bar, .instruments, .site-header, .skip-link) {
+  display: none;
+}
+html:not(.profile-ready) .introduction {
+  bottom: 20%;
+}
 .no-script {
   position: absolute;
   bottom: 20px;

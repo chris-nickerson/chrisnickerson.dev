@@ -291,6 +291,13 @@ await run(
       type: "touchMove",
       touchPoints: [{ x: x + 30, y: y - 22 }],
     });
+    const knob = page.locator("#joystick i");
+    const held = await knob.evaluate((el) => el.style.transform);
+    expect(held).toContain("translate");
+    await page
+      .locator("#joystick")
+      .dispatchEvent("pointercancel", { pointerId: 9876 });
+    expect(await knob.evaluate((el) => el.style.transform)).toBe(held);
     await page.waitForTimeout(1500);
     await client.send("Input.dispatchTouchEvent", {
       type: "touchEnd",
@@ -443,6 +450,8 @@ await run("lost GPU context: illustration and biography survive", async () => {
   await page.keyboard.press("Escape");
   await expect(page.locator("#world-status")).toHaveText("Static view");
   const s = await stats(page);
+  expect(s.ready).toBe(false);
+  await expect(page.locator("#scene canvas")).toHaveCount(0);
   await page.getByRole("button", { name: "About Chris", exact: true }).click();
   await expect(page.getByRole("heading", { name: aboutHeading })).toBeVisible();
   const otherTab = await ctx.newPage();
