@@ -36,20 +36,21 @@ test("a stale tab cannot save over newer progress or resurrect a reset", () => {
   assert.equal(loaded.delivered, 4);
 });
 
-test("malformed JSON does not disable saving a replacement", () => {
-  let saved = "{";
-  const store = new WatershedStore(() => ({
-    getItem: () => saved,
-    setItem: (_key, data) => {
-      saved = data;
-    },
-  }));
-  const watershed = new Watershed();
-  store.refresh(watershed);
-  assert.equal(store.available, true);
-  store.save(watershed);
-  assert.equal(JSON.parse(saved).version, 1);
-});
+for (const corrupt of ["{", "null", "{}", '{"version":1,"delivered":-1}'])
+  test(`corrupt data can be replaced: ${corrupt}`, () => {
+    let saved = corrupt;
+    const store = new WatershedStore(() => ({
+      getItem: () => saved,
+      setItem: (_key, data) => {
+        saved = data;
+      },
+    }));
+    const watershed = new Watershed();
+    store.refresh(watershed);
+    assert.equal(store.available, true);
+    store.save(watershed);
+    assert.equal(JSON.parse(saved).version, 1);
+  });
 
 test("an unreadable save version preserves the live flight and the foreign snapshot", () => {
   let stored: string | null = null;
@@ -71,4 +72,30 @@ test("an unreadable save version preserves the live flight and the foreign snaps
   store.refresh(watershed);
   assert.equal(store.available, true);
   assert.equal(watershed.delivered, 0);
+});
+
+test("evaporation in a passive tab cannot roll back watering in the active tab", () => {
+  let saved: string | null = null;
+  const storage = () => ({
+    getItem: () => saved,
+    setItem: (_key: string, data: string) => {
+      saved = data;
+    },
+  });
+  const active = new Watershed(),
+    passive = new Watershed();
+  const writer = new WatershedStore(storage),
+    observer = new WatershedStore(storage);
+  active.deposit(0, 0, 20);
+  active.moisture[0] = 20;
+  writer.save(active);
+  observer.refresh(passive);
+  const original = saved;
+  active.deposit(0, 0, 4);
+  passive.step(5);
+  observer.save(passive);
+  assert.equal(saved, original);
+  writer.save(active);
+  observer.refresh(passive);
+  assert.equal(passive.delivered, 24);
 });

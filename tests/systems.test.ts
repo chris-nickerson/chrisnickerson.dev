@@ -232,3 +232,19 @@ test("crossing the world boundary reports a cut and restores assisted flight", (
   assert.equal(flight.assisted, true);
   assert.equal(flight.step(1 / 60, input), undefined);
 });
+
+test("coastal flow is symmetric across the sea cell regardless of scan direction", () => {
+  const water = new Watershed();
+  water.heights.fill(1000);
+  const center = GRID * 64 + 64;
+  water.heights[center] = -1;
+  water.surface[center] = 4;
+  for (const side of [-1, 1]) {
+    water.heights[center + side] = 10;
+    water.surface[center + side] = 20;
+    water.heights[center + 2 * side] = 1;
+  }
+  water.step(0.2);
+  assert.ok(water.surface[center - 2] > 0);
+  assert.equal(water.surface[center - 2], water.surface[center + 2]);
+});

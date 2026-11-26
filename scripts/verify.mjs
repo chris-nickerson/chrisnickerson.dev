@@ -503,7 +503,11 @@ await run("lost GPU context: illustration and biography survive", async () => {
   await otherTab.goto(new URL("?fallback", previewURL).href);
   await otherTab.evaluate(() => {
     const key = "after-rain.watershed.v1";
-    const saved = JSON.parse(localStorage.getItem(key));
+    const saved = JSON.parse(localStorage.getItem(key)) ?? {
+      version: 1,
+      delivered: 0,
+      moisture: Array(128 * 128).fill(0),
+    };
     saved.delivered += 10;
     localStorage.setItem(key, JSON.stringify(saved));
   });
