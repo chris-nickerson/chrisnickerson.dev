@@ -11,17 +11,26 @@ export class CameraFraming {
   private readonly target = new Vector3();
   private readonly offset = new Vector3();
 
+  constructor(private readonly camera: PerspectiveCamera) {}
+
   arrival(
-    camera: PerspectiveCamera,
     position: Vector3,
-    arrival: Arrival,
-    landmark: Vector3,
-    orbit: number,
-    tilt: number,
-    ease: number,
+    {
+      arrival,
+      landmark,
+      orbit,
+      tilt,
+      ease,
+    }: {
+      arrival: Arrival;
+      landmark: Vector3;
+      orbit: number;
+      tilt: number;
+      ease: number;
+    },
   ) {
     const { eye, aim } = this;
-    const portrait = camera.aspect < 0.8;
+    const portrait = this.camera.aspect < 0.8;
     if (arrival.stage === "approach") {
       eye.set(portrait ? -12 : -63, portrait ? 35 : 27, portrait ? 190 : 105);
       aim.set(0, portrait ? 6 : 2, portrait ? -90 : -150);
@@ -42,51 +51,60 @@ export class CameraFraming {
     eye.applyAxisAngle(vertical, orbit).add(position);
     eye.y = Math.max(eye.y + tilt * 90, terrainHeight(eye.x, eye.z) + 10);
     aim.applyAxisAngle(vertical, orbit).add(position);
-    this.apply(camera, ease);
+    this.apply(ease);
   }
 
   follow(
-    camera: PerspectiveCamera,
     position: Vector3,
-    angle: number,
-    tilt: number,
-    surface: number,
-    map: number,
-    tending: boolean,
-    height: number,
-    ease: number,
+    {
+      heading,
+      tilt,
+      surfaceMix,
+      mapMix,
+      rainRunActive,
+      height,
+      ease,
+    }: {
+      heading: number;
+      tilt: number;
+      surfaceMix: number;
+      mapMix: number;
+      rainRunActive: boolean;
+      height: number;
+      ease: number;
+    },
   ) {
     const { eye, aim, offset } = this;
-    const portrait = camera.aspect < 0.8;
+    const portrait = this.camera.aspect < 0.8;
     eye.set(
       portrait ? -12 : -66,
-      (tending ? 100 : 34) + tilt * 120,
-      portrait ? (tending ? 220 : 180) : tending ? 150 : 120,
+      (rainRunActive ? 100 : 34) + tilt * 120,
+      portrait ? (rainRunActive ? 220 : 180) : rainRunActive ? 150 : 120,
     );
     eye.lerp(
       offset.set(portrait ? -10 : -52, 38 + tilt * 100, portrait ? 185 : 125),
-      surface,
+      surfaceMix,
     );
-    eye.applyAxisAngle(vertical, -angle).add(position);
+    eye.applyAxisAngle(vertical, -heading).add(position);
     eye.y = Math.max(eye.y, terrainHeight(eye.x, eye.z) + 25);
     aim.set(
-      portrait && !tending ? -12 * (1 - surface) : 0,
-      tending ? -80 : portrait ? (height < 700 ? -110 : -45) : 10,
+      portrait && !rainRunActive ? -12 * (1 - surfaceMix) : 0,
+      rainRunActive ? -80 : portrait ? (height < 700 ? -110 : -45) : 10,
       -180,
     );
     aim.lerp(
       offset.set(0, 6, -35),
-      Math.max(surface, clamp((tilt - 0.12) / 0.35, 0, 1)),
+      Math.max(surfaceMix, clamp((tilt - 0.12) / 0.35, 0, 1)),
     );
-    aim.applyAxisAngle(vertical, -angle).add(position);
-    eye.lerp(offset.set(position.x + 1100, 3600, position.z + 2300), map);
-    aim.lerp(offset.set(position.x + 300, 0, position.z - 200), map);
-    this.apply(camera, ease);
+    aim.applyAxisAngle(vertical, -heading).add(position);
+    eye.lerp(offset.set(position.x + 1100, 3600, position.z + 2300), mapMix);
+    aim.lerp(offset.set(position.x + 300, 0, position.z - 200), mapMix);
+    this.apply(ease);
   }
 
-  private apply(camera: PerspectiveCamera, ease: number) {
-    camera.position.lerp(this.eye, ease);
+  private apply(ease: number) {
+    this.camera.position.lerp(this.eye, ease);
     this.target.lerp(this.aim, ease);
-    camera.lookAt(this.target);
+    this.camera.lookAt(this.target);
   }
 }

@@ -51,6 +51,10 @@ export function bindFlightControls({
         Number(held.has("s") || held.has("arrowdown"));
     sim.input.throttle = Number(held.has("=")) - Number(held.has("-"));
   }
+  function holdWater() {
+    const sim = simulation();
+    if (sim) sim.heldWater = spaceDown || sprayPointer !== undefined;
+  }
   function releaseControls() {
     keys.clear();
     spaceDown = false;
@@ -61,8 +65,7 @@ export function bindFlightControls({
     stick = undefined;
     sprayPointer = undefined;
     knob.style.transform = "";
-    const sim = simulation();
-    if (sim) sim.manualWater = false;
+    simulation()?.stopWater();
     updateSteering();
   }
   window.addEventListener("keydown", (e) => {
@@ -111,8 +114,8 @@ export function bindFlightControls({
       return;
     }
     if (k === " " && !(e.target instanceof HTMLButtonElement)) {
-      sim.heldWater = true;
       spaceDown = true;
+      holdWater();
     }
     if (controlKeys.includes(k)) {
       if (sim.flight.assisted) setPilot(true);
@@ -125,8 +128,7 @@ export function bindFlightControls({
     if (keys.delete(event.code || event.key.toLowerCase())) updateSteering();
     if (event.key === " " && spaceDown) {
       spaceDown = false;
-      const sim = simulation();
-      if (sim) sim.heldWater = sprayPointer !== undefined;
+      holdWater();
     }
   });
   window.addEventListener("blur", releaseControls);
@@ -156,11 +158,10 @@ export function bindFlightControls({
   });
   joystick.addEventListener("pointermove", moveStick);
   spray.addEventListener("pointerdown", (event) => {
-    const sim = simulation();
-    if (!sim || sprayPointer !== undefined) return;
+    if (!simulation() || sprayPointer !== undefined) return;
     spray.setPointerCapture(event.pointerId);
     sprayPointer = event.pointerId;
-    sim.heldWater = true;
+    holdWater();
   });
   for (const type of [
     "pointerup",
@@ -176,8 +177,7 @@ export function bindFlightControls({
     spray.addEventListener(type, (event) => {
       if (event.pointerId !== sprayPointer) return;
       sprayPointer = undefined;
-      const sim = simulation();
-      if (sim) sim.heldWater = spaceDown;
+      holdWater();
     });
   }
   return releaseControls;

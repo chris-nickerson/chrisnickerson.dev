@@ -53,17 +53,16 @@ export class Simulation {
   readonly groves: ReturnType<typeof createGroves>;
   paused = false;
   map = false;
-  private latchedWater = false;
   heldWater = false;
+  private toggledWater = false;
   get manualWater() {
-    return this.latchedWater || this.heldWater;
-  }
-  set manualWater(value: boolean) {
-    this.latchedWater = value;
-    this.heldWater = false;
+    return this.toggledWater || this.heldWater;
   }
   toggleWater() {
-    this.latchedWater = !this.latchedWater;
+    this.toggledWater = !this.toggledWater;
+  }
+  stopWater() {
+    this.toggledWater = this.heldWater = false;
   }
   watering = false;
   low = false;
@@ -87,7 +86,7 @@ export class Simulation {
   private hydroClock = 0;
   private saveClock = 0;
   private uiClock = 0;
-  private readonly framing = new CameraFraming();
+  private readonly framing = new CameraFraming(this.camera);
   private orbit = 0;
   private orbitTarget = 0;
   private tilt = 0;
@@ -241,6 +240,7 @@ export class Simulation {
         "webglcontextlost",
         (event) => {
           event.preventDefault();
+          this.stop();
           window.dispatchEvent(new Event("world-context-lost"));
         },
         options,
@@ -456,7 +456,7 @@ export class Simulation {
       this.manualApproach = undefined;
     this.surfaceSpray.update(dt, this.flight, this.flight.onWater);
     if (this.flight.onWater) {
-      this.manualWater = false;
+      this.stopWater();
       this.rainRun.stop();
     }
     this.watering = !this.arrival && !this.flight.onWater && this.manualWater;
@@ -541,7 +541,7 @@ export class Simulation {
   /** Shows a new leg from its first frame. The camera, map, and trail restart so nothing is drawn between the old place and the new one. */
   private cutTo(focus?: { x: number; z: number }) {
     this.paused = false;
-    this.manualWater = false;
+    this.stopWater();
     this.world.focus(focus?.x, focus?.z);
     this.setMap(false);
     this.viewMix = 0;
@@ -571,31 +571,27 @@ export class Simulation {
       (Number(this.flight.onWater) - this.surfaceMix) *
       (instant ? 1 : 1 - Math.exp(-dt * 0.85));
     if (this.arrival) {
-      this.framing.arrival(
-        this.camera,
-        p,
-        this.arrival,
-        this.landmarks.roots[this.arrival.place].position,
-        this.orbit,
-        this.tilt,
-        instant ? 1 : 1 - Math.exp(-dt * 0.8),
-      );
+      this.framing.arrival(p, {
+        arrival: this.arrival,
+        landmark: this.landmarks.roots[this.arrival.place].position,
+        orbit: this.orbit,
+        tilt: this.tilt,
+        ease: instant ? 1 : 1 - Math.exp(-dt * 0.8),
+      });
       return;
     }
     this.viewMix += (Number(this.map) - this.viewMix) * Math.min(1, dt * 1.8);
-    this.framing.follow(
-      this.camera,
-      p,
-      this.presentation.heading + this.orbit,
-      this.tilt,
-      this.surfaceMix,
-      this.viewMix,
-      this.rainRun.active,
-      this.host.clientHeight,
-      instant
+    this.framing.follow(p, {
+      heading: this.presentation.heading + this.orbit,
+      tilt: this.tilt,
+      surfaceMix: this.surfaceMix,
+      mapMix: this.viewMix,
+      rainRunActive: this.rainRun.active,
+      height: this.host.clientHeight,
+      ease: instant
         ? 1
         : 1 - Math.exp(-dt * (this.dragPointer !== undefined ? 14 : 5)),
-    );
+    });
     (this.scene.fog as T.FogExp2).density = 0.000024 - this.viewMix * 0.00001;
   }
   private render(prepareLanding = false) {

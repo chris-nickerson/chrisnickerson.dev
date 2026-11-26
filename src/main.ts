@@ -523,8 +523,12 @@ document
 const releaseControls = bindFlightControls({
   simulation: () => sim,
   dialogOpen: () => !!dialogSession,
-  setPilot, togglePause, toggleView,
-  scene: $("scene"), joystick: $("joystick"), spray: $("touch-water"),
+  setPilot,
+  togglePause,
+  toggleView,
+  scene: $("scene"),
+  joystick: $("joystick"),
+  spray: $("touch-water"),
 });
 document.addEventListener("visibilitychange", () =>
   sound.update(sim?.flight.speed ?? 50, document.hidden || !!sim?.paused),
@@ -542,7 +546,10 @@ function fallback() {
     sim.stop();
     const finalStats = sim.stats();
     Object.assign(window, {
-      __AFTER_RAIN__: { stats: () => structuredClone(finalStats), practiceLanding: () => {} },
+      __AFTER_RAIN__: {
+        stats: () => structuredClone(finalStats),
+        practiceLanding: () => {},
+      },
     });
     sim = undefined;
   }
@@ -607,14 +614,16 @@ requestAnimationFrame(() =>
       setFlightAvailable(true);
       if (dialogSession) sim.setPaused(true);
       updateUI();
-      Object.assign(window, { __AFTER_RAIN__: {
-        stats: () => started.stats(),
-        practiceLanding: (id: PlaceId) => {
-          if (!sim) return;
-          sim.practiceLanding(id);
-          setPilot(true);
+      Object.assign(window, {
+        __AFTER_RAIN__: {
+          stats: () => started.stats(),
+          practiceLanding: (id: PlaceId) => {
+            if (!sim) return;
+            sim.practiceLanding(id);
+            setPilot(true);
+          },
         },
-      }});
+      });
     } catch (error) {
       console.error("The world could not start:", error);
       fallback();
