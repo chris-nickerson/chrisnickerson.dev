@@ -55,22 +55,29 @@ export class WatershedStore {
     return false;
   }
 
-  save(watershed: Watershed, reset = false) {
+  save(
+    watershed: Watershed,
+    reason: "periodic" | "blur" | "reset" = "periodic",
+  ) {
     try {
       const storage = this.storage();
-      if (!reset) {
+      if (reason !== "reset") {
         const stored = storage.getItem(SAVE_KEY);
         if (stored !== this.previous) {
           return this.adopt(watershed, stored);
         }
         if (this.incompatible) return false;
-        if (this.savedDelivery === watershed.delivered && !this.isFocused()) {
+        if (
+          reason === "periodic" &&
+          this.savedDelivery === watershed.delivered &&
+          !this.isFocused()
+        ) {
           this.available = true;
           return false;
         }
       }
       const snapshot = JSON.stringify(watershed.snapshot());
-      if (snapshot !== this.previous || reset)
+      if (snapshot !== this.previous || reason === "reset")
         storage.setItem(SAVE_KEY, snapshot);
       this.incompatible = false;
       this.savedDelivery = watershed.delivered;

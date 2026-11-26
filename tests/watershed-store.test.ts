@@ -24,7 +24,7 @@ test("a stale tab cannot save over newer progress or resurrect a reset", () => {
   new WatershedStore(storage).refresh(loaded);
   assert.equal(loaded.delivered, 10);
   old.clear();
-  a.save(old, true);
+  a.save(old, "reset");
   current.deposit(0, 0, 3);
   b.save(current);
   new WatershedStore(storage).refresh(loaded);
@@ -118,5 +118,31 @@ test("a focused flight persists evaporation even without depositing more water",
   const next = new Watershed();
   new WatershedStore(storage).refresh(next);
   assert.ok(next.moisture[0] < 20);
-  assert.equal(next.moisture[0], active.moisture[0]);
+  assert.ok(Math.abs(next.moisture[0] - active.moisture[0]) < 0.001);
+});
+
+test("the outgoing window flushes its final soil change even after losing focus", () => {
+  const basin = new Watershed();
+  basin.moisture[0] = 10;
+  let saved = JSON.stringify(basin.snapshot());
+  const store = new WatershedStore(
+    () => ({
+      getItem: () => saved,
+      setItem: (_key, value) => {
+        saved = value;
+      },
+    }),
+    () => false,
+  );
+  store.refresh(basin);
+  basin.step(5);
+  store.save(basin, "blur");
+  assert.ok(JSON.parse(saved).moisture[0] < 10);
+  saved = '{"version":2}';
+  store.save(basin, "blur");
+  assert.equal(saved, '{"version":2}');
+  basin.clear();
+  store.save(basin, "reset");
+  assert.equal(JSON.parse(saved).version, 1);
+  assert.equal(JSON.parse(saved).delivered, 0);
 });

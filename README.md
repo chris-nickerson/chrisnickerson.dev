@@ -17,7 +17,7 @@ Open the URL Vite prints. The dev server also listens on your local network, so 
 
 Add `?seed=42` for the field-station cove, `?seed=43` for the windward slope, or `?seed=44` for the island channel. The seed fixes the departure point and the flock’s route. Physics advances in fixed 60 Hz steps, so the automatic flight for a seed is the same on every load. Without a seed, each visit draws a new one.
 
-The watershed remembers soil moisture in `localStorage`. Each tab saves a complete snapshot. When another tab writes or clears the save, the [active flight](src/watershed-store.ts) adopts that snapshot. The focused flight saves its soil changes, including evaporation. An unfocused tab skips evaporation-only writes. A tab that discovers a conflicting save before receiving the storage event discards its unsaved changes and continues from the stored watershed. To start with dry ground, use a fresh browser profile or choose **Reset the watershed** in the Watershed view.
+The watershed remembers soil moisture in `localStorage`. Each tab saves a complete snapshot. When another tab writes or clears the save, running flights [adopt the snapshot](src/watershed-store.ts). The focused flight saves its soil changes, including evaporation, and flushes pending changes when it loses focus. An unfocused tab skips evaporation-only writes. A tab that discovers a conflicting save before receiving the storage event discards its unsaved changes and continues from the stored watershed. An unreadable newer save stays in storage until an explicit reset. To start with dry ground, use a fresh browser profile or choose **Reset the watershed** in the Watershed view.
 
 ## Read the source
 

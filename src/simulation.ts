@@ -274,6 +274,7 @@ export class Simulation {
         },
         options,
       );
+      window.addEventListener("blur", () => this.save("blur"), options);
       window.addEventListener("pagehide", () => this.save(), options);
       this.ready = true;
       this.frame = requestAnimationFrame(this.animate);
@@ -447,8 +448,8 @@ export class Simulation {
     );
     this.resize();
   }
-  save() {
-    if (this.storage.save(this.watershed)) this.redrawPausedWatershed();
+  save(reason: "periodic" | "blur" = "periodic") {
+    if (this.storage.save(this.watershed, reason)) this.redrawPausedWatershed();
   }
   private redrawPausedWatershed() {
     if (this.ready && this.paused) {
@@ -458,7 +459,7 @@ export class Simulation {
   }
   clear() {
     this.watershed.clear();
-    this.storage.save(this.watershed, true);
+    this.storage.save(this.watershed, "reset");
     this.world.update(this.elapsed);
     this.render();
   }

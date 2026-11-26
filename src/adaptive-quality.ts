@@ -10,7 +10,7 @@ export class AdaptiveQuality {
     return this.frameTimes.length
       ? this.frameTimes.reduce((sum, ms) => sum + ms, 0) /
           this.frameTimes.length
-      : 1000 / 60;
+      : 16.7;
   }
 
   reset() {
