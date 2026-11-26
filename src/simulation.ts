@@ -263,9 +263,7 @@ export class Simulation {
       this.ready = true;
       this.frame = requestAnimationFrame(this.animate);
     } catch (error) {
-      this.lifetime.abort();
-      this.renderer.domElement.remove();
-      this.renderer.dispose();
+      this.release();
       this.renderer.forceContextLoss();
       throw error;
     }
@@ -799,10 +797,13 @@ export class Simulation {
   }
   stop() {
     if (this.lifetime.signal.aborted) return;
+    this.release();
+    this.save();
+  }
+  private release() {
     this.lifetime.abort();
     cancelAnimationFrame(this.frame);
     this.ready = false;
-    this.save();
     this.renderer.domElement.remove();
     this.renderer.dispose();
   }

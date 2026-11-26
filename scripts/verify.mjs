@@ -417,13 +417,14 @@ await run("lost GPU context: illustration and biography survive", async () => {
   await expect(page.locator("#pause")).toHaveAttribute("aria-pressed", "true");
   await page.locator("#scene").focus();
   await expect(page.locator("#scene")).toBeFocused();
-  await page.evaluate(() =>
-    document
-      .querySelector("#scene canvas")
+  const canvasRef = await page.evaluateHandle(() => {
+    const canvas = document.querySelector("#scene canvas");
+    canvas
       .getContext("webgl2")
       .getExtension("WEBGL_lose_context")
-      .loseContext(),
-  );
+      .loseContext();
+    return new WeakRef(canvas);
+  });
   await expect(page.locator("#fallback-note")).toBeVisible();
   await expect(page.locator("#fallback")).toBeVisible();
   await expect(page.locator(".loading-screen")).toBeHidden();
@@ -452,6 +453,15 @@ await run("lost GPU context: illustration and biography survive", async () => {
   const s = await stats(page);
   expect(s.ready).toBe(false);
   await expect(page.locator("#scene canvas")).toHaveCount(0);
+  const cdp = await ctx.newCDPSession(page);
+  await expect
+    .poll(async () => {
+      await cdp.send("HeapProfiler.collectGarbage");
+      return canvasRef.evaluate((ref) => Boolean(ref.deref()));
+    })
+    .toBe(false);
+  await canvasRef.dispose();
+  await cdp.detach();
   await page.getByRole("button", { name: "About Chris", exact: true }).click();
   await expect(page.getByRole("heading", { name: aboutHeading })).toBeVisible();
   const otherTab = await ctx.newPage();

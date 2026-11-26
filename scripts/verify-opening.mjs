@@ -19,6 +19,7 @@ export async function verifyOpening(browser) {
     await expect(
       fallback.getByRole("link", { name: "GitHub" }),
     ).toHaveAttribute("href", "https://github.com/chris-nickerson");
+    await expect(offlineEntry.locator("#fallback-note")).toBeHidden();
     await expect(offlineEntry.locator(".hero-actions")).toBeHidden();
   } finally {
     await offlineEntry.close();
