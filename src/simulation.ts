@@ -1,3 +1,5 @@
+import { inletSun } from "./atmosphere";
+import { bakeInletEnvironment, setInletSkyPanorama } from "./inlet-sky";
 import { CameraFraming } from "./camera-framing";
 import { WatershedStore } from "./watershed-store";
 import { AdaptiveQuality } from "./adaptive-quality";
@@ -52,6 +54,7 @@ export class Simulation {
   readonly rainRun = new RainRun();
   readonly groves: ReturnType<typeof createGroves>;
   paused = false;
+  night = false;
   map = false;
   heldWater = false;
   private toggledWater = false;
@@ -114,6 +117,9 @@ export class Simulation {
     type: T.HalfFloatType,
     depthBuffer: false,
   });
+  private readonly landingLight = new T.SpotLight(0xffdba2, 0, 360, 0.22, 0.78);
+  private environments = new Map<boolean, T.WebGLRenderTarget>();
+  private panorama?: T.Texture;
   private screenMaterial: T.ShaderMaterial;
   private clearColor = new T.Color();
   private readonly cloudScene = new T.Scene();
@@ -125,6 +131,10 @@ export class Simulation {
     public aircraftId: AircraftId = "survey",
   ) {
     this.aircraft = createAircraft(aircraftId);
+    this.landingLight.position.set(-2.8, -0.6, -7.5);
+    this.landingLight.target.position.set(0, -0.23, -1);
+    this.landingLight.add(this.landingLight.target);
+    this.aircraft.root.add(this.landingLight);
     this.hangar.set(aircraftId, this.aircraft);
     this.low =
       matchMedia("(max-width: 700px)").matches ||
@@ -168,6 +178,9 @@ export class Simulation {
           uProjectionInverse: { value: this.camera.projectionMatrixInverse },
           uCameraWorld: { value: this.camera.matrixWorld },
           uCamera: { value: this.camera.position },
+          uSun: { value: inletSun },
+          uNight: { value: 0 },
+          uTime: { value: 0 },
         },
         vertexShader:
           "uniform mat4 uProjectionInverse,uCameraWorld;varying vec2 vUv;varying vec3 vRay;void main(){vUv=uv;vRay=mat3(uCameraWorld)*(uProjectionInverse*vec4(position.xy,1.,1.)).xyz;gl_Position=vec4(position.xy,0.,1.);}",
@@ -186,12 +199,22 @@ export class Simulation {
       this.migration = new Migration(this.world.wind, this.low);
       this.scene.add(this.migration.birds.mesh);
       if (this.migration.wakes) this.scene.add(this.migration.wakes.mesh);
-      const envScene = new T.Scene();
-      envScene.add(this.world.sky.clone());
-      const pmrem = new T.PMREMGenerator(this.renderer);
-      this.scene.environment = pmrem.fromScene(envScene, 0, 1, 25000).texture;
-      this.scene.environmentIntensity = 0.65;
-      pmrem.dispose();
+      this.useEnvironment();
+      this.scene.environmentIntensity = 0.8;
+      new T.TextureLoader().load(
+        new URL("./storm-sky.webp", import.meta.url).href,
+        (panorama) => {
+          if (this.lifetime.signal.aborted) {
+            panorama.dispose();
+            return;
+          }
+          this.panorama = panorama;
+          setInletSkyPanorama(this.world.sky, panorama);
+          this.releaseEnvironments();
+          this.useEnvironment();
+          if (this.paused) this.render();
+        },
+      );
       this.scene.add(this.aircraft.root);
       this.landmarks = createPlaces(this.scene);
       this.rivers = createRivers(this.scene);
@@ -291,6 +314,7 @@ export class Simulation {
     next.root.position.copy(this.aircraft.root.position);
     next.root.quaternion.copy(this.aircraft.root.quaternion);
     this.scene.remove(this.aircraft.root);
+    next.root.add(this.landingLight);
     this.scene.add(next.root);
     this.aircraft = next;
     this.aircraftId = id;
@@ -603,6 +627,7 @@ export class Simulation {
     this.viewMix += (Number(this.map) - this.viewMix) * Math.min(1, dt * 1.8);
     this.framing.follow(p, {
       heading: this.presentation.heading + this.orbit,
+      assisted: this.flight.assisted,
       tilt: this.tilt,
       surfaceMix: this.surfaceMix,
       mapMix: this.viewMix,
@@ -617,11 +642,16 @@ export class Simulation {
   private render(prepareLanding = false) {
     this.renderMetrics.begin();
     this.renderer.info.reset();
-    this.renderer.shadowMap.enabled =
-      prepareLanding || !!this.arrival || this.flight.onWater;
+    const shadowStrength =
+      prepareLanding || this.arrival || this.flight.onWater
+        ? 1
+        : 1 - T.MathUtils.smoothstep(this.presentation.position.y, 25, 45);
+    this.world.sunlight.shadow.intensity = 0.68 * shadowStrength;
+    this.renderer.shadowMap.enabled = shadowStrength > 0;
     this.renderer.shadowMap.needsUpdate = this.renderer.shadowMap.enabled;
     const visualTime = Math.max(0, this.elapsed - 1 / 60 + this.accumulator);
     this.groves.update(this.elapsed);
+    this.screenMaterial.uniforms.uTime.value = visualTime;
     this.migration.update(visualTime);
     this.world.updateSun(this.presentation.position);
     this.world.setWake(
@@ -634,7 +664,7 @@ export class Simulation {
     this.world.update(visualTime, this.viewMix);
     this.runoff.animate(visualTime, this.viewMix);
     this.rivers.update(visualTime, this.watershed.delivered);
-    this.landmarks.update(visualTime);
+    this.landmarks.update(visualTime, this.presentation.position);
     this.weather.update(visualTime, 0);
     if (
       this.frames % (this.low || this.quality === "low" ? 3 : 2) === 0 ||
@@ -763,9 +793,33 @@ export class Simulation {
       throttle: this.arrival && this.flight.onWater ? 0 : this.flight.throttle,
     };
   }
+  private releaseEnvironments() {
+    for (const target of this.environments.values()) target.dispose();
+    this.environments.clear();
+  }
+  private useEnvironment() {
+    let target = this.environments.get(this.night);
+    if (!target) {
+      target = bakeInletEnvironment(this.renderer, this.panorama, this.night);
+      this.environments.set(this.night, target);
+    }
+    this.scene.environment = target.texture;
+  }
+  setNight(value: boolean) {
+    if (value === this.night) return;
+    this.night = value;
+    this.screenMaterial.uniforms.uNight.value = Number(value);
+    this.world.setNight(value);
+    this.landmarks.setNight(value);
+    this.landingLight.intensity = value ? 56000 : 0;
+    this.useEnvironment();
+    if (this.paused) this.render();
+  }
   stats() {
     return {
       ready: this.ready,
+      skyReady: Boolean(this.panorama),
+      night: this.night,
       aircraftId: this.aircraftId,
       migration: {
         seed: this.seed,
@@ -826,6 +880,8 @@ export class Simulation {
   }
   private release() {
     this.lifetime.abort();
+    this.releaseEnvironments();
+    this.panorama?.dispose();
     cancelAnimationFrame(this.frame);
     this.ready = false;
     this.renderer.domElement.remove();

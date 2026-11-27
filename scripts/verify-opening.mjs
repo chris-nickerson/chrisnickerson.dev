@@ -1,7 +1,7 @@
 import { expect } from "@playwright/test";
 import { previewURL } from "./browser-check.mjs";
 
-const moduleURL =
+export const moduleURL =
   /\/(?:assets\/simulation-[^/]+\.js|src\/simulation\.ts)(?:\?|$)/;
 export const loadingScreen = (page) =>
   page.getByRole("status").filter({ hasText: /^\s*Loading\s*$/ });
@@ -232,5 +232,174 @@ export async function verifyOpening(browser) {
     await expect(loadingScreen(skipping)).toBeHidden();
   } finally {
     await skipping.close();
+  }
+}
+
+async function sceneSamples(page, clip) {
+  const screenshot = await page.screenshot({
+    clip,
+    style:
+      "#experience > :not(#scene), body > :not(#experience) {visibility:hidden!important}",
+  });
+  return page.evaluate(async (png) => {
+    const image = new Image();
+    image.src = "data:image/png;base64," + png;
+    await image.decode();
+    const ctx = new OffscreenCanvas(32, 24).getContext("2d");
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(image, 0, 0, 32, 24);
+    return Array.from(ctx.getImageData(0, 0, 32, 24).data).filter(
+      (_, i) => i % 4 !== 3,
+    );
+  }, screenshot.toString("base64"));
+}
+
+function rgbDifference(before, after) {
+  return (
+    after.reduce((sum, value, i) => sum + Math.abs(value - before[i]), 0) /
+    after.length
+  );
+}
+
+export async function verifyStreamedSky(browser) {
+  const page = await browser.newPage({
+    viewport: { width: 1440, height: 900 },
+    reducedMotion: "reduce",
+  });
+  let skyRequest;
+  await page.route(/\/storm-sky(?:-[^/?]+)?\.webp(?:\?|$)/, (route) => {
+    skyRequest = route;
+  });
+  try {
+    await page.goto(new URL("?seed=42", previewURL).href, {
+      waitUntil: "domcontentloaded",
+    });
+    await page.waitForFunction(() => window.__AFTER_RAIN__?.stats().ready);
+    await expect.poll(() => Boolean(skyRequest)).toBe(true);
+    await expect(page.locator(".loading-screen")).toBeHidden();
+    await expect(page.locator("#fly")).toBeEnabled();
+    const { width, height } = page.viewportSize();
+    const upperSky = { x: 0, y: 0, width, height: Math.ceil(height / 3) };
+    const fallback = await sceneSamples(page, upperSky);
+    await skyRequest.continue();
+    await expect
+      .poll(
+        async () => rgbDifference(fallback, await sceneSamples(page, upperSky)),
+        {
+          message:
+            "the storm panorama must visibly replace the paused fallback sky",
+        },
+      )
+      .toBeGreaterThan(10);
+    expect(
+      await page.evaluate(() => window.__AFTER_RAIN__.stats()),
+    ).toMatchObject({
+      paused: true,
+      elapsed: 0,
+    });
+    await page.getByRole("button", { name: "Go flying", exact: true }).click();
+    await expect(page.locator("#experience")).toHaveClass(/piloting/);
+  } finally {
+    await page.close();
+  }
+}
+
+export async function verifyNightFlight(browser, viewport) {
+  const phone = viewport.width < 700;
+  const page = await browser.newPage({
+    viewport,
+    isMobile: phone,
+    hasTouch: phone,
+    deviceScaleFactor: phone ? 1.5 : 1,
+    reducedMotion: "reduce",
+  });
+  const errors = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  page.on("console", (m) => {
+    if (m.type() === "error") errors.push(m.text());
+  });
+  const stats = () => page.evaluate(() => window.__AFTER_RAIN__.stats());
+  try {
+    await page.goto(new URL("?seed=42", previewURL).href, {
+      waitUntil: "networkidle",
+    });
+    await page.waitForFunction(() => window.__AFTER_RAIN__?.stats().skyReady);
+    const night = page.getByRole("button", {
+      name: "Night flight",
+      exact: true,
+    });
+    await expect(night).toHaveAttribute("aria-pressed", "false");
+    expect(await stats()).toMatchObject({
+      night: false,
+      paused: true,
+      elapsed: 0,
+    });
+    const dayFrame = await sceneSamples(page);
+    await night.click();
+    await expect(night).toHaveAttribute("aria-pressed", "true");
+    expect(await stats()).toMatchObject({
+      night: true,
+      paused: true,
+      elapsed: 0,
+    });
+    const nightFrame = await sceneSamples(page);
+    expect(
+      rgbDifference(dayFrame, nightFrame),
+      "night must visibly relight the paused inlet",
+    ).toBeGreaterThan(20);
+    const intensity = [];
+    for (let i = 0; i < nightFrame.length; i += 3) {
+      intensity.push(
+        (nightFrame[i] + nightFrame[i + 1] + nightFrame[i + 2]) / 3,
+      );
+    }
+    intensity.sort((a, b) => a - b);
+    const percentile = (p) => intensity[Math.floor(p * intensity.length)];
+    expect(
+      percentile(0.9) - percentile(0.1),
+      "the night scene must retain visible detail",
+    ).toBeGreaterThan(18);
+    await night.click();
+    await expect(night).toHaveAttribute("aria-pressed", "false");
+    await expect
+      .poll(async () => rgbDifference(dayFrame, await sceneSamples(page)), {
+        message: "daylight must return to the same paused scene",
+      })
+      .toBeLessThan(2);
+    expect(await stats()).toMatchObject({
+      night: false,
+      paused: true,
+      elapsed: 0,
+    });
+
+    await page.getByRole("button", { name: "Go flying", exact: true }).click();
+    await night.click();
+    await page.waitForFunction(() => {
+      const s = window.__AFTER_RAIN__.stats();
+      return s.night && !s.paused && !s.assisted && s.elapsed > 0.3;
+    });
+    if (!phone) {
+      await expect(page.locator("#scene")).toBeFocused();
+      const heading = (await stats()).heading;
+      await page.keyboard.down("d");
+      try {
+        await page.waitForFunction(
+          (start) =>
+            Math.sin(window.__AFTER_RAIN__.stats().heading - start) > 0.03,
+          heading,
+        );
+      } finally {
+        await page.keyboard.up("d");
+      }
+    }
+    await night.click();
+    expect(await stats()).toMatchObject({
+      night: false,
+      paused: false,
+      assisted: false,
+    });
+    expect(errors).toEqual([]);
+  } finally {
+    await page.close();
   }
 }

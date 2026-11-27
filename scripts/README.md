@@ -2,7 +2,9 @@
 
 Run commands from the repository root. Install the browsers and video recorder once with `npx playwright install chromium webkit`.
 
-`npm run verify` builds the site, starts a local production preview on a free port, runs the Chromium checks, and closes the server. It then starts a local dev server for the stability replay and writes its measurements and depth screenshots under the capture directory. The production preview covers navigation, desktop keyboard and portrait touch flight, persistence, sound opt-in, reduced motion, and graphics fallback. `npm run verify:webkit` exercises desktop and portrait WebKit. Set `BASE_URL` to run the production browser checks against an existing server. The stability replay always runs against the local source tree. Set `BROWSER_CHANNEL=chrome` to use installed Google Chrome.
+`npm run verify` builds a production preview on a free port and runs the Chromium checks. These cover navigation, desktop keyboard and portrait touch flight, persistence, sound opt-in, reduced motion, the streamed storm panorama, night flight and graphics fallback. After the preview closes, a local dev server runs the stability replay and writes its measurements and depth screenshots to the capture directory.
+
+Use `npm run verify:webkit` for desktop and portrait WebKit. Set `BASE_URL` to run the production checks against an existing server. The stability replay always uses the local source tree. Set `BROWSER_CHANNEL=chrome` to use installed Google Chrome.
 
 ## Choose a focused check
 
@@ -24,7 +26,13 @@ Run `python3 scripts/paint-eclipse.py` to repaint both eclipse images after chan
 
 Run `python3 scripts/bake-flight-chart.py` from the repo root to regenerate the fallback chart after a terrain change. It uses the terrain sampler, NumPy and Pillow. The chart covers eight world metres per pixel, with the world origin at pixel (810, 400).
 
-Use the preview for [render timings](verify-graphics.mjs) and the [adaptive-quality check](verify-quality.mjs). Use the dev server for the [aircraft studio](verify-aircraft.mjs), the [fixed-clock motion check](diagnose-stability.mjs), or the [shoreline sweep](diagnose-shore.mjs). The [shoreline analysis](analyze-shore.py) compares matching sweeps and needs Python, Pillow, and NumPy.
+Run `node scripts/verify-inlet-views.mjs` to build and serve the site, capture the inlet, and steer the plane on desktop and emulated touch. Set `BASE_URL` to use an existing build. The five reference views cover the seed-42 desktop and portrait openings, seed-43 desktop manual flight, the seed-44 portrait opening and the seed-42 portrait dock approach. Each flight must respond to turns in both directions.
+
+The Chromium suite also runs the five reference views and a focused night-art check. Run `node scripts/verify-build.mjs night-art` to build a temporary production preview and check just the aurora, landing light on the water, berth marker and sweeping lighthouse beam. Set `BASE_URL` to test an existing production or Vite dev server. The check prints the exact simulation module the target homepage loaded.
+
+The visual check compares each canvas at 32 × 24 pixels. Its mean absolute RGB channel difference on a 0–255 scale must be at most 12 from the approved renderer and greater than 9 from the original production build at `7004e89`. The production night-flight check switches between day and night at a fixed camera while paused, then uses the same control during manual flight. [Approved inlet views](../evidence/inlet-views.png) · [Original inlet views](../evidence/inlet-views-7004e89.png)
+
+Use the preview for [render timings](verify-graphics.mjs) and the [adaptive-quality check](verify-quality.mjs). Use the dev server for the [aircraft studio](verify-aircraft.mjs), the [fixed-clock motion check](diagnose-stability.mjs), or the [shoreline sweep](diagnose-shore.mjs). Set `SHORE_FOCUS=1` to capture the high-detail berth terrain alongside the coarse terrain and exercise the relief toggle on both materials. The [shoreline analysis](analyze-shore.py) compares matching sweeps and needs Python, Pillow, and NumPy.
 
 Run `node --import tsx scripts/measure-render-setup.mjs <checkout>` to time terrain tiling, shoreline generation and repeated updates of a fully wet watershed. Each checkout needs its dependencies installed. Compare the geometry hashes and visible vertex counts alongside the medians. To replay the seed used for the shore rendering comparison, run `BASE_URL='http://127.0.0.1:4173/?seed=937' node scripts/verify-graphics.mjs` against each production preview.
 

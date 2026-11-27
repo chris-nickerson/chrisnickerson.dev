@@ -1,0 +1,228 @@
+{
+  "baseline": "Development renderer with lights toggled by visibility and separate night materials",
+  "candidate": "Development renderer with fixed light counts and shared day/night station materials",
+  "hardware": "Apple M4 Pro 20-core GPU, macOS, ANGLE Metal, Chromium",
+  "method": "Seed 42 in Chromium production builds. Each transition sample uses a fresh browser process and an active flight. Click Night flight above 100 m, switch back twice, then move the plane to 38 m twice. Each 550 ms sample records requestAnimationFrame timestamp gaps and new GPU programs. The steady daylight samples contain 180 frames after 45 warm-up frames in three alternating runs per build. The 390 \u00d7 844 samples use touch emulation at DPR 2 and a simulation pixel ratio of 1.35. The OS driver cache was retained. All times are milliseconds.",
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 900,
+      "baseline": {
+        "steadyDayGpuP95Ms": [
+          6.9,
+          6.9,
+          9.6
+        ],
+        "startupMs": [
+          766.6,
+          761.7,
+          773.3
+        ],
+        "firstObservedStartupMs": 759.3,
+        "firstNight": {
+          "maxFrameGapMs": [
+            149.9,
+            150
+          ],
+          "newPrograms": [
+            32,
+            32
+          ]
+        },
+        "firstNightLowPass": {
+          "maxFrameGapMs": [
+            433.3,
+            116.6
+          ],
+          "newPrograms": [
+            24,
+            24
+          ]
+        },
+        "repeatNight": {
+          "maxFrameGapMs": [
+            16.8,
+            16.8
+          ],
+          "newPrograms": [
+            0,
+            0
+          ]
+        },
+        "repeatNightLowPass": {
+          "maxFrameGapMs": [
+            16.8,
+            16.8
+          ],
+          "newPrograms": [
+            0,
+            0
+          ]
+        }
+      },
+      "candidate": {
+        "steadyDayGpuP95Ms": [
+          6,
+          4.4,
+          9.1
+        ],
+        "startupMs": [
+          828.4,
+          831.8,
+          828.2
+        ],
+        "firstObservedStartupMs": 2734.1,
+        "firstNight": {
+          "maxFrameGapMs": [
+            16.8,
+            16.8
+          ],
+          "newPrograms": [
+            2,
+            2
+          ]
+        },
+        "firstNightLowPass": {
+          "maxFrameGapMs": [
+            16.8,
+            16.8
+          ],
+          "newPrograms": [
+            2,
+            2
+          ]
+        },
+        "repeatNight": {
+          "maxFrameGapMs": [
+            16.8,
+            16.8
+          ],
+          "newPrograms": [
+            0,
+            0
+          ]
+        },
+        "repeatNightLowPass": {
+          "maxFrameGapMs": [
+            16.8,
+            16.8
+          ],
+          "newPrograms": [
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "baseline": {
+        "steadyDayGpuP95Ms": [
+          6.1,
+          6.2,
+          6.5
+        ],
+        "startupMs": [
+          464.2,
+          468.8,
+          457.8
+        ],
+        "firstObservedStartupMs": 452.9,
+        "firstNight": {
+          "maxFrameGapMs": [
+            183.2,
+            166.6
+          ],
+          "newPrograms": [
+            32,
+            32
+          ]
+        },
+        "firstNightLowPass": {
+          "maxFrameGapMs": [
+            216.7,
+            133.4
+          ],
+          "newPrograms": [
+            31,
+            31
+          ]
+        },
+        "repeatNight": {
+          "maxFrameGapMs": [
+            16.7,
+            16.8
+          ],
+          "newPrograms": [
+            0,
+            0
+          ]
+        },
+        "repeatNightLowPass": {
+          "maxFrameGapMs": [
+            16.8,
+            16.8
+          ],
+          "newPrograms": [
+            0,
+            0
+          ]
+        }
+      },
+      "candidate": {
+        "steadyDayGpuP95Ms": [
+          5.7,
+          6.7,
+          6.5
+        ],
+        "startupMs": [
+          527.6,
+          529.7,
+          529
+        ],
+        "firstObservedStartupMs": 799.5,
+        "firstNight": {
+          "maxFrameGapMs": [
+            16.8,
+            16.8
+          ],
+          "newPrograms": [
+            2,
+            2
+          ]
+        },
+        "firstNightLowPass": {
+          "maxFrameGapMs": [
+            16.8,
+            16.8
+          ],
+          "newPrograms": [
+            2,
+            2
+          ]
+        },
+        "repeatNight": {
+          "maxFrameGapMs": [
+            16.8,
+            16.8
+          ],
+          "newPrograms": [
+            0,
+            0
+          ]
+        },
+        "repeatNightLowPass": {
+          "maxFrameGapMs": [
+            16.8,
+            16.8
+          ],
+          "newPrograms": [
+            0,
+            0
+          ]
+        }
+      }
+    }
+  ]
+}

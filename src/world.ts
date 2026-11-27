@@ -1,4 +1,7 @@
 import * as T from "three";
+import { createWaveSlopeTexture } from "./wave-slopes";
+import { createHeadwall } from "./headwall";
+import { inletMoon, inletSun, stormOpening } from "./atmosphere";
 import {
   fbm,
   seededRandom,
@@ -8,19 +11,19 @@ import {
   riverCenter,
 } from "./terrain";
 import { GRID, Watershed } from "./hydrology";
-import { createCanopy, createNearCanopy } from "./forest";
+import { canopyFootprints, createCanopy, createNearCanopy } from "./forest";
 import { terrainTiles } from "./render-geometry";
 import { createShoreDetail } from "./shore-detail";
 import { landscapeMap, forestCover } from "./landscape";
+import {
+  cirqueShelter,
+  graniteRelief,
+  shadeAlpineSurface,
+} from "./alpine-surface";
 import { shoreline } from "./shore";
 import { places } from "./places";
-import {
-  noiseGLSL,
-  skyFragment,
-  skyVertex,
-  waterFragment,
-  waterVertex,
-} from "./shaders";
+import { createInletSky } from "./inlet-sky";
+import { waterFragment, waterVertex } from "./shaders";
 
 export function createWorld(
   scene: T.Scene,
@@ -28,12 +31,14 @@ export function createWorld(
   hydrology: Watershed,
   seed: number,
 ) {
-  const sun = new T.Vector3(-0.78, 0.38, -0.36).normalize();
-  scene.fog = new T.FogExp2(0x8caabd, 0.000024);
+  const sun = inletSun;
+  scene.add(createHeadwall(sun, low));
+  scene.fog = new T.FogExp2(0x9ba8af, 0.000024);
   const { map: landscape, wind } = landscapeMap(sun, seed);
-  const hemi = new T.HemisphereLight(0xadcce7, 0x26392b, 0.72);
+  const hemi = new T.HemisphereLight(0xc1d5e8, 0x42574c, 1.02);
+  hemi.position.set(-0.62, 1, 0.25);
   scene.add(hemi);
-  const sunlight = new T.DirectionalLight(0xffdfad, 3.2);
+  const sunlight = new T.DirectionalLight(0xffd39a, 3.7);
   sunlight.position.copy(sun).multiplyScalar(3500);
   scene.add(sunlight);
   scene.add(sunlight.target);
@@ -50,15 +55,9 @@ export function createWorld(
   sunlight.shadow.bias = -0.0001;
   sunlight.shadow.normalBias = 0.35;
   sunlight.shadow.radius = 2;
-  sunlight.shadow.intensity = 0.68;
-  const skyMat = new T.ShaderMaterial({
-    vertexShader: skyVertex,
-    fragmentShader: skyFragment,
-    uniforms: { uTime: { value: 0 }, uSun: { value: sun } },
-    side: T.BackSide,
-    depthWrite: false,
-  });
-  const sky = new T.Mesh(new T.SphereGeometry(22000, 32, 20), skyMat);
+  const sky = createInletSky();
+  const night = sky.material.uniforms.uNight;
+  let keyLight = sun;
   scene.add(sky);
   const moisture = new T.DataTexture(
     hydrology.pixels,
@@ -73,88 +72,28 @@ export function createWorld(
   const survey = { value: 0 },
     detailCenter = { value: new T.Vector2() },
     detailRadius = { value: 0 };
+  const rockTexture = graniteRelief();
   const material = new T.MeshStandardMaterial({
     color: 0xffffff,
     roughness: 1,
     metalness: 0,
     envMapIntensity: 0.14,
   });
-  material.onBeforeCompile = (shader) => {
-    shader.uniforms.uLandscape = { value: landscape };
-    shader.uniforms.uLandTime = landTime;
-    shader.uniforms.uDetailCenter = detailCenter;
-    shader.uniforms.uDetailRadius = detailRadius;
-    shader.uniforms.uIsDetail = { value: 0 };
-    shader.uniforms.uMoisture = { value: moisture };
-    shader.uniforms.uSurvey = survey;
-    shader.uniforms.uWorldSize = { value: WORLD_SIZE };
-    shader.vertexShader =
-      "varying vec3 vWorldPos;varying vec3 vWorldNormal;\n" +
-      shader.vertexShader;
-    shader.vertexShader = shader.vertexShader.replace(
-      "#include <worldpos_vertex>",
-      "#include <worldpos_vertex>\nvWorldPos=(modelMatrix*vec4(transformed,1.)).xyz;vWorldNormal=normalize(mat3(modelMatrix)*normal);",
-    );
-    shader.fragmentShader =
-      "uniform sampler2D uLandscape;uniform float uLandTime;uniform vec2 uDetailCenter;uniform float uDetailRadius;uniform float uIsDetail;uniform float uSurvey;uniform sampler2D uMoisture;uniform float uWorldSize;varying vec3 vWorldPos;varying vec3 vWorldNormal;\n" +
-      noiseGLSL +
-      `
-      // Resolve procedural detail only while its lattice is visible on screen.
-      float surfaceNoise(vec2 p){float footprint=max(length(dFdx(p)),length(dFdy(p)));if(footprint>=.8)return .5;return mix(.5,noise2(p),1.-smoothstep(.3,.8,footprint));}
-      vec2 noiseGradient(vec2 p){
-        vec2 i=floor(p),f=fract(p),u=f*f*(3.-2.*f),du=6.*f*(1.-f);
-        float a=hash21(i),b=hash21(i+vec2(1.,0.)),c=hash21(i+vec2(0.,1.)),d=hash21(i+vec2(1.,1.));
-        return du*vec2(mix(b-a,d-c,u.y),mix(c-a,d-b,u.x));
-      }
-      vec2 surfaceFbmSlope(vec2 p){
-        vec2 dx=dFdx(p),dy=dFdy(p),slope=vec2(0.);float a=.5;
-        for(int i=0;i<5;i++){
-          float footprint=max(length(dx),length(dy));
-          if(footprint>=.8)break;
-          vec2 gradient=noiseGradient(p);
-          slope+=vec2(dot(gradient,dx),dot(gradient,dy))*a*(1.-smoothstep(.3,.8,footprint));
-          p=p*2.03+vec2(13.4,7.9);dx*=2.03;dy*=2.03;a*=.5;
-        }
-        return slope;
-      }
-      vec2 surfaceSlope(vec2 p){vec2 dx=dFdx(p),dy=dFdy(p);float footprint=max(length(dx),length(dy));if(footprint>=.8)return vec2(0.);vec2 gradient=noiseGradient(p);return vec2(dot(gradient,dx),dot(gradient,dy))*(1.-smoothstep(.3,.8,footprint));}
-      ` +
-      shader.fragmentShader;
-    shader.fragmentShader = shader.fragmentShader.replace(
-      "#include <color_fragment>",
-      `
-    vec3 p=vWorldPos;float region=max(abs(p.x-uDetailCenter.x),abs(p.z-uDetailCenter.y));if((uIsDetail<.5&&region<uDetailRadius)||(uIsDetail>.5&&region>=uDetailRadius))discard;float slope=1.-max(vWorldNormal.y,0.);float n=fbm2(p.xz*.008);float fine=surfaceNoise(p.xz*.12);
-    vec3 woodland=texture2D(uLandscape,p.xz/uWorldSize+.5).rgb;
-    vec3 meadow=mix(vec3(.09,.145,.055),vec3(.27,.29,.12),n);
-    meadow=mix(meadow,vec3(.035,.077,.045),woodland.g*.83);
-    vec3 rock=mix(vec3(.075,.105,.12),vec3(.27,.29,.275),n);
-    float fissure=noise2(vec2(p.x*.021+p.z*.014,p.y*.0025+n*2.));
-    float ledge=sin(p.y*.044+noise2(p.xz*.003)*5.);
-    rock*=.78+smoothstep(.23,.62,fissure)*.25+smoothstep(.4,.9,ledge)*.10;
-    float strata=fbm2(vec2(p.y*.013+noise2(p.xz*.002)*4.,p.x*.003+p.z*.004));rock*=.84+strata*.25+fine*.13;
-    float rocky=smoothstep(.18,.48,slope)+smoothstep(650.,1200.,p.y)*.8;
-    vec3 ground=mix(meadow,rock,clamp(rocky,0.,1.));
-    vec3 wet=texture2D(uMoisture,p.xz/uWorldSize+.5).rgb;
-    ground=mix(ground,vec3(.13,.37,.075),wet.g*.88*(1.-smoothstep(.3,.7,slope)));
-    ground*=1.-wet.r*.19;
-    float snowline=1280.+n*290.+slope*450.;float snow=smoothstep(snowline,snowline+100.,p.y);
-    ground=mix(ground,mix(vec3(.65,.79,.85),vec3(.91,.94,.92),smoothstep(.25,.8,n)),snow);
-    float shore=1.-smoothstep(1.,18.,p.y);ground=mix(ground,vec3(.16,.20,.16),shore*.6);
-    float castShadow=woodland.r;float movingCloud=smoothstep(.52,.72,fbm2(p.xz*.0006+vec2(uLandTime*.0017,0.)));
-    ground*=mix(vec3(1.),vec3(.36,.47,.61),max(castShadow*.72,movingCloud*.3));
-    float gray=dot(ground,vec3(.21,.72,.07));ground=mix(ground,vec3(gray*.76,gray*.91,gray*.83),uSurvey*.65);ground=mix(ground,vec3(.10,.46,.22),uSurvey*clamp(wet.r+wet.b,0.,1.)*.9);diffuseColor.rgb=ground;
-  `,
-    );
-    shader.fragmentShader = shader.fragmentShader.replace(
-      "#include <normal_fragment_maps>",
-      `
-    vec2 microSlope=surfaceFbmSlope(vWorldPos.xz*.045+vWorldPos.y*.012)*3.5+surfaceSlope(vWorldPos.xz*.21)*.35;
-    vec3 sx=dFdx(-vViewPosition),sy=dFdy(-vViewPosition);
-    vec3 r1=cross(sy,normal),r2=cross(normal,sx);float det=dot(sx,r1);
-    normal=normalize(abs(det)*normal-sign(det)*(microSlope.x*r1+microSlope.y*r2));
-  `,
-    );
-  };
+  material.onBeforeCompile = (shader) =>
+    shadeAlpineSurface(shader, {
+      uLandscape: { value: landscape },
+      uSun: { value: sun },
+      uLandTime: landTime,
+      uDetailCenter: detailCenter,
+      uDetailRadius: detailRadius,
+      uIsDetail: { value: 0 },
+      uCanopy: { value: canopyShade },
+      uGranite: { value: rockTexture },
+      uShelter: { value: shelter },
+      uMoisture: { value: moisture },
+      uSurvey: survey,
+      uWorldSize: { value: WORLD_SIZE },
+    });
   // Coarse and focused ground differ only by a uniform; share their compiled program.
   material.customProgramCacheKey = () => "filtered-terrain-v1";
   const geometry = new T.PlaneGeometry(
@@ -167,6 +106,11 @@ export function createWorld(
   const positions = geometry.getAttribute("position");
   for (let i = 0; i < positions.count; i++)
     positions.setY(i, terrainHeight(positions.getX(i), positions.getZ(i)));
+  const shelter = cirqueShelter(
+    positions,
+    geometry.parameters.widthSegments + 1,
+    WORLD_SIZE,
+  );
   geometry.computeVertexNormals();
   const terrain = terrainTiles(geometry, material, low ? 50 : 80);
   scene.add(terrain);
@@ -215,6 +159,7 @@ export function createWorld(
     if (random() > forestCover(x, z, y, slope / 17)) continue;
     locations.push({ x, y, z, h: 18 + random() * 23, r: 5 + random() * 6.5 });
   }
+  const canopyShade = canopyFootprints(locations, sun);
   const { geometry: canopy, texture: treeTexture } = createCanopy();
   const treeMaterial = new T.MeshBasicMaterial({
     color: 0xffffff,
@@ -226,21 +171,36 @@ export function createWorld(
 
   treeMaterial.onBeforeCompile = (shader) => {
     shader.uniforms.uLandscape = { value: landscape };
-    shader.vertexShader = "varying vec3 vTreeWorld;\n" + shader.vertexShader;
+    shader.uniforms.uSun = { value: sun };
+    shader.uniforms.uLandTime = landTime;
+    shader.vertexShader =
+      stormOpening +
+      "\nuniform float uLandTime;uniform vec3 uSun;varying float vBranchLight, vClearing;varying vec3 vTreeWorld;\n" +
+      shader.vertexShader;
     shader.vertexShader = shader.vertexShader.replace(
       "#include <uv_vertex>",
       "#include <uv_vertex>\n vMapUv.x=(vMapUv.x+mod(float(gl_InstanceID),3.))/3.;",
     );
     shader.vertexShader = shader.vertexShader.replace(
       "#include <begin_vertex>",
-      "#include <begin_vertex>\n vTreeWorld=(modelMatrix*instanceMatrix*vec4(position,1.)).xyz;",
+      `#include <begin_vertex>
+      mat4 treeWorld = modelMatrix*instanceMatrix;
+      vTreeWorld = (treeWorld*vec4(position,1.)).xyz;
+      vec2 radius = mat3(treeWorld)[0].xz;
+      vec2 branch = (mat3(treeWorld)*vec3(position.x,0.,position.z)).xz / max(length(radius),.001);
+      vBranchLight = dot(branch,uSun.xz);
+      vClearing = sunlightAt(vTreeWorld,uSun,uLandTime);`,
     );
     shader.fragmentShader =
-      "uniform sampler2D uLandscape;varying vec3 vTreeWorld;\n" +
+      "uniform sampler2D uLandscape;varying float vBranchLight, vClearing;varying vec3 vTreeWorld;\n" +
       shader.fragmentShader;
     shader.fragmentShader = shader.fragmentShader.replace(
       "#include <map_fragment>",
-      "#include <map_fragment>\n float treeShadow=texture2D(uLandscape,vTreeWorld.xz/15000.+.5).r;diffuseColor.rgb *= (.38 + smoothstep(0., 1., vMapUv.y)*.42)*mix(vec3(1.),vec3(.63,.73,.89),treeShadow);",
+      `#include <map_fragment>
+      float shelter = texture2D(uLandscape,vTreeWorld.xz/15000.+.5).r;
+      float crown = smoothstep(.08,.91,vMapUv.y);
+      float lit = smoothstep(-.28,.55,vBranchLight + crown*.32) * (1.-shelter*.86)*(.50+.50*vClearing);
+      diffuseColor.rgb *= mix(vec3(.28,.44,.49),vec3(1.45,1.22,.77),lit)*(.49+.52*crown);`,
     );
   };
 
@@ -291,7 +251,14 @@ export function createWorld(
       dummy.updateMatrix();
       foliage.setMatrixAt(i, dummy.matrix);
       const shade = 0.85 + random() * 0.4;
-      color.setRGB(0.88 * shade, 1.04 * shade, 0.91 * shade);
+      const glade =
+        0.5 +
+        0.5 * Math.sin(t.x * 0.019 + Math.sin(t.z * 0.008) * 3 + t.z * 0.011);
+      color.setRGB(
+        (0.72 + 0.29 * glade) * shade,
+        (0.9 + 0.12 * glade) * shade,
+        (1.02 - 0.14 * glade) * shade,
+      );
       foliage.setColorAt(i, color);
     });
     foliage.computeBoundingSphere();
@@ -443,10 +410,15 @@ export function createWorld(
   const waterMat = new T.ShaderMaterial({
     vertexShader: waterVertex,
     fragmentShader: waterFragment,
+    lights: true,
     uniforms: {
+      ...T.UniformsUtils.clone(T.UniformsLib.lights),
+      uWaves: { value: createWaveSlopeTexture() },
       uLandscape: { value: landscape },
       uWindAxis: { value: new T.Vector2(wind.east, wind.south) },
       uTime: { value: 0 },
+      uNight: night,
+      uMoon: { value: inletMoon },
       uReflection: { value: reflection.texture },
       uSun: { value: sun },
       uTextureMatrix: { value: new T.Matrix4() },
@@ -458,7 +430,9 @@ export function createWorld(
   const water = new T.Mesh(new T.PlaneGeometry(40000, 40000), waterMat);
   water.rotation.x = -Math.PI / 2;
   water.position.y = 0.2;
+  water.receiveShadow = true;
   scene.add(water);
+  const reflectionFog = new T.FogExp2(0xb7b1aa, 0.000094);
   const reflectedCamera = new T.PerspectiveCamera();
   const texMatrix = new T.Matrix4();
   const clipPlane = new T.Plane(new T.Vector3(0, 1, 0), 0);
@@ -504,9 +478,15 @@ export function createWorld(
     const previous = renderer.getRenderTarget();
     water.visible = false;
     renderer.setRenderTarget(reflection);
-    renderer.render(scene, reflectedCamera);
-    renderer.setRenderTarget(previous);
-    water.visible = true;
+    const directFog = scene.fog;
+    scene.fog = reflectionFog;
+    try {
+      renderer.render(scene, reflectedCamera);
+    } finally {
+      scene.fog = directFog;
+      renderer.setRenderTarget(previous);
+      water.visible = true;
+    }
     waterMat.uniforms.uReflectReady.value = 1;
   }
   function update(time: number, view = 0) {
@@ -516,7 +496,7 @@ export function createWorld(
     coast.material.uniforms.uTime.value = time;
     if (patchCoast)
       (patchCoast.material as T.ShaderMaterial).uniforms.uTime.value = time;
-    skyMat.uniforms.uTime.value = time;
+    sky.material.uniforms.uTime.value = time;
     waterMat.uniforms.uTime.value = time;
     if (hydrology.dirty) {
       moisture.needsUpdate = true;
@@ -550,12 +530,21 @@ export function createWorld(
       );
     },
     sunlight,
+    setNight: (isNight: boolean) => {
+      night.value = Number(isNight);
+      keyLight = isNight ? inletMoon : sun;
+      sunlight.color.setHex(isNight ? 0xbad1ff : 0xffd39a);
+      sunlight.intensity = isNight ? 1.75 : 3.7;
+      hemi.intensity = isNight ? 0.57 : 1.02;
+      (scene.fog as T.FogExp2).color.setHex(isNight ? 0x495b77 : 0x9ba8af);
+      reflectionFog.color.setHex(isNight ? 0x4d5c75 : 0xb7b1aa);
+    },
     updateSun: (p: T.Vector3) => {
       sunlight.target.position.copy(p);
       sunlight.target.position.y = terrainHeight(p.x, p.z) + 30;
       sunlight.position
         .copy(sunlight.target.position)
-        .addScaledVector(sun, 2400);
+        .addScaledVector(keyLight, 2400);
     },
     setLowPower: (value: boolean) => {
       for (const lod of forestLODs)

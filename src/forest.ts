@@ -1,6 +1,54 @@
 import * as T from "three";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
-import { seededRandom } from "./terrain";
+import { seededRandom, WORLD_SIZE } from "./terrain";
+
+export function canopyFootprints(
+  trees: { x: number; z: number; r: number; h: number }[],
+  sun: T.Vector3,
+) {
+  const side = 768;
+  const mask = new Uint8Array(side * side);
+  const scale = side / WORLD_SIZE;
+  for (const tree of trees) {
+    const length = Math.min(3.2, 0.62 / sun.y) * tree.h;
+    const rootX = (tree.x / WORLD_SIZE + 0.5) * side - 0.5;
+    const rootZ = (tree.z / WORLD_SIZE + 0.5) * side - 0.5;
+    const dx = -sun.x * length * scale;
+    const dz = -sun.z * length * scale;
+    const span = Math.max(dx * dx + dz * dz, Number.EPSILON);
+    const radius = 0.7 + tree.r * scale;
+    const minZ = Math.max(0, Math.floor(Math.min(rootZ, rootZ + dz) - radius));
+    const maxZ = Math.min(
+      side - 1,
+      Math.floor(Math.max(rootZ, rootZ + dz) + radius),
+    );
+    const minX = Math.max(0, Math.floor(Math.min(rootX, rootX + dx) - radius));
+    const maxX = Math.min(
+      side - 1,
+      Math.floor(Math.max(rootX, rootX + dx) + radius),
+    );
+    for (let z = minZ; z <= maxZ; z++) {
+      for (let x = minX; x <= maxX; x++) {
+        const t = T.MathUtils.clamp(
+          ((x - rootX) * dx + (z - rootZ) * dz) / span,
+          0,
+          1,
+        );
+        const xDiff = (x - rootX - dx * t) / radius,
+          zDiff = (z - rootZ - dz * t) / radius;
+        const opacity =
+          Math.max(0, 1 - xDiff * xDiff - zDiff * zDiff) * (0.54 - 0.32 * t);
+        const i = z * side + x;
+        mask[i] += Math.round((255 - mask[i]) * opacity);
+      }
+    }
+  }
+  const map = new T.DataTexture(mask, side, side, T.RedFormat);
+  map.minFilter = map.magFilter = T.LinearFilter;
+  map.needsUpdate = true;
+  return map;
+}
+
 /** Original needle-and-branch rasterization, used on crossed foliage planes. No image assets. */
 export function createCanopy() {
   const canvas = document.createElement("canvas");

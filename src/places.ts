@@ -1,6 +1,7 @@
 import * as T from "three";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { terrainHeight } from "./terrain";
+import { createNightLights, tagWindow } from "./night-lights";
 export type PlaceId = "memory" | "workshop" | "dock";
 export const places = {
   memory: {
@@ -34,6 +35,7 @@ export const places = {
 export function createPlaces(scene: T.Scene) {
   const roots: Record<string, T.Group> = {};
   const rotors: T.Group[] = [];
+  const lighting = createNightLights(scene);
   for (const [id, p] of Object.entries(places)) {
     const root = new T.Group();
     roots[id] = root;
@@ -44,7 +46,9 @@ export function createPlaces(scene: T.Scene) {
       p.z,
     );
     scene.add(root);
-    const buckets = new Map<T.Material, T.BufferGeometry[]>();
+    const station = lighting.station(root);
+    let greenhouse: T.MeshPhysicalMaterial | undefined;
+    const buckets = new Map<T.MeshStandardMaterial, T.BufferGeometry[]>();
     const wood = new T.MeshStandardMaterial({
         color: 0x736044,
         roughness: 0.9,
@@ -63,6 +67,7 @@ export function createPlaces(scene: T.Scene) {
         roughness: 0.26,
         metalness: 0.45,
       }),
+      lantern = glass.clone(),
       light = new T.MeshStandardMaterial({
         color: 0xffd49a,
         emissive: 0xffc175,
@@ -98,7 +103,7 @@ export function createPlaces(scene: T.Scene) {
     };
     function part(
       g: T.BufferGeometry,
-      m: T.Material,
+      m: T.MeshStandardMaterial,
       x: number,
       y: number,
       z: number,
@@ -110,6 +115,7 @@ export function createPlaces(scene: T.Scene) {
       o.position.set(x, y, z);
       o.rotation.set(rx, ry, rz);
       o.updateMatrix();
+      if (m === glass) tagWindow(g, x, z);
       g.applyMatrix4(o.matrix);
       if (!buckets.has(m)) buckets.set(m, []);
       buckets.get(m)!.push(g);
@@ -118,7 +124,7 @@ export function createPlaces(scene: T.Scene) {
       w: number,
       h: number,
       d: number,
-      m: T.Material,
+      m: T.MeshStandardMaterial,
       x: number,
       y: number,
       z: number,
@@ -126,7 +132,12 @@ export function createPlaces(scene: T.Scene) {
     ) {
       part(new T.BoxGeometry(w, h, d), m, x, y, z, 0, ry);
     }
-    function beam(a: number[], b: number[], r: number, m: T.Material) {
+    function beam(
+      a: number[],
+      b: number[],
+      r: number,
+      m: T.MeshStandardMaterial,
+    ) {
       const v = new T.Vector3(...a),
         q = new T.Vector3(...b),
         delta = q.clone().sub(v),
@@ -247,7 +258,7 @@ export function createPlaces(scene: T.Scene) {
       cabin(-30, -43, 24, 22, 12);
       // An inhabited glass growing room, connected to the archive house.
       deck(29, 35, 30, -12, 4);
-      const glazing = new T.MeshPhysicalMaterial({
+      greenhouse = new T.MeshPhysicalMaterial({
         color: 0xb1cfc2,
         roughness: 0.18,
         metalness: 0.08,
@@ -256,6 +267,7 @@ export function createPlaces(scene: T.Scene) {
         side: T.DoubleSide,
         depthWrite: false,
       });
+      for (const x of [23, 38]) station.lamp(x, 13.6, -3.9, 7);
       const green = new T.MeshStandardMaterial({
         color: 0x587e39,
         roughness: 1,
@@ -280,7 +292,7 @@ export function createPlaces(scene: T.Scene) {
       );
       shell.setIndex([0, 1, 3, 3, 1, 4, 1, 2, 4, 4, 2, 5, 0, 2, 1, 3, 4, 5]);
       shell.computeVertexNormals();
-      part(shell, glazing, 0, 0, 0);
+      part(shell, greenhouse, 0, 0, 0);
       for (let x = 22; x <= 39; x += 5)
         for (const z of [-21, -12, -3]) {
           box(3.5, 1.1, 5, wood, x, 5, z);
@@ -318,6 +330,7 @@ export function createPlaces(scene: T.Scene) {
       deck(70, 58, 2, 8, 2.5);
       for (const x of [-29, 29]) beam([x, 2, 35], [x, 29, 35], 0.8, frame);
       beam([-29, 29, 35], [29, 29, 35], 0.85, frame);
+      for (const x of [-22, 22]) station.lamp(x, 28, 35, 9);
       beam([10, 29, 35], [10, 12, 35], 0.3, wood);
       deck(14, 14, -31, -15, 2.5);
       part(new T.CylinderGeometry(5, 5, 9, 24), roof, -31, 7, -15);
@@ -366,7 +379,7 @@ export function createPlaces(scene: T.Scene) {
       );
       part(new T.CylinderGeometry(6, 8, 40, 16), frame, -22, 20, -27);
       part(new T.CylinderGeometry(7.5, 7.5, 4, 16), roof, -22, 41, -27);
-      part(new T.CylinderGeometry(5.5, 5.5, 7, 16), glass, -22, 46, -27);
+      part(new T.CylinderGeometry(5.5, 5.5, 7, 16), lantern, -22, 46, -27);
       part(new T.ConeGeometry(8, 5, 16), roof, -22, 52, -27);
       part(new T.CylinderGeometry(6.95, 7.2, 5, 16), roof, -22, 25, -27);
       for (let i = 0; i < 12; i++) {
@@ -390,6 +403,7 @@ export function createPlaces(scene: T.Scene) {
           );
       }
       part(new T.CylinderGeometry(5.58, 5.58, 1.4, 16), light, -22, 46.5, -27);
+      station.lamp(-22, 46.5, -27, 19, "beacon");
     }
     if (id !== "workshop") deck(49, 27, 0, 17, 2.5);
     // A porch bench, stacked firewood, and small lanterns give the visit a human scale.
@@ -408,20 +422,35 @@ export function createPlaces(scene: T.Scene) {
         17,
         Math.PI / 2,
       );
+    const shoreSide = Math.sign(p.x - p.berth.x);
     for (const x of [-22, 22]) {
       beam([x, 1, 16], [x, 7, 16], 0.16, roof);
       box(0.8, 1.3, 0.8, light, x, 7, 16);
+      station.lamp(
+        x,
+        7,
+        16,
+        6.3,
+        Math.sign(x) === -shoreSide ? "shore" : "lamp",
+      );
       box(1.4, 0.2, 1.4, roof, x, 7.8, 16);
     }
     // The berth is the centre of the aircraft. The pontoon runs parallel to
     // its floats, with a low, unobstructed boarding edge under the wing.
-    const shoreSide = Math.sign(p.x - p.berth.x);
     const deckY = 1.15 - root.position.y;
     const faceX = p.berth.x - p.x + shoreSide * 7.3;
     const dockZ = p.berth.z - p.z;
     const dockWidth = 8,
       dockLength = 31;
     const dockX = faceX + (shoreSide * dockWidth) / 2;
+    for (const end of [-1, 1])
+      station.lamp(
+        dockX + shoreSide * 3.3,
+        deckY + 0.47,
+        dockZ + end * 14.4,
+        5.7,
+        "marker",
+      );
     box(dockWidth, 1.1, dockLength, roof, dockX, deckY - 0.85, dockZ);
     for (let i = 0; i < 32; i++)
       box(
@@ -476,20 +505,34 @@ export function createPlaces(scene: T.Scene) {
           y = start.y + (end.y - start.y) * t;
         const bed = terrainHeight(p.x + x, p.z + z) - root.position.y;
         beam([x, Math.min(y - 1, bed - 1), z], [x, y + 1.9, z], 0.32, wood);
+        if (dz < 0 && (i % 2 === 0 || i === bays))
+          station.lamp(x, y + 2.22, z, 5.3);
       }
       beam([start.x, start.y + 1.9, z], [end.x, end.y + 1.9, z], 0.17, frame);
     }
     for (const [m, geometries] of buckets) {
       const geometry = mergeGeometries(geometries);
-      const mesh = new T.Mesh(geometry, m);
+      let material = m;
+      if (m === glass) material = lighting.windows(m);
+      else if (m === lantern)
+        lighting.emissive(m, new T.Color(0.93, 0.54, 0.19), 1);
+      else if (m === light) lighting.emissive(m, new T.Color(0xffcf88), 2.7);
+      else if (m === greenhouse)
+        lighting.emissive(m, new T.Color(0xe2ae70), 0.13);
+      else material = station.surface(m);
+      const mesh = new T.Mesh(geometry, material);
       mesh.castShadow = true;
       mesh.receiveShadow = true;
       root.add(mesh);
     }
   }
+  lighting.finish();
   return {
     roots,
-    update: (time: number) =>
-      rotors.forEach((r) => (r.rotation.z = time * 0.65)),
+    setNight: lighting.setNight,
+    update: (time: number, aircraft: T.Vector3) => {
+      rotors.forEach((r) => (r.rotation.z = time * 0.65));
+      lighting.update(time, aircraft);
+    },
   };
 }

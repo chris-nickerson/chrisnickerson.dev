@@ -1,4 +1,4 @@
-import { verifyOpening } from "./verify-opening.mjs";
+import { verifyNightFlight, verifyOpening } from "./verify-opening.mjs";
 import { captureDir, previewURL } from "./browser-check.mjs";
 import { webkit, expect } from "@playwright/test";
 import fs from "node:fs/promises";
@@ -110,6 +110,7 @@ for (const [width, height] of [
   });
   console.log(JSON.stringify(results.at(-1)));
   await context.close();
+  if (initial.ready) await verifyNightFlight(browser, { width, height });
 }
 await browser.close();
 await fs.writeFile(

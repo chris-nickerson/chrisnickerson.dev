@@ -1,4 +1,5 @@
 import * as T from "three";
+import { inletSun } from "./atmosphere";
 import { seededRandom, clamp, terrainHeight, hash } from "./terrain";
 import { Watershed, GRID } from "./hydrology";
 
@@ -16,7 +17,7 @@ export function createWeather(scene: T.Scene, low: boolean) {
   noise.unpackAlignment = 1;
   noise.needsUpdate = true;
   const vertex = `varying vec3 vLocal;void main(){vLocal=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
-  const fragment = `precision highp sampler3D;uniform mat4 projectionMatrix;uniform mat4 modelMatrix;uniform sampler2D uDepth;uniform vec2 uResolution;uniform mat4 uProjectionInverse;uniform mat4 uCameraWorld;uniform sampler3D uNoise;uniform mat4 uInverse;uniform float uTime;uniform float uStrength;varying vec3 vLocal;
+  const fragment = `precision highp sampler3D;uniform mat4 projectionMatrix;uniform mat4 modelMatrix;uniform sampler2D uDepth;uniform vec2 uResolution;uniform mat4 uProjectionInverse;uniform mat4 uCameraWorld;uniform sampler3D uNoise;uniform mat4 uInverse;uniform float uTime;uniform float uStrength;uniform vec3 uLightRay;varying vec3 vLocal;
  float density(vec3 p){
   vec3 q=p*vec3(2.5,2.,2.5)+vec3(uTime*.004,0.,uTime*.001);
   float f=texture(uNoise,q*.12).r*.57+texture(uNoise,q*.29+4.).r*.28+texture(uNoise,q*.67+8.).r*.15;
@@ -37,7 +38,7 @@ export function createWeather(scene: T.Scene, low: boolean) {
   float stepSize=(exitT-entry)/float(STEPS);float t=entry+stepSize*.5;vec4 acc=vec4(0.);
   for(int i=0;i<STEPS;i++){
    vec3 p=ro+rd*t;float d=density(p);
-   if(d>.008){float shade=density(p+vec3(-.08,.09,-.04))*.65+density(p+vec3(-.19,.21,-.09))*.35;float light=exp(-shade*4.5);vec3 c=mix(vec3(.22,.34,.43),vec3(1.30,1.19,.97),light);float alpha=1.-exp(-d*stepSize*10.);acc.rgb+=(1.-acc.a)*alpha*c;acc.a+=(1.-acc.a)*alpha;if(acc.a>.98)break;}
+   if(d>.008){float shade=density(p+.13*uLightRay)*.65+density(p+.27*uLightRay)*.35;float light=exp(-shade*4.5);vec3 c=mix(vec3(.19,.23,.32),vec3(1.07,.82,.60),light);float alpha=1.-exp(-d*stepSize*10.);acc.rgb+=(1.-acc.a)*alpha*c;acc.a+=(1.-acc.a)*alpha;if(acc.a>.98)break;}
    t+=stepSize;
   }
   if(acc.a<.005)discard;gl_FragColor=vec4(acc.rgb/max(acc.a,.001),acc.a);
@@ -45,8 +46,8 @@ export function createWeather(scene: T.Scene, low: boolean) {
  }`;
   const clouds: T.Mesh[] = [];
   const placements = [
-    [-2900, 1630, -2300, 2300, 1150, 1900],
-    [2600, 1940, -3500, 3000, 1200, 2000],
+    [-2720, 1160, -2160, 3250, 480, 1530],
+    [2350, 1640, -3370, 3300, 550, 1840],
     [-1800, 950, -5200, 2100, 650, 1800],
     [3900, 950, 1400, 2300, 650, 1800],
     [-4200, 1130, 1700, 2000, 700, 1700],
@@ -57,6 +58,13 @@ export function createWeather(scene: T.Scene, low: boolean) {
       vertexShader: vertex,
       fragmentShader: fragment,
       uniforms: {
+        uLightRay: {
+          value: new T.Vector3(
+            inletSun.x / sx,
+            inletSun.y / sy,
+            inletSun.z / sz,
+          ).normalize(),
+        },
         uNoise: { value: noise },
         uInverse: { value: new T.Matrix4() },
         uTime: { value: 0 },
@@ -87,7 +95,7 @@ export function createWeather(scene: T.Scene, low: boolean) {
     clouds.forEach((c, i) => {
       const m = c.material as T.ShaderMaterial;
       m.uniforms.uTime.value = time + i * 100;
-      m.uniforms.uStrength.value = 1 + rain * 0.8;
+      m.uniforms.uStrength.value = 0.76 + rain * 0.8;
     });
   }
   function prepare(

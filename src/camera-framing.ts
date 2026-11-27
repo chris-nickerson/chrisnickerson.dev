@@ -58,6 +58,7 @@ export class CameraFraming {
     position: Vector3,
     {
       heading,
+      assisted = false,
       tilt,
       surfaceMix,
       mapMix,
@@ -66,6 +67,7 @@ export class CameraFraming {
       ease,
     }: {
       heading: number;
+      assisted?: boolean;
       tilt: number;
       surfaceMix: number;
       mapMix: number;
@@ -76,22 +78,27 @@ export class CameraFraming {
   ) {
     const { eye, aim, offset } = this;
     const portrait = this.camera.aspect < 0.8;
-    eye.set(
-      portrait ? -12 : -66,
-      (rainRunActive ? 100 : 34) + tilt * 120,
-      portrait ? (rainRunActive ? 220 : 180) : rainRunActive ? 150 : 120,
-    );
+    const scenic = !portrait && assisted && !rainRunActive;
+    if (scenic) eye.set(-46, 15 + tilt * 120, 110);
+    else
+      eye.set(
+        portrait ? -12 : -66,
+        (rainRunActive ? 100 : 34) + tilt * 120,
+        portrait ? (rainRunActive ? 220 : 180) : rainRunActive ? 150 : 120,
+      );
     eye.lerp(
       offset.set(portrait ? -10 : -52, 38 + tilt * 100, portrait ? 185 : 125),
       surfaceMix,
     );
     eye.applyAxisAngle(vertical, -heading).add(position);
     eye.y = Math.max(eye.y, terrainHeight(eye.x, eye.z) + 25);
-    aim.set(
-      portrait && !rainRunActive ? -12 * (1 - surfaceMix) : 0,
-      rainRunActive ? -80 : portrait ? (height < 700 ? -110 : -45) : 10,
-      -180,
-    );
+    if (scenic) aim.set(15, 28, -180);
+    else
+      aim.set(
+        portrait && !rainRunActive ? -12 * (1 - surfaceMix) : 0,
+        rainRunActive ? -80 : portrait ? (height < 700 ? -110 : -45) : 10,
+        -180,
+      );
     aim.lerp(
       offset.set(0, 6, -35),
       Math.max(surfaceMix, clamp((tilt - 0.12) / 0.35, 0, 1)),
