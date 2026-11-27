@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f3efe4" />
+    <meta
+      name="description"
+      content="Explore a cutaway of the After Rain inlet. Trace the berths and turn the light across its mountain relief."
+    />
+    <title>Inlet in relief · After Rain</title>
+    <link rel="icon" href="../favicon.svg" />
+    <link rel="stylesheet" href="../src/atlas/atlas.css" />
+  </head>
+  <body>
+    <header>
+      <div class="imprint">
+        <img src="../favicon.svg" alt="" width="30" height="30" /> After Rain
+        <span>Field atlas</span>
+      </div>
+      <a class="back" href="../"
+        ><span aria-hidden="true">←</span> Back to flight</a
+      >
+    </header>
+    <main>
+      <section class="title">
+        <p class="eyebrow">Terrain study</p>
+        <h1>Inlet <em>in relief.</em></h1>
+        <p>
+          A slice through the mountains and water of After Rain, cut from the
+          terrain you fly over.
+        </p>
+      </section>
+      <figure>
+        <div class="map" data-map>
+          <div class="compass" aria-label="North points to the upper right">
+            <b>N</b><i></i>
+          </div>
+          <div class="model">
+            <img
+              class="west"
+              src="../src/atlas/relief-west.webp"
+              srcset="
+                ../src/atlas/relief-west-small.webp  900w,
+                ../src/atlas/relief-west.webp       1800w
+              "
+              sizes="(max-width: 780px) 92vw, 70vw"
+              width="1800"
+              height="1130"
+              alt="Oblique relief of a blue-green inlet between steep alpine ridges, with a small island and exposed rock strata."
+              fetchpriority="high"
+            />
+          </div>
+        </div>
+        <figcaption>
+          <div>
+            <span class="caption-title" id="caption">The whole inlet</span
+            ><span class="caption-detail" id="detail"
+              >Oblique view from the southeast.</span
+            >
+          </div>
+          <div class="legend" aria-label="Terrain colors">
+            <span>Water</span><span>Forest</span><span>Alpine</span>
+          </div>
+        </figcaption>
+      </figure>
+      <section class="instruments" aria-label="Explore the relief" hidden>
+        <div class="control-heading">
+          <label for="light">Raking light</label
+          ><output id="direction" for="light">West</output>
+        </div>
+        <input
+          id="light"
+          type="range"
+          min="0"
+          max="100"
+          value="0"
+          aria-valuetext="West"
+        />
+        <div class="control-heading"><h2>Locate a berth</h2></div>
+        <div class="berths">
+          <button type="button" data-view="memory">
+            <span aria-hidden="true">A</span>Field station
+          </button>
+          <button type="button" data-view="workshop">
+            <span aria-hidden="true">B</span>Workshop
+          </button>
+          <button type="button" data-view="dock">
+            <span aria-hidden="true">C</span>Quiet dock
+          </button>
+          <button
+            type="button"
+            class="overview"
+            data-view="overview"
+            aria-pressed="true"
+          >
+            Whole inlet
+          </button>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <span>Survey extent <b>8.4 × 7.5 km</b></span
+      ><span>Contour interval <b>75 m</b></span>
+    </footer>
+    <script type="module" src="../src/atlas/atlas.ts"></script>
+  </body>
+</html>

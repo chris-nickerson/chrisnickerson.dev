@@ -24,6 +24,8 @@ For the **preview** checks below, run `npm run build` and leave `npm run preview
 
 Run `python3 scripts/paint-eclipse.py` to repaint both eclipse images after changing the relief or the shared framing in `src/eclipse-framing.json`. The painter uses NumPy and Pillow. Run `node scripts/verify-opening-preview.mjs` for a fresh production build and the opening checks in Chromium and WebKit.
 
+Run `python3 scripts/bake-relief.py` from the repository root with NumPy, Pillow and the Node dependencies installed to regenerate the atlas plates and berth positions after a terrain change. The 75 m contours come from flight elevations. The exposed rock layers are illustrative.
+
 Run `python3 scripts/bake-flight-chart.py` from the repo root to regenerate the fallback chart after a terrain change. It uses the terrain sampler, NumPy and Pillow. The chart covers eight world metres per pixel, with the world origin at pixel (810, 400).
 
 Run `node scripts/verify-inlet-views.mjs` to build and serve the site, capture the inlet, and steer the plane on desktop and emulated touch. Set `BASE_URL` to use an existing build. The five reference views cover the seed-42 desktop and portrait openings, seed-43 desktop manual flight, the seed-44 portrait opening and the seed-42 portrait dock approach. Each flight must respond to turns in both directions.

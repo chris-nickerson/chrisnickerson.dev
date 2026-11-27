@@ -3,6 +3,10 @@ export default defineConfig({
   base: "./",
   build: {
     target: "es2022",
-    rollupOptions: { output: { manualChunks: { three: ["three"] } } },
+    modulePreload: { polyfill: false },
+    rollupOptions: {
+      input: { flight: "index.html", atlas: "atlas/index.html" },
+      output: { manualChunks: { three: ["three"] } },
+    },
   },
 });
