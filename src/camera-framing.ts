@@ -58,7 +58,7 @@ export class CameraFraming {
     position: Vector3,
     {
       heading,
-      assisted = false,
+      assisted,
       tilt,
       surfaceMix,
       mapMix,
@@ -67,7 +67,7 @@ export class CameraFraming {
       ease,
     }: {
       heading: number;
-      assisted?: boolean;
+      assisted: boolean;
       tilt: number;
       surfaceMix: number;
       mapMix: number;
