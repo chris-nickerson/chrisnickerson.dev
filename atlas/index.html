@@ -33,7 +33,11 @@
       </section>
       <figure>
         <div class="map" data-map>
-          <div class="compass" aria-label="North points to the upper right">
+          <div
+            class="compass"
+            role="img"
+            aria-label="North points to the upper right"
+          >
             <b>N</b><i></i>
           </div>
           <div class="model">
@@ -59,7 +63,7 @@
               >Oblique view from the southeast.</span
             >
           </div>
-          <div class="legend" aria-label="Terrain colors">
+          <div class="legend">
             <span>Water</span><span>Forest</span><span>Alpine</span>
           </div>
         </figcaption>
@@ -79,13 +83,25 @@
         />
         <div class="control-heading"><h2>Locate a berth</h2></div>
         <div class="berths">
-          <button type="button" data-view="memory">
+          <button
+            type="button"
+            data-view="memory"
+            data-detail="The southern berth on the field-station shore."
+          >
             <span aria-hidden="true">A</span>Field station
           </button>
-          <button type="button" data-view="workshop">
+          <button
+            type="button"
+            data-view="workshop"
+            data-detail="The eastern berth, across the water from the island."
+          >
             <span aria-hidden="true">B</span>Workshop
           </button>
-          <button type="button" data-view="dock">
+          <button
+            type="button"
+            data-view="dock"
+            data-detail="The berth off the island’s western shore."
+          >
             <span aria-hidden="true">C</span>Quiet dock
           </button>
           <button

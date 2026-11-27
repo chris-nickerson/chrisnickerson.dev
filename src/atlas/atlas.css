@@ -290,10 +290,7 @@ input[type="range"] {
   width: 100%;
   margin: 0 0 12px;
   height: 40px;
-  accent-color: var(--accent);
   cursor: ew-resize;
-}
-input[type="range"] {
   appearance: none;
   background: transparent;
   outline-offset: 0;
@@ -373,9 +370,6 @@ footer b {
   color: var(--ink);
   font-weight: 500;
   margin-left: 6px;
-}
-[hidden] {
-  display: none !important;
 }
 @media (max-width: 780px) {
   header {

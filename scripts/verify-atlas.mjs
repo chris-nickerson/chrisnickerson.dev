@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { expect } from "@playwright/test";
+import { previewURL } from "./browser-check.mjs";
 
-export async function verifyAtlas(browser, baseURL) {
+export async function verifyAtlas(browser) {
   const page = await browser.newPage({
     viewport: { width: 390, height: 844 },
     deviceScaleFactor: 1,
@@ -10,7 +11,7 @@ export async function verifyAtlas(browser, baseURL) {
   const requests = [];
   page.on("request", (request) => requests.push(request.url()));
   try {
-    await page.goto(new URL("atlas/", baseURL).href);
+    await page.goto(new URL("atlas/", previewURL).href);
     const plate = page.getByRole("img", { name: /oblique relief/i });
     await plate.evaluate((img) => img.decode());
     assert.match(
@@ -37,6 +38,7 @@ export async function verifyAtlas(browser, baseURL) {
       await expect(
         page.getByRole("button", { name: berth, exact: true }),
       ).toHaveAttribute("aria-pressed", "true");
+      await expect(page.locator("figcaption")).toContainText(berth);
       const pin = await page
         .getByRole("button", { name: `Locate ${berth}` })
         .boundingBox();

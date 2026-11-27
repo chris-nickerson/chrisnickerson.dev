@@ -648,9 +648,9 @@ for (const action of ["fly-in", "departure", "rain run"])
       return { canceled: action };
     },
   );
-await run("Relief atlas lighting and berth inspection", async () => {
-  await verifyAtlas(browser, previewURL);
-});
+await run("Relief atlas lighting and berth inspection", () =>
+  verifyAtlas(browser),
+);
 await browser.close();
 const noGL = await chromium.launch({
   headless: true,

@@ -5,7 +5,7 @@ export default defineConfig({
     target: "es2022",
     modulePreload: { polyfill: false },
     rollupOptions: {
-      input: { flight: "index.html", atlas: "atlas/index.html" },
+      input: { index: "index.html", atlas: "atlas/index.html" },
       output: { manualChunks: { three: ["three"] } },
     },
   },

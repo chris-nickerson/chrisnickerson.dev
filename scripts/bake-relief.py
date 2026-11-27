@@ -1,5 +1,3 @@
-"""Render the inlet's two atlas plates. Run from the repo root with NumPy and Pillow."""
-
 import json
 import math
 import subprocess
@@ -115,7 +113,7 @@ def surface(sun_x, sun_z):
     return np.clip(color + details[:, :, None], 0, 255).astype(np.uint8)
 
 
-def plate(stone, reverse):
+def plate(stone, east_lit):
     image = np.zeros((HEIGHT, WIDTH, 4), dtype=np.uint8)
     horizon = np.full(WIDTH, HEIGHT)
     for depth in np.arange(distances.max(), distances.min() - STEP, -STEP):
@@ -156,7 +154,7 @@ def plate(stone, reverse):
             )
             value = 18 * beds - 18 * (np.cos(strata * 0.091) > 0.91)
             value += (
-                (edge * (22 if reverse else -24))
+                (edge * (22 if east_lit else -24))
                 - 12
                 + np.clip(altitude * 0.02, -15, 16)
             )
@@ -206,4 +204,5 @@ positions = {
     k: [round(a / b * 100, 3) for a, b in zip(projected(x, 0, z), (WIDTH, HEIGHT))]
     for k, (x, z) in places.items()
 }
-(OUT / "positions.json").write_text(json.dumps(positions, indent=2) + "\n")
+entries = [f'  "{k}": [{x}, {y}]' for k, (x, y) in positions.items()]
+(OUT / "positions.json").write_text("{\n" + ",\n".join(entries) + "\n}\n")
