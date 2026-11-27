@@ -26,7 +26,7 @@ A clearing in the storm sends low light across the conifers, rock faces and lake
 
 ## What the renderer spends
 
-During development, three-second samples of the final lighting shaders on an M4 Pro in daylight flight, night flight and at the night dock each averaged 60 fps in Chromium. At 390 × 844 with phone emulation, the 95th-percentile GPU time was 6.56 ms in daylight, 6.72 ms in night flight and 7.98 ms at the night dock. [Render measurements](evidence/inlet-after-dark-timing.json)
+On the public preview of `07b2f80`, three-second samples on an M4 Pro averaged 60 fps in Chromium across daylight flight, night flight and the night dock. At 390 × 844 with phone emulation, the 95th-percentile GPU time was 6.95 ms in daylight, 6.84 ms in night flight and 3.79 ms at the night dock. [Render measurements](evidence/inlet-after-dark-timing.json)
 
 At first, switching to night and dropping below 45 m made Three compile up to 32 programs during flight. The largest frame gap in those tests was 433 ms. Keeping the same lights and station materials in both modes brought the longest gap to 16.8 ms in two development runs at each viewport. Across three fresh browser processes with the driver cache retained, median scene setup grew by 62 ms on desktop and 65 ms in portrait. The first observed desktop setup with the new shaders took 2.73 seconds. [First-flight measurements](evidence/inlet-night-transition.json)
 

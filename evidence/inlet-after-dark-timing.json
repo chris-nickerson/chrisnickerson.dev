@@ -1,5 +1,6 @@
 {
-  "renderer": "Development build with the final lighting shaders before integration with the public flight refactor",
+  "revision": "07b2f80",
+  "preview": "https://8fc83383.chris-portfolio-58g.pages.dev/",
   "hardware": "Apple M4 Pro",
   "browser": "Chromium with WebGL2 timer queries",
   "seed": 42,
@@ -11,17 +12,17 @@
       "height": 900,
       "view": "day",
       "fps": 60,
-      "frameP95Ms": 16.7,
+      "frameP95Ms": 16.8,
       "gpu": {
-        "medianMs": 4.472374,
-        "p95Ms": 6.482958
+        "medianMs": 6.099166,
+        "p95Ms": 9.107124
       },
       "cpu": {
-        "medianMs": 2.7999999970197678,
-        "p95Ms": 4.9000000059604645
+        "medianMs": 2.399999998509884,
+        "p95Ms": 4.800000004470348
       },
       "pixelRatio": 1,
-      "draws": 396
+      "draws": 217
     },
     {
       "width": 1440,
@@ -30,12 +31,12 @@
       "fps": 60,
       "frameP95Ms": 16.7,
       "gpu": {
-        "medianMs": 4.855708,
-        "p95Ms": 6.739374
+        "medianMs": 6.512374,
+        "p95Ms": 10.074625
       },
       "cpu": {
-        "medianMs": 2.6999999955296516,
-        "p95Ms": 4.699999995529652
+        "medianMs": 2.100000001490116,
+        "p95Ms": 4.600000001490116
       },
       "pixelRatio": 1,
       "draws": 367
@@ -47,12 +48,12 @@
       "fps": 60,
       "frameP95Ms": 16.7,
       "gpu": {
-        "medianMs": 6.564791,
-        "p95Ms": 7.335541
+        "medianMs": 6.777791,
+        "p95Ms": 8.064874
       },
       "cpu": {
-        "medianMs": 2.6999999955296516,
-        "p95Ms": 4.799999997019768
+        "medianMs": 2.3000000044703484,
+        "p95Ms": 4.899999998509884
       },
       "pixelRatio": 1,
       "draws": 323
@@ -62,14 +63,14 @@
       "height": 844,
       "view": "day",
       "fps": 60,
-      "frameP95Ms": 16.7,
+      "frameP95Ms": 16.8,
       "gpu": {
-        "medianMs": 5.202624,
-        "p95Ms": 6.561541
+        "medianMs": 2.900874,
+        "p95Ms": 6.954124
       },
       "cpu": {
-        "medianMs": 2.399999998509884,
-        "p95Ms": 4.5
+        "medianMs": 2.2999999970197678,
+        "p95Ms": 4.399999998509884
       },
       "pixelRatio": 1.35,
       "draws": 112
@@ -81,12 +82,12 @@
       "fps": 60,
       "frameP95Ms": 16.7,
       "gpu": {
-        "medianMs": 5.336333,
-        "p95Ms": 6.724
+        "medianMs": 5.521874,
+        "p95Ms": 6.8355
       },
       "cpu": {
-        "medianMs": 2.2000000029802322,
-        "p95Ms": 4.0999999940395355
+        "medianMs": 2.100000001490116,
+        "p95Ms": 3.899999998509884
       },
       "pixelRatio": 1.35,
       "draws": 107
@@ -96,14 +97,14 @@
       "height": 844,
       "view": "night dock",
       "fps": 60,
-      "frameP95Ms": 16.8,
+      "frameP95Ms": 16.7,
       "gpu": {
-        "medianMs": 4.155374,
-        "p95Ms": 7.978333
+        "medianMs": 2.109291,
+        "p95Ms": 3.791916
       },
       "cpu": {
-        "medianMs": 2.399999998509884,
-        "p95Ms": 4.800000004470348
+        "medianMs": 2.100000001490116,
+        "p95Ms": 4.600000001490116
       },
       "pixelRatio": 1.35,
       "draws": 260
