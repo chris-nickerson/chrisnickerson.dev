@@ -30,7 +30,6 @@ function updateLighting() {
 }
 light.addEventListener("input", updateLighting);
 window.addEventListener("pageshow", updateLighting);
-updateLighting();
 
 const overview = { caption: caption.textContent, detail: detail.textContent };
 const name = (button: HTMLButtonElement) =>

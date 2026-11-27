@@ -13,14 +13,18 @@ export async function verifyAtlas(browser) {
   page.on("console", (message) => {
     if (message.type() === "error") errors.push(message.text());
   });
-  const requests = [];
-  page.on("request", (request) => requests.push(request.url()));
+  const resourceNames = () =>
+    page.evaluate(() =>
+      performance.getEntriesByType("resource").map((entry) => entry.name),
+    );
   try {
     await page.goto(previewURL);
     const entry = page.getByRole("link", { name: "Relief atlas", exact: true });
     await expect(entry).toBeVisible();
-    assert(!requests.some((url) => /relief-(west|east)/.test(url)));
-    requests.length = 0;
+    await page.waitForFunction(() => window.__AFTER_RAIN__?.stats().ready);
+    assert(
+      !(await resourceNames()).some((url) => /relief-(west|east)/.test(url)),
+    );
     await page.addInitScript(() => {
       window.atlasFrames = 0;
       const schedule = window.requestAnimationFrame.bind(window);
@@ -38,7 +42,9 @@ export async function verifyAtlas(browser) {
       /relief-west-small/,
     );
     assert(
-      !requests.some((url) => /relief-east|\/three-|\/simulation-/.test(url)),
+      !(await resourceNames()).some((url) =>
+        /relief-east|\/three-|\/simulation-/.test(url),
+      ),
     );
 
     assert(
@@ -59,7 +65,9 @@ export async function verifyAtlas(browser) {
     );
 
     for (const berth of ["Field station", "Workshop", "Quiet dock"]) {
-      await page.getByRole("button", { name: `Locate ${berth}` }).click();
+      await page
+        .getByRole("button", { name: `Locate ${berth}` })
+        .press("Enter");
       await expect(
         page.getByRole("button", { name: berth, exact: true }),
       ).toHaveAttribute("aria-pressed", "true");
@@ -88,6 +96,30 @@ export async function verifyAtlas(browser) {
       "opacity",
       restored === "100" ? "1" : "0",
     );
+    await light.press("End");
+    await page.reload();
+    await expect(light).toHaveValue("0");
+    await expect(light).toHaveAttribute("aria-valuetext", "West");
+    await light.evaluate((input) => {
+      input.value = "100";
+      window.dispatchEvent(
+        new PageTransitionEvent("pageshow", { persisted: true }),
+      );
+    });
+    await expect(light).toHaveAttribute("aria-valuetext", "East");
+    await expect(page.locator("img.east")).toHaveCSS("opacity", "1");
+
+    await page.setViewportSize({ width: 320, height: 568 });
+    assert(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    );
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await expect
+      .poll(() => plate.evaluate((image) => image.currentSrc))
+      .toMatch(/\/relief-west(?:-(?!small)[^/?]+)?\.webp(?:\?|$)/);
+    await plate.evaluate((image) => image.decode());
     assert.deepEqual(errors, []);
   } finally {
     await page.close();

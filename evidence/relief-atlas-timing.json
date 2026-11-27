@@ -1,0 +1,293 @@
+{
+  "revision": "69d8e7136c98be698e3a31e9d4a95a400ad3ec99",
+  "hardware": "Apple M4 Pro",
+  "workload": "Production build on localhost. Three fresh browser pages per viewport. After both light plates decode, measure 120 frames at idle and 120 frames dispatching one range input per frame. Alternate idle-first and sweep-first trials.",
+  "viewports": [
+    {
+      "browser": "159.0.8154.6",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "results": [
+        {
+          "trial": 0,
+          "resources": [
+            [
+              "",
+              1470
+            ],
+            [
+              "atlas-W4NIrHXV.js",
+              978
+            ],
+            [
+              "favicon.svg?v=2",
+              848
+            ],
+            [
+              "atlas-D0jm8ohk.css",
+              2327
+            ],
+            [
+              "modulepreload-polyfill-B5Qt9EMX.js",
+              711
+            ],
+            [
+              "relief-west-CT52fqCH.webp",
+              219202
+            ],
+            [
+              "favicon.svg?v=2",
+              848
+            ]
+          ],
+          "idle": {
+            "p95FrameMs": 16.799999999999955,
+            "worstFrameMs": 16.799999999999955,
+            "p95HandlerMs": null,
+            "frames": 120
+          },
+          "scrub": {
+            "p95FrameMs": 16.799999999999727,
+            "worstFrameMs": 16.800000000000182,
+            "p95HandlerMs": 0.10000000894069672,
+            "frames": 120
+          }
+        },
+        {
+          "trial": 1,
+          "resources": [
+            [
+              "",
+              1470
+            ],
+            [
+              "atlas-D0jm8ohk.css",
+              2327
+            ],
+            [
+              "modulepreload-polyfill-B5Qt9EMX.js",
+              711
+            ],
+            [
+              "atlas-W4NIrHXV.js",
+              978
+            ],
+            [
+              "relief-west-CT52fqCH.webp",
+              219202
+            ],
+            [
+              "favicon.svg?v=2",
+              848
+            ],
+            [
+              "favicon.svg?v=2",
+              848
+            ]
+          ],
+          "idle": {
+            "p95FrameMs": 16.700000000000728,
+            "worstFrameMs": 16.800000000000182,
+            "p95HandlerMs": null,
+            "frames": 120
+          },
+          "scrub": {
+            "p95FrameMs": 16.700000000000045,
+            "worstFrameMs": 16.800000000000182,
+            "p95HandlerMs": 0.10000000894069672,
+            "frames": 120
+          }
+        },
+        {
+          "trial": 2,
+          "resources": [
+            [
+              "",
+              1470
+            ],
+            [
+              "atlas-W4NIrHXV.js",
+              978
+            ],
+            [
+              "atlas-D0jm8ohk.css",
+              2327
+            ],
+            [
+              "modulepreload-polyfill-B5Qt9EMX.js",
+              711
+            ],
+            [
+              "favicon.svg?v=2",
+              848
+            ],
+            [
+              "relief-west-CT52fqCH.webp",
+              219202
+            ],
+            [
+              "favicon.svg?v=2",
+              848
+            ]
+          ],
+          "idle": {
+            "p95FrameMs": 16.799999999999955,
+            "worstFrameMs": 16.800000000000182,
+            "p95HandlerMs": null,
+            "frames": 120
+          },
+          "scrub": {
+            "p95FrameMs": 16.799999999999727,
+            "worstFrameMs": 16.800000000000182,
+            "p95HandlerMs": 0.10000000894069672,
+            "frames": 120
+          }
+        }
+      ]
+    },
+    {
+      "browser": "159.0.8154.6",
+      "width": 390,
+      "height": 844,
+      "dpr": 2,
+      "results": [
+        {
+          "trial": 0,
+          "resources": [
+            [
+              "",
+              1470
+            ],
+            [
+              "atlas-W4NIrHXV.js",
+              978
+            ],
+            [
+              "favicon.svg?v=2",
+              848
+            ],
+            [
+              "modulepreload-polyfill-B5Qt9EMX.js",
+              711
+            ],
+            [
+              "relief-west-small-BaDw2NK9.webp",
+              67354
+            ],
+            [
+              "atlas-D0jm8ohk.css",
+              2327
+            ],
+            [
+              "favicon.svg?v=2",
+              848
+            ]
+          ],
+          "idle": {
+            "p95FrameMs": 16.700000000000273,
+            "worstFrameMs": 16.800000000000182,
+            "p95HandlerMs": null,
+            "frames": 120
+          },
+          "scrub": {
+            "p95FrameMs": 16.800000000000182,
+            "worstFrameMs": 16.800000000000182,
+            "p95HandlerMs": 0.10000000894069672,
+            "frames": 120
+          }
+        },
+        {
+          "trial": 1,
+          "resources": [
+            [
+              "",
+              1470
+            ],
+            [
+              "atlas-W4NIrHXV.js",
+              978
+            ],
+            [
+              "atlas-D0jm8ohk.css",
+              2327
+            ],
+            [
+              "favicon.svg?v=2",
+              848
+            ],
+            [
+              "modulepreload-polyfill-B5Qt9EMX.js",
+              711
+            ],
+            [
+              "relief-west-small-BaDw2NK9.webp",
+              67354
+            ],
+            [
+              "favicon.svg?v=2",
+              848
+            ]
+          ],
+          "idle": {
+            "p95FrameMs": 16.800000000000182,
+            "worstFrameMs": 16.800000000000182,
+            "p95HandlerMs": null,
+            "frames": 120
+          },
+          "scrub": {
+            "p95FrameMs": 16.700000000000045,
+            "worstFrameMs": 16.800000000000182,
+            "p95HandlerMs": 0.10000000894069672,
+            "frames": 120
+          }
+        },
+        {
+          "trial": 2,
+          "resources": [
+            [
+              "",
+              1470
+            ],
+            [
+              "atlas-W4NIrHXV.js",
+              978
+            ],
+            [
+              "atlas-D0jm8ohk.css",
+              2327
+            ],
+            [
+              "relief-west-small-BaDw2NK9.webp",
+              67354
+            ],
+            [
+              "favicon.svg?v=2",
+              848
+            ],
+            [
+              "modulepreload-polyfill-B5Qt9EMX.js",
+              711
+            ],
+            [
+              "favicon.svg?v=2",
+              848
+            ]
+          ],
+          "idle": {
+            "p95FrameMs": 16.700000000000045,
+            "worstFrameMs": 16.800000000000182,
+            "p95HandlerMs": null,
+            "frames": 120
+          },
+          "scrub": {
+            "p95FrameMs": 16.700000000000728,
+            "worstFrameMs": 16.800000000000182,
+            "p95HandlerMs": 0.10000000894069672,
+            "frames": 120
+          }
+        }
+      ]
+    }
+  ]
+}
