@@ -17,7 +17,7 @@ east.className = "east";
 east.alt = "";
 east.sizes = west.sizes;
 model.append(east);
-light.addEventListener("input", () => {
+function updateLighting() {
   const mix = light.valueAsNumber;
   if (mix > 0 && !east.src) {
     east.srcset = `${eastPlateSmall} 900w, ${eastPlate} 1800w`;
@@ -27,7 +27,10 @@ light.addEventListener("input", () => {
   direction.value =
     mix === 0 ? "West" : mix === 100 ? "East" : `${100 - mix}% W · ${mix}% E`;
   light.setAttribute("aria-valuetext", direction.value);
-});
+}
+light.addEventListener("input", updateLighting);
+window.addEventListener("pageshow", updateLighting);
+updateLighting();
 
 const overview = { caption: caption.textContent, detail: detail.textContent };
 const name = (button: HTMLButtonElement) =>
