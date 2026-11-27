@@ -110,7 +110,7 @@ for (const [width, height] of [
   });
   console.log(JSON.stringify(results.at(-1)));
   await context.close();
-  if (initial.ready) await verifyNightFlight(browser, { width, height });
+  await verifyNightFlight(browser, { width, height });
 }
 await browser.close();
 await fs.writeFile(

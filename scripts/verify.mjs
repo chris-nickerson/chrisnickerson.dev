@@ -410,6 +410,10 @@ for (const [width, height] of [
     ).toBe(false);
     const toolbar = await page.locator(".bottom-bar").boundingBox();
     expect(toolbar.y + toolbar.height).toBeLessThanOrEqual(height);
+    const night = page.getByRole("button", { name: "Night flight", exact: true });
+    await expect(night).toBeInViewport({ ratio: 1 });
+    await night.click();
+    await expect(night).toHaveAttribute("aria-pressed", "true");
     expect(logs.errors).toEqual([]);
     await ctx.close();
     return { consoleErrors: logs.errors };
