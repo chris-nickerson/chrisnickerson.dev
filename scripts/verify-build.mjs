@@ -30,6 +30,7 @@ try {
     if (suite === "chromium") {
       await import("./verify-inlet-views.mjs");
       await import("./verify.mjs");
+      await import("./verify-camera.mjs");
     }
   }
 } finally {

@@ -78,7 +78,7 @@ export class CameraFraming {
   ) {
     const { eye, aim, offset } = this;
     const portrait = this.camera.aspect < 0.8;
-    const scenic = !portrait && assisted && !rainRunActive;
+    const scenic = !portrait && height >= 700 && assisted && !rainRunActive;
     if (scenic) eye.set(-46, 15 + tilt * 120, 110);
     else
       eye.set(

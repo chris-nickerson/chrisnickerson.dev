@@ -20,6 +20,8 @@ The seeded opening follows two families of trumpeter swans. They keep their own 
 
 ## Flying the inlet after dark
 
+In a landscape viewport at least 700 pixels tall, the opening autopilot camera sits lower behind the plane and aims toward the break in the clouds. Short screens use the wider chase framing to keep the wings and floats in view as the pilot orbits.
+
 A clearing in the storm sends low light across the conifers, rock faces and lake. Snow collects in hollows sampled from the terrain. Wind exposure changes the waves and the sharpness of the reflected granite. The distant sky uses an original OpenAI ImageGen panorama with blended edges. [Opening comparison](evidence/inlet-light-comparison.webp) · [Sky prompt](evidence/storm-sky-prompt.txt)
 
 **Night flight** puts the moon and a moving aurora over the same inlet. On a low approach, the landing light follows the aircraft and picks out the wave crests ahead of the floats. The lighthouse sweeps the entrance to the dock. Cabin windows, the greenhouse and the marker lights are attached to their buildings and piers, so their reflections stay in place when the pilot turns. The night control works while paused. [Watch a flight](evidence/inlet-after-dark.webp)

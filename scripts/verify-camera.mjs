@@ -3,6 +3,8 @@ import { chromium, expect } from "@playwright/test";
 import fs from "node:fs/promises";
 const b = await chromium.launch({ channel, headless: true }),
   report = [];
+const url = new URL(previewURL);
+if (!url.searchParams.has("seed")) url.searchParams.set("seed", "42");
 try {
   for (const [width, height] of [
     [390, 844],
@@ -19,7 +21,7 @@ try {
       cd = await c.newCDPSession(p),
       errors = [];
     p.on("pageerror", (e) => errors.push(e.message));
-    await p.goto(previewURL);
+    await p.goto(url.href);
     await p.waitForFunction(() => window.__AFTER_RAIN__?.stats().ready);
     const samples = [];
     async function swipe(dx, dy) {
