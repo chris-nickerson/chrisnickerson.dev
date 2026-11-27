@@ -2,7 +2,7 @@
 
 Run commands from the repository root. Install the browsers and video recorder once with `npx playwright install chromium webkit`.
 
-`npm run verify` builds a production preview on a free port and runs the Chromium checks. These cover navigation, desktop keyboard and portrait touch flight, persistence, sound opt-in, reduced motion, the streamed storm panorama, night flight and graphics fallback. After the preview closes, a local dev server runs the stability replay and writes its measurements and depth screenshots to the capture directory.
+`npm run verify` builds a production preview on a free port and runs the Chromium checks. These cover the relief atlas, navigation, desktop keyboard and portrait touch flight, persistence, sound opt-in, reduced motion, the streamed storm panorama, night flight and graphics fallback. After the preview closes, a local dev server runs the stability replay and writes its measurements and depth screenshots to the capture directory.
 
 Use `npm run verify:webkit` for desktop and portrait WebKit. Set `BASE_URL` to run the production checks against an existing server. The stability replay always uses the local source tree. Set `BROWSER_CHANNEL=chrome` to use installed Google Chrome.
 
@@ -23,6 +23,8 @@ For the **preview** checks below, run `npm run build` and leave `npm run preview
 ## Inspect rendering
 
 Run `python3 scripts/paint-eclipse.py` to repaint both eclipse images after changing the relief or the shared framing in `src/eclipse-framing.json`. The painter uses NumPy and Pillow. Run `node scripts/verify-opening-preview.mjs` for a fresh production build and the opening checks in Chromium and WebKit.
+
+Run `python3 scripts/bake-relief.py` from the repository root with NumPy, Pillow and the Node dependencies installed to regenerate the atlas plates and berth positions after a terrain change. The 75 m contours come from flight elevations. The exposed rock layers are illustrative.
 
 Run `python3 scripts/bake-flight-chart.py` from the repo root to regenerate the fallback chart after a terrain change. It uses the terrain sampler, NumPy and Pillow. The chart covers eight world metres per pixel, with the world origin at pixel (810, 400).
 

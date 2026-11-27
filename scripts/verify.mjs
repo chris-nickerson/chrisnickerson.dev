@@ -1,3 +1,4 @@
+import { verifyAtlas } from "./verify-atlas.mjs";
 import {
   loadingScreen,
   verifyNightFlight,
@@ -414,6 +415,12 @@ for (const [width, height] of [
     await expect(night).toBeInViewport({ ratio: 1 });
     await night.click();
     await expect(night).toHaveAttribute("aria-pressed", "true");
+    if (width === 320) {
+      await page.getByRole("button", { name: "Go flying", exact: true }).click();
+      const strip = await page.locator(".world-caption").boundingBox();
+      expect(strip.x).toBeGreaterThanOrEqual(0);
+      expect(strip.x + strip.width).toBeLessThanOrEqual(width);
+    }
     expect(logs.errors).toEqual([]);
     await ctx.close();
     return { consoleErrors: logs.errors };
@@ -647,6 +654,9 @@ for (const action of ["fly-in", "departure", "rain run"])
       return { canceled: action };
     },
   );
+await run("Relief atlas lighting and berth inspection", () =>
+  verifyAtlas(browser),
+);
 await browser.close();
 const noGL = await chromium.launch({
   headless: true,

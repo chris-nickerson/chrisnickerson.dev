@@ -4,6 +4,8 @@ Chris Nickerson’s portfolio opens over an alpine inlet. **Get to know me** ope
 
 Select **Night flight** in the toolbar to fly under the aurora. Follow the lit shore to the lighthouse, or drop low enough to see the landing light sweep the water as you bank. [Day and night flight](evidence/inlet-after-dark.webp)
 
+Select **Relief atlas** in the flight status strip to open a cutaway of the terrain. Move the light from west to east or select a berth to inspect its shore. [Atlas preview](evidence/relief-atlas.webp)
+
 ## Run it
 
 Use the Node version in [`.node-version`](.node-version). From the repository root, run these commands.

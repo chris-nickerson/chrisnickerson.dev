@@ -87,3 +87,20 @@ test("flight chart markers follow the inlet destinations at eight metres per pix
     assert.equal(Number(marker[3]), Math.round(place.z / 8 + 400));
   }
 });
+
+test("atlas pins project the three flight berths onto the baked relief plate", () => {
+  const pins = JSON.parse(read("src/atlas/positions.json"));
+  assert.deepEqual(Object.keys(pins).sort(), Object.keys(places).sort());
+  const azimuth = (29 * Math.PI) / 180;
+  const tilt = (31 * Math.PI) / 180;
+  for (const [id, { berth }] of Object.entries(places)) {
+    const across = Math.cos(azimuth) * berth.x - Math.sin(azimuth) * berth.z;
+    const depth = Math.sin(azimuth) * berth.x + Math.cos(azimuth) * berth.z;
+    const x = ((840 + 0.146 * across) / 1800) * 100;
+    const y = ((650 + 0.146 * Math.sin(tilt) * depth) / 1130) * 100;
+    assert.ok(
+      Math.abs(pins[id][0] - x) < 0.001 && Math.abs(pins[id][1] - y) < 0.001,
+      id,
+    );
+  }
+});

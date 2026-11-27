@@ -12,6 +12,16 @@ export async function verifyOpening(browser) {
     await noScript.goto(previewURL);
     await expect(noScript.locator(".no-script")).toBeVisible();
     await expect(noScript.locator("#fallback-note")).toBeVisible();
+    await noScript
+      .locator(".no-script")
+      .getByRole("link", { name: "relief atlas" })
+      .click();
+    const relief = noScript.getByRole("img", { name: /oblique relief/i });
+    await relief.evaluate((image) => image.decode());
+    await expect(noScript.getByRole("slider")).toHaveCount(0);
+    await expect(noScript.getByRole("button")).toHaveCount(0);
+    await noScript.getByRole("link", { name: "Back to flight" }).click();
+    await expect(noScript.locator(".no-script")).toBeVisible();
   } finally {
     await noScript.close();
   }

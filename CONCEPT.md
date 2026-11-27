@@ -26,6 +26,14 @@ A clearing in the storm sends low light across the conifers, rock faces and lake
 
 **Night flight** puts the moon and a moving aurora over the same inlet. On a low approach, the landing light follows the aircraft and picks out the wave crests ahead of the floats. The lighthouse sweeps the entrance to the dock. Cabin windows, the greenhouse and the marker lights are attached to their buildings and piers, so their reflections stay in place when the pilot turns. The night control works while paused. [Watch a flight](evidence/inlet-after-dark.webp)
 
+## Relief atlas
+
+The atlas samples the flight terrain every six metres and projects the surface and the three berths from the southeast. Two baked lighting directions let the browser blend the shadows as the reader moves the slider. Selecting a berth magnifies the same plate 2.45×. The magnification makes the contour lines easier to follow, with detail limited to the selected 900 or 1,800 pixel image. [Desktop overview](evidence/relief-atlas.webp) · [Quiet dock in eastern light on a phone viewport](evidence/relief-atlas-dock.webp)
+
+A fresh atlas opens with western light. On history navigation, a browser can restore its form controls without firing an input event. The atlas reads the slider again on `pageshow` so its light and accessible value match the restored thumb. Both pages retain Vite’s module-preload polyfill. Splitting it into a shared 711-byte request preserves preload support in the flight while keeping the atlas images out of flight startup.
+
+On an M4 Pro, Chromium requested a 219,202-byte western plate at 1440 × 900 and a 67,354-byte plate at 390 × 844 with 2× device scale. The corresponding eastern plates cost 210,462 and 67,792 bytes on first use. Opening the flight incurred zero plate requests. In three 120-frame slider sweeps at each viewport, the 95th-percentile frame interval ranged from 16.7 to 16.8 ms. These local measurements used a warm atlas and an emulated phone. [Timing samples and transfer sizes](evidence/relief-atlas-timing.json)
+
 ## What the renderer spends
 
 On the public preview of `07b2f80`, three-second samples on an M4 Pro averaged 60 fps in Chromium across daylight flight, night flight and the night dock. At 390 × 844 with phone emulation, the 95th-percentile GPU time was 6.95 ms in daylight, 6.84 ms in night flight and 3.79 ms at the night dock. [Render measurements](evidence/inlet-after-dark-timing.json)

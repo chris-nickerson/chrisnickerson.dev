@@ -258,6 +258,12 @@ button[hidden],
   letter-spacing: 0.02em;
   opacity: 0.85;
 }
+.atlas-link {
+  color: inherit;
+  text-underline-offset: 3px;
+  padding-inline-start: 8px;
+  border-inline-start: 1px solid currentColor;
+}
 .live-mark {
   height: 5px;
   width: 5px;
