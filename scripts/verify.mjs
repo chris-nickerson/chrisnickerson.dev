@@ -409,18 +409,18 @@ for (const [width, height] of [
         () => document.documentElement.scrollWidth > innerWidth,
       ),
     ).toBe(false);
-    if (width === 320) {
-      await page.getByRole("button", { name: "Go flying", exact: true }).click();
-      const strip = await page.locator(".world-caption").boundingBox();
-      expect(strip.x).toBeGreaterThanOrEqual(0);
-      expect(strip.x + strip.width).toBeLessThanOrEqual(width);
-    }
     const toolbar = await page.locator(".bottom-bar").boundingBox();
     expect(toolbar.y + toolbar.height).toBeLessThanOrEqual(height);
     const night = page.getByRole("button", { name: "Night flight", exact: true });
     await expect(night).toBeInViewport({ ratio: 1 });
     await night.click();
     await expect(night).toHaveAttribute("aria-pressed", "true");
+    if (width === 320) {
+      await page.getByRole("button", { name: "Go flying", exact: true }).click();
+      const strip = await page.locator(".world-caption").boundingBox();
+      expect(strip.x).toBeGreaterThanOrEqual(0);
+      expect(strip.x + strip.width).toBeLessThanOrEqual(width);
+    }
     expect(logs.errors).toEqual([]);
     await ctx.close();
     return { consoleErrors: logs.errors };

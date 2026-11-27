@@ -49,7 +49,7 @@ const pins = buttons.flatMap((button) => {
   pin.style.left = `${x}%`;
   pin.style.top = `${y}%`;
   pin.textContent = button.firstElementChild!.textContent;
-  pin.setAttribute("aria-label", `Locate ${name(button)}`);
+  pin.setAttribute("aria-label", `Locate ${name(button)} (${pin.textContent})`);
   pin.addEventListener("click", () => show(view));
   model.append(pin);
   return [pin];
