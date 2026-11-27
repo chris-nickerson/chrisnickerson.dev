@@ -67,7 +67,7 @@ export class CameraFraming {
       ease,
     }: {
       heading: number;
-      assisted: boolean;
+      assisted?: boolean;
       tilt: number;
       surfaceMix: number;
       mapMix: number;
