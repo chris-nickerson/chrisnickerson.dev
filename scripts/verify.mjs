@@ -147,6 +147,23 @@ await run(
     await page.keyboard.press("Escape");
     await page.getByRole("button", { name: "Go flying", exact: true }).click();
     const before = await stats(page);
+    const scene = page.locator("#scene");
+    await scene.dispatchEvent("keydown", { key: "=", code: "Equal" });
+    await page.waitForFunction(
+      (start) => window.__AFTER_RAIN__.stats().throttle > start,
+      before.throttle,
+    );
+    await scene.dispatchEvent("keyup", {
+      key: "+",
+      code: "Equal",
+      shiftKey: true,
+    });
+    const released = await stats(page);
+    await page.waitForFunction(
+      (at) => window.__AFTER_RAIN__.stats().elapsed > at + 0.2,
+      released.elapsed,
+    );
+    expect((await stats(page)).throttle).toBe(released.throttle);
     await page.keyboard.down("d");
     await page.keyboard.down("w");
     await page.waitForTimeout(1800);
@@ -155,9 +172,27 @@ await run(
     const after = await stats(page);
     expect(after.assisted).toBe(false);
     expect(after.position[0]).not.toBe(before.position[0]);
+    await page.locator("#water").click();
+    await page.locator("#scene").focus();
+    await page.keyboard.press("Space");
+    const toggledAt = (await stats(page)).elapsed;
+    await page.waitForFunction(
+      (at) => window.__AFTER_RAIN__.stats().elapsed > at + 0.4,
+      toggledAt,
+    );
+    await expect(page.locator("#water")).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await page.locator("#water").click();
+    await page.locator("#scene").focus();
     await page.keyboard.down("Space");
     await page.waitForTimeout(1200);
     await page.keyboard.up("Space");
+    await expect(page.locator("#water")).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
     await shot(page, "final-piloting");
     await page.keyboard.press("Escape");
     expect((await stats(page)).assisted).toBe(true);
@@ -291,6 +326,13 @@ await run(
       type: "touchMove",
       touchPoints: [{ x: x + 30, y: y - 22 }],
     });
+    const knob = page.locator("#joystick i");
+    const held = await knob.evaluate((el) => el.style.transform);
+    expect(held).toContain("translate");
+    await page
+      .locator("#joystick")
+      .dispatchEvent("pointercancel", { pointerId: 9876 });
+    expect(await knob.evaluate((el) => el.style.transform)).toBe(held);
     await page.waitForTimeout(1500);
     await client.send("Input.dispatchTouchEvent", {
       type: "touchEnd",
@@ -375,6 +417,50 @@ await run("reduced motion: still first frame and keyboard access", async () => {
   await ctx.close();
   return { elapsed: first.elapsed, paused: second.paused };
 });
+await run("cross-tab progress survives a focus handoff", async () => {
+  const ctx = await context();
+  try {
+    const flight = await ctx.newPage();
+    await flight.goto(previewURL);
+    await ready(flight);
+    const writer = await ctx.newPage();
+    await writer.goto(new URL("?fallback", previewURL).href);
+    await writer.evaluate(() => {
+      localStorage.setItem(
+        "after-rain.watershed.v1",
+        JSON.stringify({
+          version: 1,
+          moisture: Array(128 * 128).fill(0),
+          delivered: 31,
+        }),
+      );
+    });
+    await flight.waitForFunction(
+      () => window.__AFTER_RAIN__.stats().delivered === 31,
+    );
+    await flight.bringToFront();
+    await flight
+      .getByRole("button", { name: "Go flying", exact: true })
+      .click();
+    await flight.locator("#water").click();
+    await flight.waitForFunction(
+      () => window.__AFTER_RAIN__.stats().delivered > 31,
+    );
+    const delivered = await flight.evaluate(() => {
+      window.dispatchEvent(new Event("blur"));
+      return window.__AFTER_RAIN__.stats().delivered;
+    });
+    expect(
+      await writer.evaluate(
+        () =>
+          JSON.parse(localStorage.getItem("after-rain.watershed.v1")).delivered,
+      ),
+    ).toBe(delivered);
+    return { delivered };
+  } finally {
+    await ctx.close();
+  }
+});
 await run("storage denied: world remains usable", async () => {
   const ctx = await context();
   const page = await ctx.newPage();
@@ -410,13 +496,14 @@ await run("lost GPU context: illustration and biography survive", async () => {
   await expect(page.locator("#pause")).toHaveAttribute("aria-pressed", "true");
   await page.locator("#scene").focus();
   await expect(page.locator("#scene")).toBeFocused();
-  await page.evaluate(() =>
-    document
-      .querySelector("#scene canvas")
+  const canvasRef = await page.evaluateHandle(() => {
+    const canvas = document.querySelector("#scene canvas");
+    canvas
       .getContext("webgl2")
       .getExtension("WEBGL_lose_context")
-      .loseContext(),
-  );
+      .loseContext();
+    return new WeakRef(canvas);
+  });
   await expect(page.locator("#fallback-note")).toBeVisible();
   await expect(page.locator("#fallback")).toBeVisible();
   await expect(page.locator(".loading-screen")).toBeHidden();
@@ -443,23 +530,19 @@ await run("lost GPU context: illustration and biography survive", async () => {
   await page.keyboard.press("Escape");
   await expect(page.locator("#world-status")).toHaveText("Static view");
   const s = await stats(page);
+  expect(s.ready).toBe(false);
+  await expect(page.locator("#scene canvas")).toHaveCount(0);
+  const cdp = await ctx.newCDPSession(page);
+  await expect
+    .poll(async () => {
+      await cdp.send("HeapProfiler.collectGarbage");
+      return canvasRef.evaluate((ref) => Boolean(ref.deref()));
+    })
+    .toBe(false);
+  await canvasRef.dispose();
+  await cdp.detach();
   await page.getByRole("button", { name: "About Chris", exact: true }).click();
   await expect(page.getByRole("heading", { name: aboutHeading })).toBeVisible();
-  const otherTab = await ctx.newPage();
-  await otherTab.goto(new URL("?fallback", previewURL).href);
-  await otherTab.evaluate(() => {
-    const key = "after-rain.watershed.v1";
-    const saved = JSON.parse(localStorage.getItem(key));
-    saved.delivered += 10;
-    localStorage.setItem(key, JSON.stringify(saved));
-  });
-  await page.goto("about:blank");
-  expect(
-    await otherTab.evaluate(
-      () =>
-        JSON.parse(localStorage.getItem("after-rain.watershed.v1")).delivered,
-    ),
-  ).toBe(s.delivered + 10);
   await ctx.close();
   return { graceful: true };
 });
@@ -515,7 +598,8 @@ for (const action of ["fly-in", "departure", "rain run"])
       const now = new Date();
       await page.clock.install({ time: now });
       await page.clock.pauseAt(new Date(now.getTime() + 1000));
-      const before = await stats(page);
+      const flight = await page.evaluateHandle(() => window.__AFTER_RAIN__);
+      const before = await flight.evaluate((api) => api.stats());
       await trigger.evaluate((button) => {
         button.click();
         document
@@ -525,11 +609,12 @@ for (const action of ["fly-in", "departure", "rain run"])
           .loseContext();
       });
       await expect(page.locator("#fallback-note")).toBeVisible();
-      const stopped = await stats(page);
+      const stopped = await flight.evaluate((api) => api.stats());
       expect(stopped.paused).toBe(false);
       await page.clock.runFor(500);
       await expect(page.locator("#travel-veil")).not.toHaveClass(/cover/);
-      const after = await stats(page);
+      const after = await flight.evaluate((api) => api.stats());
+      await flight.dispose();
       expect(after.elapsed).toBe(stopped.elapsed);
       if (action === "rain run") expect(after.rainRun).toBeNull();
       else expect(after.arrival?.place).toBe(before.arrival?.place);

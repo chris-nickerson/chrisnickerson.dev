@@ -7,6 +7,31 @@ export const loadingScreen = (page) =>
   page.getByRole("status").filter({ hasText: /^\s*Loading\s*$/ });
 
 export async function verifyOpening(browser) {
+  const noScript = await browser.newPage({ javaScriptEnabled: false });
+  try {
+    await noScript.goto(previewURL);
+    await expect(noScript.locator(".no-script")).toBeVisible();
+    await expect(noScript.locator("#fallback-note")).toBeVisible();
+  } finally {
+    await noScript.close();
+  }
+  const offlineEntry = await browser.newPage();
+  try {
+    await offlineEntry.route(
+      /\/(?:assets\/index-[^/]+\.js|src\/main\.ts)(?:\?|$)/,
+      (route) => route.abort(),
+    );
+    await offlineEntry.goto(previewURL);
+    const fallback = offlineEntry.locator(".no-script");
+    await expect(fallback).toBeVisible({ timeout: 12000 });
+    await expect(
+      fallback.getByRole("link", { name: "GitHub" }),
+    ).toHaveAttribute("href", "https://github.com/chris-nickerson");
+    await expect(offlineEntry.locator("#fallback-note")).toBeHidden();
+    await expect(offlineEntry.locator(".hero-actions")).toBeHidden();
+  } finally {
+    await offlineEntry.close();
+  }
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
   await page.clock.install({ time: new Date("2025-01-01T00:00:00Z") });
   await page.clock.pauseAt(new Date("2025-01-01T00:01:00Z"));

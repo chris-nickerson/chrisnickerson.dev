@@ -46,6 +46,19 @@ test("water follows a slope and does not climb it", () => {
   assert.ok(w.surface[i - 1] > 0);
   assert.equal(w.surface[i + 1], 0);
 });
+test("water at the grid perimeter can infiltrate land and discharge into the sea without wrapping rows", () => {
+  const w = new Watershed();
+  w.heights.fill(100);
+  const coast = GRID;
+  w.heights[coast + 1] = -1;
+  w.surface[coast] = 10;
+  w.step(0.2);
+  assert.ok(w.moisture[coast] > 0);
+  assert.ok(w.surface[coast + 1] > 0);
+  assert.equal(w.surface[coast - 1], 0);
+  w.step(0.2);
+  assert.ok(w.seaDischarge > 0);
+});
 test("persistence rejects corrupt and oversized values, roundtrips valid moisture", () => {
   const w = new Watershed();
   w.deposit(-1300, 500, 100);
@@ -208,4 +221,30 @@ test("detail boundaries interpolate the actual terrain mesh orientation and tria
       `${x},${z}: triangle ${hit.point.y}, sample ${sample}`,
     );
   }
+});
+
+test("crossing the world boundary reports a cut and restores assisted flight", () => {
+  const flight = new Flight();
+  flight.assisted = false;
+  flight.position.x = 6801;
+  const input = { roll: 0, pitch: 0, throttle: 0 };
+  assert.equal(flight.step(1 / 60, input), "boundary-reset");
+  assert.equal(flight.assisted, true);
+  assert.equal(flight.step(1 / 60, input), undefined);
+});
+
+test("coastal flow is symmetric across the sea cell regardless of scan direction", () => {
+  const water = new Watershed();
+  water.heights.fill(1000);
+  const center = GRID * 64 + 64;
+  water.heights[center] = -1;
+  water.surface[center] = 4;
+  for (const side of [-1, 1]) {
+    water.heights[center + side] = 10;
+    water.surface[center + side] = 20;
+    water.heights[center + 2 * side] = 1;
+  }
+  water.step(0.2);
+  assert.ok(water.surface[center - 2] > 0);
+  assert.equal(water.surface[center - 2], water.surface[center + 2]);
 });

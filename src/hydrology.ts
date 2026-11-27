@@ -45,22 +45,27 @@ export class Watershed {
   }
   step(dt: number) {
     this.delta.fill(0);
-    for (let z = 1; z < GRID - 1; z++)
-      for (let x = 1; x < GRID - 1; x++) {
+    const neighbors: number[] = [];
+    for (let z = 0; z < GRID; z++)
+      for (let x = 0; x < GRID; x++) {
         const i = z * GRID + x,
           w = this.surface[i];
         if (w < 0.00001) continue;
         if (this.heights[i] <= 0) {
           this.seaDischarge += w;
-          this.surface[i] = 0;
+          this.delta[i] -= w;
           continue;
         }
         const level = this.heights[i] + w;
         let sum = 0;
-        const neighbors = [i - 1, i + 1, i - GRID, i + GRID];
+        neighbors.length = 0;
+        if (x > 0) neighbors.push(i - 1);
+        if (x < GRID - 1) neighbors.push(i + 1);
+        if (z > 0) neighbors.push(i - GRID);
+        if (z < GRID - 1) neighbors.push(i + GRID);
         for (const j of neighbors)
           sum += Math.max(0, level - this.heights[j] - this.surface[j]);
-        const flow = Math.min(w, w * dt * 0.22);
+        const flow = sum > 0 ? Math.min(w, w * dt * 0.22) : 0;
         if (sum > 0)
           for (const j of neighbors) {
             const f =
@@ -114,6 +119,9 @@ export class Watershed {
       s.moisture.some((v) => !Number.isFinite(v) || v < 0 || v > 1000000)
     )
       return false;
+    this.surface.fill(0);
+    this.seaDischarge = 0;
+    this.evaporated = 0;
     this.moisture.set(s.moisture);
     this.delivered = s.delivered;
     for (let i = 0; i < this.moisture.length; i++)

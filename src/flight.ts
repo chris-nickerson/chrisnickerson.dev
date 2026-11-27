@@ -190,10 +190,12 @@ export class Flight {
       }
     }
     this.position.y = Math.min(2700, this.position.y);
-    if (Math.abs(this.position.x) > 6800 || Math.abs(this.position.z) > 6800)
-      this.reset();
+    const outside =
+      Math.abs(this.position.x) > 6800 || Math.abs(this.position.z) > 6800;
+    if (outside) this.reset();
     this.speed = this.velocity.length();
     this.distance += this.speed * dt;
+    if (outside) return "boundary-reset";
   }
   private floatsReachWater(ground: number) {
     // The floats sit 4.3 m either side of the centreline, so a banked or

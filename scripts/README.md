@@ -2,7 +2,7 @@
 
 Run commands from the repository root. Install the browsers and video recorder once with `npx playwright install chromium webkit`.
 
-`npm run verify` builds the site, starts a local production preview on a free port, runs the Chromium checks, and closes the server. It covers navigation, desktop keyboard and portrait touch flight, persistence, sound opt-in, reduced motion, and graphics fallback. `npm run verify:webkit` exercises desktop and portrait WebKit. Set `BASE_URL` to check a server you already have running. Set `BROWSER_CHANNEL=chrome` to use installed Google Chrome.
+`npm run verify` builds the site, starts a local production preview on a free port, runs the Chromium checks, and closes the server. It then starts a local dev server for the stability replay and writes its measurements and depth screenshots under the capture directory. The production preview covers navigation, desktop keyboard and portrait touch flight, persistence, sound opt-in, reduced motion, and graphics fallback. `npm run verify:webkit` exercises desktop and portrait WebKit. Set `BASE_URL` to run the production browser checks against an existing server. The stability replay always runs against the local source tree. Set `BROWSER_CHANNEL=chrome` to use installed Google Chrome.
 
 ## Choose a focused check
 

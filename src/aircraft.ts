@@ -18,7 +18,6 @@ export function createAircraft(id: AircraftId = "survey") {
     cream,
     petrol,
     metal,
-    brass,
     black,
     leather,
     wood,

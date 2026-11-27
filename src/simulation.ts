@@ -1,3 +1,6 @@
+import { CameraFraming } from "./camera-framing";
+import { WatershedStore } from "./watershed-store";
+import { AdaptiveQuality } from "./adaptive-quality";
 import { Migration, inletRoute } from "./migration";
 import { flightSeed } from "./valley-wind";
 import * as T from "three";
@@ -5,7 +8,7 @@ import { FlightPresentation } from "./flight-presentation";
 import { RenderMetrics } from "./render-metrics";
 import { compositeFragment } from "./composite";
 import { Flight, type FlightInput } from "./flight";
-import { Watershed, SAVE_KEY, GRID } from "./hydrology";
+import { SAVE_KEY, Watershed, GRID } from "./hydrology";
 import { createWorld } from "./world";
 import { createAircraft } from "./aircraft";
 import type { AircraftId } from "./fleet";
@@ -50,13 +53,30 @@ export class Simulation {
   readonly groves: ReturnType<typeof createGroves>;
   paused = false;
   map = false;
-  manualWater = false;
+  heldWater = false;
+  private toggledWater = false;
+  get manualWater() {
+    return this.toggledWater || this.heldWater;
+  }
+  toggleWater() {
+    this.toggledWater = !this.toggledWater;
+    return this.toggledWater;
+  }
+  stopWater() {
+    this.toggledWater = this.heldWater = false;
+  }
   watering = false;
   low = false;
   growing = false;
   groundTime = 0;
   ready = false;
-  storageAvailable = true;
+  private readonly storage = new WatershedStore(
+    () => localStorage,
+    () => document.hasFocus(),
+  );
+  get storageAvailable() {
+    return this.storage.available;
+  }
   quality: Quality = "auto";
   fps = 60;
   frameTime = 16.7;
@@ -70,9 +90,7 @@ export class Simulation {
   private hydroClock = 0;
   private saveClock = 0;
   private uiClock = 0;
-  private cameraTarget = new T.Vector3();
-  private desiredCamera = new T.Vector3();
-  private desiredTarget = new T.Vector3();
+  private readonly framing = new CameraFraming(this.camera);
   private orbit = 0;
   private orbitTarget = 0;
   private tilt = 0;
@@ -80,9 +98,7 @@ export class Simulation {
   private dragPointer?: number;
   private orbitVelocity = 0;
   private surfaceMix = 0;
-  private frameTimes: number[] = [];
-  private qualityClock = 0;
-  private recoveryWindows = 0;
+  private readonly adaptiveQuality = new AdaptiveQuality();
   private route: T.Line;
   private routePoints = new Float32Array(6000 * 3);
   private routeCount = 0;
@@ -119,139 +135,154 @@ export class Simulation {
       alpha: false,
       powerPreference: "high-performance",
     });
-    const gl = this.renderer.getContext() as WebGL2RenderingContext;
-    this.renderMetrics = new RenderMetrics(gl);
-    // Half-float sample counts can differ from the default framebuffer's capabilities.
-    const samples = Array.from(
-      gl.getInternalformatParameter(
-        gl.RENDERBUFFER,
-        gl.RGBA16F,
-        gl.SAMPLES,
-      ) as Int32Array,
-    )
-      .filter((n) => n > 0 && n <= 4)
-      .sort((a, b) => a - b);
-    this.opaqueTarget.samples = (this.low ? samples[0] : samples.at(-1)) ?? 0;
-    this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = T.PCFSoftShadowMap;
-    this.renderer.shadowMap.autoUpdate = false;
-    this.renderer.info.autoReset = false;
-    this.renderer.outputColorSpace = T.SRGBColorSpace;
-    this.renderer.toneMapping = T.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 0.94;
-    this.basePixelRatio = Math.min(devicePixelRatio, this.low ? 1.35 : 1.6);
-    this.renderer.setPixelRatio(this.basePixelRatio);
-    const screenMaterial = (this.screenMaterial = new T.ShaderMaterial({
-      uniforms: {
-        uImage: { value: this.opaqueTarget.texture },
-        uClouds: { value: this.cloudTarget.texture },
-        uDepth: { value: this.opaqueTarget.depthTexture },
-        uCloudSize: { value: new T.Vector2() },
-        uNearFar: { value: new T.Vector2(this.camera.near, this.camera.far) },
-        uProjectionInverse: { value: this.camera.projectionMatrixInverse },
-        uCameraWorld: { value: this.camera.matrixWorld },
-        uCamera: { value: this.camera.position },
-      },
-      vertexShader:
-        "uniform mat4 uProjectionInverse,uCameraWorld;varying vec2 vUv;varying vec3 vRay;void main(){vUv=uv;vRay=mat3(uCameraWorld)*(uProjectionInverse*vec4(position.xy,1.,1.)).xyz;gl_Position=vec4(position.xy,0.,1.);}",
-      fragmentShader: compositeFragment,
-      depthTest: false,
-      depthWrite: false,
-    }));
-    this.screenScene.add(new T.Mesh(new T.PlaneGeometry(2, 2), screenMaterial));
-    this.renderer.domElement.setAttribute("aria-hidden", "true");
-    this.host.append(this.renderer.domElement);
     try {
-      const raw = localStorage.getItem(SAVE_KEY);
-      if (raw) this.watershed.restore(JSON.parse(raw));
-    } catch {
-      this.storageAvailable = false;
+      const gl = this.renderer.getContext() as WebGL2RenderingContext;
+      this.renderMetrics = new RenderMetrics(gl);
+      // Half-float sample counts can differ from the default framebuffer's capabilities.
+      const samples = Array.from(
+        gl.getInternalformatParameter(
+          gl.RENDERBUFFER,
+          gl.RGBA16F,
+          gl.SAMPLES,
+        ) as Int32Array,
+      )
+        .filter((n) => n > 0 && n <= 4)
+        .sort((a, b) => a - b);
+      this.opaqueTarget.samples = (this.low ? samples[0] : samples.at(-1)) ?? 0;
+      this.renderer.shadowMap.enabled = true;
+      this.renderer.shadowMap.type = T.PCFSoftShadowMap;
+      this.renderer.shadowMap.autoUpdate = false;
+      this.renderer.info.autoReset = false;
+      this.renderer.outputColorSpace = T.SRGBColorSpace;
+      this.renderer.toneMapping = T.ACESFilmicToneMapping;
+      this.renderer.toneMappingExposure = 0.94;
+      this.basePixelRatio = Math.min(devicePixelRatio, this.low ? 1.35 : 1.6);
+      this.renderer.setPixelRatio(this.basePixelRatio);
+      const screenMaterial = (this.screenMaterial = new T.ShaderMaterial({
+        uniforms: {
+          uImage: { value: this.opaqueTarget.texture },
+          uClouds: { value: this.cloudTarget.texture },
+          uDepth: { value: this.opaqueTarget.depthTexture },
+          uCloudSize: { value: new T.Vector2() },
+          uNearFar: { value: new T.Vector2(this.camera.near, this.camera.far) },
+          uProjectionInverse: { value: this.camera.projectionMatrixInverse },
+          uCameraWorld: { value: this.camera.matrixWorld },
+          uCamera: { value: this.camera.position },
+        },
+        vertexShader:
+          "uniform mat4 uProjectionInverse,uCameraWorld;varying vec2 vUv;varying vec3 vRay;void main(){vUv=uv;vRay=mat3(uCameraWorld)*(uProjectionInverse*vec4(position.xy,1.,1.)).xyz;gl_Position=vec4(position.xy,0.,1.);}",
+        fragmentShader: compositeFragment,
+        depthTest: false,
+        depthWrite: false,
+      }));
+      this.screenScene.add(
+        new T.Mesh(new T.PlaneGeometry(2, 2), screenMaterial),
+      );
+      this.renderer.domElement.setAttribute("aria-hidden", "true");
+      this.storage.refresh(this.watershed);
+      this.world = createWorld(this.scene, this.low, this.watershed, this.seed);
+      this.flight.valley = this.world.wind;
+      this.flight.enterInlet(inletRoute(this.seed).start);
+      this.migration = new Migration(this.world.wind, this.low);
+      this.scene.add(this.migration.birds.mesh);
+      if (this.migration.wakes) this.scene.add(this.migration.wakes.mesh);
+      const envScene = new T.Scene();
+      envScene.add(this.world.sky.clone());
+      const pmrem = new T.PMREMGenerator(this.renderer);
+      this.scene.environment = pmrem.fromScene(envScene, 0, 1, 25000).texture;
+      this.scene.environmentIntensity = 0.65;
+      pmrem.dispose();
+      this.scene.add(this.aircraft.root);
+      this.landmarks = createPlaces(this.scene);
+      this.rivers = createRivers(this.scene);
+      this.weather = createWeather(this.cloudScene, this.low);
+      this.runoff = new Runoff(this.scene);
+      this.groves = createGroves(this.scene, this.rainRun);
+      this.surfaceSpray = new SurfaceSpray(this.scene);
+      this.water = new WaterRelease(this.scene, (x, z) => {
+        this.watershed.deposit(x, z, 1.0);
+        this.rainRun.deposit(x, z, 1.0);
+      });
+      const rg = new T.BufferGeometry();
+      rg.setAttribute("position", new T.BufferAttribute(this.routePoints, 3));
+      rg.setDrawRange(0, 0);
+      this.route = new T.Line(
+        rg,
+        new T.LineBasicMaterial({
+          color: 0xf6c995,
+          transparent: true,
+          opacity: 0.7,
+          depthTest: false,
+        }),
+      );
+      this.route.visible = false;
+      this.route.frustumCulled = false;
+      this.scene.add(this.route);
+      this.marker = new T.Mesh(
+        new T.RingGeometry(36, 43, 40),
+        new T.MeshBasicMaterial({
+          color: 0xffd8a0,
+          side: T.DoubleSide,
+          depthTest: false,
+        }),
+      );
+      this.marker.rotation.x = -Math.PI / 2;
+      this.marker.visible = false;
+      this.scene.add(this.marker);
+      this.resize();
+      this.resetPresentation();
+      this.updateCamera(1, true);
+      // Prepare the shadow framebuffer and landing material programs at startup.
+      // Otherwise their allocation lands in the first frame after float contact.
+      this.render(true);
+      this.host.append(this.renderer.domElement);
+      const options = { signal: this.lifetime.signal };
+      this.host.addEventListener("pointerdown", this.pointerDown, options);
+      this.host.addEventListener("dblclick", () => this.resetView(), options);
+      window.addEventListener("resize", this.resize, options);
+      this.renderer.domElement.addEventListener(
+        "webglcontextlost",
+        (event) => {
+          event.preventDefault();
+          this.stop();
+          window.dispatchEvent(new Event("world-context-lost"));
+        },
+        options,
+      );
+      document.addEventListener(
+        "visibilitychange",
+        () => {
+          if (document.hidden) {
+            this.save();
+            cancelAnimationFrame(this.frame);
+            this.frame = 0;
+          } else {
+            this.last = 0;
+            this.frame = requestAnimationFrame(this.animate);
+          }
+        },
+        options,
+      );
+      window.addEventListener(
+        "storage",
+        (event) => {
+          if (
+            (event.key === SAVE_KEY || event.key === null) &&
+            this.storage.refresh(this.watershed)
+          )
+            this.redrawPausedWatershed();
+        },
+        options,
+      );
+      window.addEventListener("blur", () => this.save("blur"), options);
+      window.addEventListener("pagehide", () => this.save(), options);
+      this.ready = true;
+      this.frame = requestAnimationFrame(this.animate);
+    } catch (error) {
+      this.release();
+      this.renderer.forceContextLoss();
+      throw error;
     }
-    this.world = createWorld(this.scene, this.low, this.watershed, this.seed);
-    this.flight.valley = this.world.wind;
-    this.flight.enterInlet(inletRoute(this.seed).start);
-    this.migration = new Migration(this.world.wind, this.low);
-    this.scene.add(this.migration.birds.mesh);
-    if (this.migration.wakes) this.scene.add(this.migration.wakes.mesh);
-    const envScene = new T.Scene();
-    envScene.add(this.world.sky.clone());
-    const pmrem = new T.PMREMGenerator(this.renderer);
-    this.scene.environment = pmrem.fromScene(envScene, 0, 1, 25000).texture;
-    this.scene.environmentIntensity = 0.65;
-    pmrem.dispose();
-    this.scene.add(this.aircraft.root);
-    this.landmarks = createPlaces(this.scene);
-    this.rivers = createRivers(this.scene);
-    this.weather = createWeather(this.cloudScene, this.low);
-    this.runoff = new Runoff(this.scene);
-    this.groves = createGroves(this.scene, this.rainRun);
-    this.surfaceSpray = new SurfaceSpray(this.scene);
-    this.water = new WaterRelease(this.scene, (x, z) => {
-      this.watershed.deposit(x, z, 1.0);
-      this.rainRun.deposit(x, z, 1.0);
-    });
-    const rg = new T.BufferGeometry();
-    rg.setAttribute("position", new T.BufferAttribute(this.routePoints, 3));
-    rg.setDrawRange(0, 0);
-    this.route = new T.Line(
-      rg,
-      new T.LineBasicMaterial({
-        color: 0xf6c995,
-        transparent: true,
-        opacity: 0.7,
-        depthTest: false,
-      }),
-    );
-    this.route.visible = false;
-    this.route.frustumCulled = false;
-    this.scene.add(this.route);
-    this.marker = new T.Mesh(
-      new T.RingGeometry(36, 43, 40),
-      new T.MeshBasicMaterial({
-        color: 0xffd8a0,
-        side: T.DoubleSide,
-        depthTest: false,
-      }),
-    );
-    this.marker.rotation.x = -Math.PI / 2;
-    this.marker.visible = false;
-    this.scene.add(this.marker);
-    this.resize();
-    this.resetPresentation();
-    this.updateCamera(1, true);
-    // Prepare the shadow framebuffer and landing material programs at startup.
-    // Otherwise their allocation lands in the first frame after float contact.
-    this.render(true);
-    const options = { signal: this.lifetime.signal };
-    this.host.addEventListener("pointerdown", this.pointerDown, options);
-    this.host.addEventListener("dblclick", () => this.resetView(), options);
-    window.addEventListener("resize", this.resize, options);
-    this.renderer.domElement.addEventListener(
-      "webglcontextlost",
-      (event) => {
-        event.preventDefault();
-        this.stop();
-        window.dispatchEvent(new Event("world-context-lost"));
-      },
-      options,
-    );
-    document.addEventListener(
-      "visibilitychange",
-      () => {
-        if (document.hidden) {
-          this.save();
-          cancelAnimationFrame(this.frame);
-          this.frame = 0;
-        } else {
-          this.last = 0;
-          this.frame = requestAnimationFrame(this.animate);
-        }
-      },
-      options,
-    );
-    window.addEventListener("pagehide", () => this.save(), options);
-    this.ready = true;
-    this.frame = requestAnimationFrame(this.animate);
   }
   selectAircraft(id: AircraftId) {
     if (id === this.aircraftId) return;
@@ -405,6 +436,7 @@ export class Simulation {
     this.resetView();
   }
   setQuality(value: Quality) {
+    this.adaptiveQuality.reset();
     this.quality = value;
     this.world.setLowPower(value === "low");
     this.renderer.setPixelRatio(
@@ -416,31 +448,35 @@ export class Simulation {
     );
     this.resize();
   }
-  save() {
-    try {
-      localStorage.setItem(SAVE_KEY, JSON.stringify(this.watershed.snapshot()));
-    } catch {
-      this.storageAvailable = false;
+  save(reason: "periodic" | "blur" = "periodic") {
+    if (this.storage.save(this.watershed, reason)) this.redrawPausedWatershed();
+  }
+  private redrawPausedWatershed() {
+    if (this.ready && this.paused) {
+      this.world.update(this.elapsed);
+      this.render();
     }
   }
   clear() {
     this.watershed.clear();
-    this.save();
+    this.storage.save(this.watershed, "reset");
     this.world.update(this.elapsed);
     this.render();
   }
   private step(dt: number) {
     this.elapsed += dt;
     this.rainRun.update(this.flight);
-    this.groves.update(dt);
     const wasOnWater = this.flight.onWater;
     if (this.arrival) this.arrival.step(dt, this.flight);
-    else this.flight.step(dt, this.input);
+    else if (this.flight.step(dt, this.input) === "boundary-reset") {
+      this.endLeg();
+      this.cutTo();
+    }
     if (wasOnWater && !this.flight.onWater && !this.arrival)
       this.manualApproach = undefined;
     this.surfaceSpray.update(dt, this.flight, this.flight.onWater);
     if (this.flight.onWater) {
-      this.manualWater = false;
+      this.stopWater();
       this.rainRun.stop();
     }
     this.watering = !this.arrival && !this.flight.onWater && this.manualWater;
@@ -525,7 +561,7 @@ export class Simulation {
   /** Shows a new leg from its first frame. The camera, map, and trail restart so nothing is drawn between the old place and the new one. */
   private cutTo(focus?: { x: number; z: number }) {
     this.paused = false;
-    this.manualWater = false;
+    this.stopWater();
     this.world.focus(focus?.x, focus?.z);
     this.setMap(false);
     this.viewMix = 0;
@@ -555,100 +591,27 @@ export class Simulation {
       (Number(this.flight.onWater) - this.surfaceMix) *
       (instant ? 1 : 1 - Math.exp(-dt * 0.85));
     if (this.arrival) {
-      const place = places[this.arrival.place],
-        landmark = this.landmarks.roots[this.arrival.place];
-      if (this.arrival.stage === "approach") {
-        const portrait = this.camera.aspect < 0.8;
-        this.desiredCamera
-          .copy(p)
-          .add(
-            new T.Vector3(
-              portrait ? -12 : -63,
-              portrait ? 35 : 27,
-              portrait ? 190 : 105,
-            ),
-          );
-        this.desiredTarget
-          .copy(p)
-          .add(new T.Vector3(0, portrait ? 6 : 2, portrait ? -90 : -150));
-      } else {
-        const side = Math.sign(place.x - place.berth.x);
-        const portrait = this.camera.aspect < 0.8;
-        // From the water side the plane is in silhouette against the light
-        // pontoon edge. Look more nearly along the pier on narrow screens.
-        this.desiredCamera
-          .copy(p)
-          .add(
-            new T.Vector3(
-              -side * (portrait ? 133 : 79),
-              portrait ? 43 : 29,
-              portrait ? 55 : 89,
-            ),
-          );
-        this.desiredTarget
-          .copy(p)
-          .lerp(landmark.position, portrait ? 0.42 : 0.34);
-        this.desiredTarget.y += portrait ? -5 : 9;
-      }
-      const offset = this.desiredCamera.clone().sub(p);
-      const aimOffset = this.desiredTarget.clone().sub(p);
-      offset.applyAxisAngle(new T.Vector3(0, 1, 0), this.orbit);
-      offset.y += this.tilt * 90;
-      this.desiredCamera.copy(p).add(offset);
-      aimOffset.applyAxisAngle(new T.Vector3(0, 1, 0), this.orbit);
-      this.desiredTarget.copy(p).add(aimOffset);
-      this.desiredCamera.y = Math.max(
-        this.desiredCamera.y,
-        terrainHeight(this.desiredCamera.x, this.desiredCamera.z) + 10,
-      );
-      const f = instant ? 1 : 1 - Math.exp(-dt * 0.8);
-      this.camera.position.lerp(this.desiredCamera, f);
-      this.cameraTarget.lerp(this.desiredTarget, f);
-      this.camera.lookAt(this.cameraTarget);
+      this.framing.arrival(p, {
+        arrival: this.arrival,
+        landmark: this.landmarks.roots[this.arrival.place].position,
+        orbit: this.orbit,
+        tilt: this.tilt,
+        ease: instant ? 1 : 1 - Math.exp(-dt * 0.8),
+      });
       return;
     }
     this.viewMix += (Number(this.map) - this.viewMix) * Math.min(1, dt * 1.8);
-    const angle = this.presentation.heading + this.orbit;
-    const mobile = this.camera.aspect < 0.8;
-    const tending = this.rainRun.active;
-    const chase = new T.Vector3(
-      mobile ? -12 : -66,
-      (tending ? 100 : 34) + this.tilt * 120,
-      mobile ? (tending ? 220 : 180) : tending ? 150 : 120,
-    );
-    chase.lerp(
-      new T.Vector3(
-        mobile ? -10 : -52,
-        38 + this.tilt * 100,
-        mobile ? 185 : 125,
-      ),
-      this.surfaceMix,
-    );
-    chase.applyAxisAngle(new T.Vector3(0, 1, 0), -angle).add(p);
-    chase.y = Math.max(chase.y, terrainHeight(chase.x, chase.z) + 25);
-    const gaze = new T.Vector3(
-      mobile && !tending ? -12 * (1 - this.surfaceMix) : 0,
-      tending ? -80 : mobile ? (this.host.clientHeight < 700 ? -110 : -45) : 10,
-      -180,
-    );
-    gaze.lerp(
-      new T.Vector3(0, 6, -35),
-      Math.max(this.surfaceMix, clamp((this.tilt - 0.12) / 0.35, 0, 1)),
-    );
-    gaze.applyAxisAngle(new T.Vector3(0, 1, 0), -angle).add(p);
-    const mapPosition = new T.Vector3(p.x + 1100, 3600, p.z + 2300);
-    const mapTarget = new T.Vector3(p.x + 300, 0, p.z - 200);
-    this.desiredCamera.copy(chase).lerp(mapPosition, this.viewMix);
-    this.desiredTarget.copy(gaze).lerp(mapTarget, this.viewMix);
-    if (instant) {
-      this.camera.position.copy(this.desiredCamera);
-      this.cameraTarget.copy(this.desiredTarget);
-    } else {
-      const f = 1 - Math.exp(-dt * (this.dragPointer !== undefined ? 14 : 5));
-      this.camera.position.lerp(this.desiredCamera, f);
-      this.cameraTarget.lerp(this.desiredTarget, f);
-    }
-    this.camera.lookAt(this.cameraTarget);
+    this.framing.follow(p, {
+      heading: this.presentation.heading + this.orbit,
+      tilt: this.tilt,
+      surfaceMix: this.surfaceMix,
+      mapMix: this.viewMix,
+      rainRunActive: this.rainRun.active,
+      height: this.host.clientHeight,
+      ease: instant
+        ? 1
+        : 1 - Math.exp(-dt * (this.dragPointer !== undefined ? 14 : 5)),
+    });
     (this.scene.fog as T.FogExp2).density = 0.000024 - this.viewMix * 0.00001;
   }
   private render(prepareLanding = false) {
@@ -658,6 +621,7 @@ export class Simulation {
       prepareLanding || !!this.arrival || this.flight.onWater;
     this.renderer.shadowMap.needsUpdate = this.renderer.shadowMap.enabled;
     const visualTime = Math.max(0, this.elapsed - 1 / 60 + this.accumulator);
+    this.groves.update(this.elapsed);
     this.migration.update(visualTime);
     this.world.updateSun(this.presentation.position);
     this.world.setWake(
@@ -711,8 +675,8 @@ export class Simulation {
       let steps = 0;
       while (this.accumulator >= 1 / 60 && steps < 6) {
         this.presentation.beforeStep(this.flight);
-        this.step(1 / 60);
         this.accumulator -= 1 / 60;
+        this.step(1 / 60);
         steps++;
       }
       this.presentation.sample(this.flight, this.accumulator * 60);
@@ -739,50 +703,27 @@ export class Simulation {
       this.updateCamera(delta);
       this.render();
       this.frames++;
-      this.frameTimes.push(rawDelta * 1000);
-      if (this.frameTimes.length > 180) this.frameTimes.shift();
-      this.qualityClock += rawDelta;
-      if (
-        this.qualityClock > 8 &&
-        this.quality === "auto" &&
-        this.frameTimes.length > 90
-      ) {
-        this.qualityClock = 0;
-        const avg =
-          this.frameTimes.reduce((a, b) => a + b, 0) / this.frameTimes.length;
-        const gpu = this.renderMetrics.stats().gpu;
-        const overBudget = avg > 22 || (gpu !== null && gpu.medianMs > 15);
-        if (overBudget && this.renderer.getPixelRatio() > 0.8) {
-          this.recoveryWindows = 0;
-          this.renderer.setPixelRatio(
-            Math.max(0.8, this.renderer.getPixelRatio() * 0.82),
+      this.adaptiveQuality.record(rawDelta);
+      if (this.quality === "auto") {
+        const current = this.renderer.getPixelRatio();
+        const next = this.adaptiveQuality.nextRatio(
+          current,
+          this.basePixelRatio,
+          () => this.renderMetrics.stats().gpu,
+        );
+        if (next !== current) {
+          this.renderer.setPixelRatio(next);
+          this.world.setLowPower(
+            next < current || next < this.basePixelRatio * 0.95,
           );
-          this.world.setLowPower(true);
           this.resize();
-        } else if (!overBudget && avg < 18 && gpu !== null && gpu.p95Ms < 10) {
-          // Recover slowly after sustained headroom, avoiding quality oscillation.
-          if (
-            ++this.recoveryWindows >= 3 &&
-            this.renderer.getPixelRatio() < this.basePixelRatio
-          ) {
-            this.recoveryWindows = 0;
-            const ratio = Math.min(
-              this.basePixelRatio,
-              this.renderer.getPixelRatio() * 1.1,
-            );
-            this.renderer.setPixelRatio(ratio);
-            this.world.setLowPower(ratio < this.basePixelRatio * 0.95);
-            this.resize();
-          }
-        } else this.recoveryWindows = 0;
+        }
       }
     }
     this.uiClock += rawDelta;
     if (this.uiClock > 0.3) {
       this.uiClock = 0;
-      this.frameTime = this.frameTimes.length
-        ? this.frameTimes.reduce((a, b) => a + b, 0) / this.frameTimes.length
-        : 16.7;
+      this.frameTime = this.adaptiveQuality.meanFrameMs;
       this.fps = 1000 / this.frameTime;
       this.onUpdate?.(this);
     }
@@ -880,8 +821,14 @@ export class Simulation {
   }
   stop() {
     if (this.lifetime.signal.aborted) return;
+    this.release();
+    this.save();
+  }
+  private release() {
     this.lifetime.abort();
     cancelAnimationFrame(this.frame);
-    this.save();
+    this.ready = false;
+    this.renderer.domElement.remove();
+    this.renderer.dispose();
   }
 }
