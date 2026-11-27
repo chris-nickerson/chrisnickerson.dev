@@ -182,6 +182,7 @@ function updateUI() {
   updateRainUI();
   const paused = !!sim?.paused,
     water = !!sim?.manualWater;
+  $("night-flight").setAttribute("aria-pressed", String(!!sim?.night));
   $("pause").setAttribute("aria-pressed", String(paused));
   $("pause").setAttribute(
     "aria-label",
@@ -401,6 +402,13 @@ function toggleWater() {
 $("autopilot").addEventListener("click", () => setPilot(false));
 $("fly").addEventListener("click", () => setPilot(true));
 $("view").addEventListener("click", toggleView);
+$("night-flight").addEventListener("click", (event) => {
+  if (!sim) return;
+  sim.setNight(!sim.night);
+  if (event.detail > 0 && !sim.flight.assisted && !sim.map && !sim.arrival)
+    $("scene").focus({ preventScroll: true });
+  updateUI();
+});
 $("pause").addEventListener("click", togglePause);
 $("water").addEventListener("click", toggleWater);
 $("fullscreen").addEventListener("click", async () => {

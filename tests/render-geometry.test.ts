@@ -4,6 +4,9 @@ import * as T from "three";
 import { Watershed, GRID } from "../src/hydrology";
 import { shoreline } from "../src/shore";
 import { Runoff } from "../src/weather";
+import { cirqueShelter } from "../src/alpine-surface";
+import { canopyFootprints } from "../src/forest";
+import { WORLD_SIZE } from "../src/terrain";
 import { terrainTiles } from "../src/render-geometry";
 
 test("spatial terrain tiles preserve every source triangle and border normal, including partial tiles", () => {
@@ -140,4 +143,37 @@ test("runoff uploads the visible channels after they dry, change strength, or re
   assert.equal(geometry.drawRange.count, 16);
   assert.deepEqual(position.updateRanges, [{ start: 0, count: 48 }]);
   assert.deepEqual(positions().slice(24, 48), secondPath);
+});
+
+test("snow shelter locates hollows and exposed ridges at their world coordinates", () => {
+  const terrain = new T.PlaneGeometry(1600, 1600, 16, 16);
+  terrain.rotateX(-Math.PI / 2);
+  const vertices = terrain.getAttribute("position");
+  for (let i = 0; i < vertices.count; i++) {
+    const x = vertices.getX(i),
+      z = vertices.getZ(i);
+    if (x === 0 && Math.abs(z) === 300) vertices.setY(i, z);
+  }
+  const shelter = cirqueShelter(vertices, 17, 1600);
+  const sample = (x: number, z: number) =>
+    shelter.image.data[(z / 100 + 8) * 17 + x / 100 + 8];
+  assert.ok(sample(0, -300) > sample(300, 0) + 100);
+  assert.ok(sample(0, 300) < sample(300, 0) - 100);
+});
+
+test("a tree's ground shadow extends away from the sun with no wrap at the map edge", () => {
+  const tree = { x: -WORLD_SIZE / 2 + 12, z: 0, h: 55, r: 7 };
+  const awayFromEdge = canopyFootprints(
+    [tree],
+    new T.Vector3(-1, 0.2, 0).normalize(),
+  );
+  const acrossEdge = canopyFootprints(
+    [tree],
+    new T.Vector3(1, 0.2, 0).normalize(),
+  );
+  const { width, height } = awayFromEdge.image;
+  const row = (height / 2) * width;
+  assert.ok(awayFromEdge.image.data[row + 5] > 0);
+  assert.equal(acrossEdge.image.data[row + 5], 0);
+  assert.equal(acrossEdge.image.data[row - 1], 0);
 });

@@ -1,15 +1,16 @@
 import * as T from "three";
+import { slopeNormalGLSL } from "./shaders";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 
 export function createAirframe(name: string) {
   const root = new T.Group();
   root.name = name;
   const enamel = new T.MeshPhysicalMaterial({
-    color: 0xac3824,
-    roughness: 0.31,
-    metalness: 0.12,
-    clearcoat: 0.55,
-    clearcoatRoughness: 0.24,
+    color: 0xb63d26,
+    roughness: 0.39,
+    metalness: 0.045,
+    clearcoat: 0.72,
+    clearcoatRoughness: 0.21,
   });
   const cream = new T.MeshStandardMaterial({
     color: 0xe8dfc5,
@@ -138,25 +139,66 @@ export function createAirframe(name: string) {
     return o;
   }
   const fabric = cream.clone();
+  fabric.color.setHex(0xeadbb8);
+  fabric.roughness = 0.49;
   fabric.onBeforeCompile = (shader) => {
     shader.vertexShader = "varying vec2 vFabric;\n" + shader.vertexShader;
     shader.vertexShader = shader.vertexShader.replace(
       "#include <begin_vertex>",
       "#include <begin_vertex>\n vFabric=uv;",
     );
-    shader.fragmentShader = "varying vec2 vFabric;\n" + shader.fragmentShader;
+    shader.fragmentShader =
+      `
+      varying vec2 vFabric;
+      float fabricBand(float x, float from, float to, float feather) {
+        return smoothstep(from-feather,from+feather,x) - smoothstep(to-feather,to+feather,x);
+      }
+      ${slopeNormalGLSL}
+    ` + shader.fragmentShader;
     shader.fragmentShader = shader.fragmentShader.replace(
       "#include <color_fragment>",
       `#include <color_fragment>
-      float x=abs(vFabric.x),t=vFabric.y;
-      float paint=smoothstep(8.72,8.76,x)*(1.-smoothstep(10.35,10.39,x));
+      float x = abs(vFabric.x), t = vFabric.y;
+      float bow = sin(t * 3.14159);
+      float spar = 1.-smoothstep(.018,.048,abs(t-.30));
+      float spanPhase = vFabric.x * .64;
+      float underTape = abs(fract(spanPhase)-.5);
+      float detailFade = 1.-smoothstep(.10,.62,fwidth(spanPhase));
+      float tape = (1.-smoothstep(.012,.039,underTape))*detailFade;
+      float feather = max(.012, .5*fwidth(vFabric.x));
+      float paint = fabricBand(x,8.74,10.37,feather);
       diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.43,.035,.016),paint);
-      float line=(1.-smoothstep(.025,.05,abs(x-8.60)))+(1.-smoothstep(.012,.025,abs(x-10.5)));
+      float line = fabricBand(x,8.562,8.638,feather) + fabricBand(x,10.48,10.52,feather);
       diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.012,.045,.05),clamp(line,0.,1.));
-      float rib=1.-smoothstep(.018,.055,abs(fract(vFabric.x*.64)-.5));
-      float detailFade=1.-smoothstep(.05,.3,fwidth(vFabric.x));
-      diffuseColor.rgb*=1.-rib*.07*detailFade*sin(t*3.14159);
+      diffuseColor.rgb *= 1. - .11*tape*bow;
     `,
+    );
+    shader.fragmentShader = shader.fragmentShader.replace(
+      "#include <normal_fragment_maps>",
+      `#include <normal_fragment_maps>
+      float camber = .073 * cos(spanPhase*6.283185) * bow;
+      normal = slopeNormal(normal, -vViewPosition,
+        detailFade*vec2(dFdx(camber),dFdy(camber)));`,
+    );
+    shader.fragmentShader = shader.fragmentShader.replace(
+      "#include <lights_physical_pars_fragment>",
+      `#include <lights_physical_pars_fragment>
+      float openFabric;
+      void lightFabric(IncidentLight light, vec3 position, vec3 n, vec3 viewDir,
+        vec3 coatNormal, PhysicalMaterial material, inout ReflectedLight reflected) {
+        RE_Direct(light, position, n, viewDir, coatNormal, material, reflected);
+        float wrap = clamp(.36-dot(n, light.direction), 0., 1.);
+        float forward = pow(max(0., dot(-light.direction, viewDir)), 3.);
+        reflected.directDiffuse += light.color * vec3(.37,.23,.087) *
+          wrap * (.13+.87*forward) * openFabric;
+      }
+      #undef RE_Direct
+      #define RE_Direct lightFabric`,
+    );
+    shader.fragmentShader = shader.fragmentShader.replace(
+      "#include <lights_fragment_begin>",
+      `openFabric = (1.-.65*tape)*(1.-.38*spar)*(1.-.96*clamp(paint+line,0.,1.));
+      #include <lights_fragment_begin>`,
     );
   };
   const ailerons: T.Group[] = [];
@@ -277,10 +319,29 @@ export function createAirframe(name: string) {
     rod([-2.15, -2.68, 1.25], [2.15, -2.68, 1.25], 0.065, metal);
     // Chine-sided float hulls with a genuine step, upswept bow and tapered stern.
     const floatMetal = new T.MeshStandardMaterial({
-      color: 0xc0c7bd,
-      roughness: 0.38,
-      metalness: 0.48,
+      color: 0xc5cbc8,
+      roughness: 0.31,
+      metalness: 0.72,
     });
+    floatMetal.onBeforeCompile = (shader) => {
+      shader.vertexShader =
+        "varying float vPanel;\n" +
+        shader.vertexShader.replace(
+          "#include <begin_vertex>",
+          "#include <begin_vertex>\n vPanel=uv.y*6.5;",
+        );
+      shader.fragmentShader =
+        "varying float vPanel;\n" +
+        shader.fragmentShader.replace(
+          "#include <roughnessmap_fragment>",
+          `#include <roughnessmap_fragment>
+        float edge = abs(fract(vPanel+.5)-.5);
+        float join = 1.-smoothstep(.007,.007+max(.007,fwidth(vPanel)),edge);
+        float resolved = 1.-smoothstep(.08,.4,fwidth(vPanel));
+        diffuseColor.rgb *= 1.-.22*join*resolved;
+        roughnessFactor += (.035*cos(floor(vPanel)*3.)+.16*join)*resolved;`,
+        );
+    };
     for (const side of [-1, 1]) {
       const sections = [
         [-4.45, 0.025, 0.28],

@@ -2,6 +2,8 @@
 
 Chris Nickerson’s portfolio opens over an alpine inlet. **Get to know me** opens three stops for Chris’s story, selected projects, and life outside work. **Hangar** lets you choose the Survey Biplane, Alder Courier, or Marlin Twin. **Go flying** hands you the controls. The terrain, aircraft, swans, and sound are built in code. [Visit the portfolio](https://chrisnickerson.dev).
 
+Select **Night flight** in the toolbar to fly under the aurora. Follow the lit shore to the lighthouse, or drop low enough to see the landing light sweep the water as you bank. [Day and night flight](evidence/inlet-after-dark.webp)
+
 ## Run it
 
 Use the Node version in [`.node-version`](.node-version). From the repository root, run these commands.

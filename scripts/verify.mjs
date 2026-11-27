@@ -1,4 +1,9 @@
-import { loadingScreen, verifyOpening } from "./verify-opening.mjs";
+import {
+  loadingScreen,
+  verifyNightFlight,
+  verifyOpening,
+  verifyStreamedSky,
+} from "./verify-opening.mjs";
 import {
   captureDir,
   channel,
@@ -103,6 +108,20 @@ async function run(name, fn) {
 await run("eclipse loading screen and profile during slow startup", () =>
   verifyOpening(browser),
 );
+
+await run("late storm sky appears during paused flight", () =>
+  verifyStreamedSky(browser),
+);
+
+for (const viewport of [
+  { width: 1440, height: 900 },
+  { width: 390, height: 844 },
+]) {
+  await run(
+    `standalone night flight at ${viewport.width}×${viewport.height}`,
+    () => verifyNightFlight(browser, viewport),
+  );
+}
 
 await run(
   "desktop 1440×900: profile, keyboard, simulation, persistence, travel",
@@ -391,6 +410,10 @@ for (const [width, height] of [
     ).toBe(false);
     const toolbar = await page.locator(".bottom-bar").boundingBox();
     expect(toolbar.y + toolbar.height).toBeLessThanOrEqual(height);
+    const night = page.getByRole("button", { name: "Night flight", exact: true });
+    await expect(night).toBeInViewport({ ratio: 1 });
+    await night.click();
+    await expect(night).toHaveAttribute("aria-pressed", "true");
     expect(logs.errors).toEqual([]);
     await ctx.close();
     return { consoleErrors: logs.errors };
@@ -490,6 +513,7 @@ await run("lost GPU context: illustration and biography survive", async () => {
   await page.getByRole("button", { name: "Go flying", exact: true }).click();
   await page.getByRole("button", { name: "Enable sound" }).click();
   await expect(page.locator("#sound")).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "Night flight", exact: true }).click();
   await page.locator("#water").click();
   await page.locator("#pause").click();
   await expect(page.locator("#water")).toHaveAttribute("aria-pressed", "true");
@@ -508,13 +532,13 @@ await run("lost GPU context: illustration and biography survive", async () => {
   await expect(page.locator("#fallback")).toBeVisible();
   await expect(page.locator(".loading-screen")).toBeHidden();
   await expect(page.locator(".flight-chart")).toBeVisible();
-  for (const id of ["pause", "water"]) {
+  for (const id of ["pause", "water", "night-flight"]) {
     await expect(page.locator(`#${id}`)).toHaveAttribute(
       "aria-pressed",
       "false",
     );
   }
-  for (const id of ["pause", "water", "sound", "quality"])
+  for (const id of ["pause", "water", "sound", "night-flight", "quality"])
     await expect(page.locator(`#${id}`)).toBeDisabled();
   await expect(page.locator("#sound")).toHaveAttribute("aria-pressed", "false");
   await expect(page.locator("#sound")).toHaveAccessibleName("Enable sound");
@@ -636,7 +660,7 @@ await run("WebGL unavailable: flight chart and direct profile", async () => {
   await expect(page.locator("#fallback")).toBeVisible();
   await expect(page.locator(".loading-screen")).toBeHidden();
   await expect(page.locator(".flight-chart")).toBeVisible();
-  for (const id of ["sound", "pause", "quality"])
+  for (const id of ["sound", "pause", "night-flight", "quality"])
     await expect(page.locator(`#${id}`)).toBeDisabled();
   await shot(page, "final-no-webgl");
   await page.getByRole("button", { name: "About Chris", exact: true }).click();

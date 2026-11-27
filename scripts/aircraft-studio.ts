@@ -1,6 +1,7 @@
 import * as T from "three";
 import { createAircraft } from "../src/aircraft";
-import { skyVertex, skyFragment } from "../src/shaders";
+import { inletSun } from "../src/atmosphere";
+import { bakeInletEnvironment } from "../src/inlet-sky";
 import { isAircraftId } from "../src/fleet";
 const params = new URLSearchParams(location.search);
 const catalog = params.has("catalog");
@@ -20,27 +21,16 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = T.PCFSoftShadowMap;
 document.body.style.margin = "0";
 document.body.append(renderer.domElement);
-const sun = new T.Vector3(-0.78, 0.38, -0.36).normalize();
-const env = new T.Scene();
-env.add(
-  new T.Mesh(
-    new T.SphereGeometry(22000, 32, 20),
-    new T.ShaderMaterial({
-      vertexShader: skyVertex,
-      fragmentShader: skyFragment,
-      uniforms: { uTime: { value: 0 }, uSun: { value: sun } },
-      side: T.BackSide,
-    }),
-  ),
+const deck = await new T.TextureLoader().loadAsync(
+  new URL("../src/storm-sky.webp", import.meta.url).href,
 );
-const pmrem = new T.PMREMGenerator(renderer);
-scene.environment = pmrem.fromScene(env, 0, 1, 25000).texture;
-scene.environmentIntensity = 0.75;
-pmrem.dispose();
-scene.add(new T.HemisphereLight(0xc3dcf0, 0x3d4945, 1.2));
-const light = new T.DirectionalLight(0xffdfad, 3.5);
-light.position.set(-35, 60, -40);
-if (catalog) light.position.set(-20, 66, -25);
+scene.environment = bakeInletEnvironment(renderer, deck).texture;
+scene.environmentIntensity = 0.8;
+const fill = new T.HemisphereLight(0xc1d5e8, 0x42574c, 1.2);
+fill.position.set(-0.62, 1, 0.25);
+scene.add(fill);
+const light = new T.DirectionalLight(0xffd39a, 3.7);
+light.position.copy(inletSun).multiplyScalar(80);
 light.castShadow = true;
 Object.assign(light.shadow.camera, {
   left: -35,
@@ -54,16 +44,16 @@ light.shadow.mapSize.set(2048, 2048);
 light.shadow.normalBias = 0.03;
 light.shadow.intensity = 0.55;
 scene.add(light);
-const floor = new T.Mesh(
-  new T.PlaneGeometry(2000, 2000),
-  catalog
-    ? new T.ShadowMaterial({ opacity: 0.16 })
-    : new T.MeshStandardMaterial({ color: 0x819da0, roughness: 0.85 }),
-);
-floor.rotation.x = -Math.PI / 2;
-floor.position.y = -7.4;
-floor.receiveShadow = true;
-scene.add(floor);
+if (!catalog) {
+  const floor = new T.Mesh(
+    new T.PlaneGeometry(2000, 2000),
+    new T.MeshStandardMaterial({ color: 0x819da0, roughness: 0.85 }),
+  );
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.y = -7.4;
+  floor.receiveShadow = true;
+  scene.add(floor);
+}
 const model = params.get("model");
 const aircraft = createAircraft(isAircraftId(model) ? model : "survey");
 scene.add(aircraft.root);

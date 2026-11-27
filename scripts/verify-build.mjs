@@ -4,9 +4,9 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { build, preview } from "vite";
 
-const engine = process.argv[2] ?? "chromium";
-if (engine !== "chromium" && engine !== "webkit") {
-  throw new Error("Use chromium or webkit.");
+const suite = process.argv[2] ?? "chromium";
+if (!["chromium", "webkit", "night-art"].includes(suite)) {
+  throw new Error("Use chromium, webkit, or night-art.");
 }
 
 let server;
@@ -24,8 +24,15 @@ try {
     });
     process.env.BASE_URL = server.resolvedUrls.local[0];
   }
-  if (engine === "webkit") await import("./webkit-check.mjs");
-  else await import("./verify.mjs");
+  if (suite === "webkit") await import("./webkit-check.mjs");
+  else {
+    await import("./verify-night-art.mjs");
+    if (suite === "chromium") {
+      await import("./verify-inlet-views.mjs");
+      await import("./verify.mjs");
+      await import("./verify-camera.mjs");
+    }
+  }
 } finally {
   await server?.close();
 }

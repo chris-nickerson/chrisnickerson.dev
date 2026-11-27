@@ -1,0 +1,113 @@
+{
+  "revision": "07b2f80",
+  "preview": "https://8fc83383.chris-portfolio-58g.pages.dev/",
+  "hardware": "Apple M4 Pro",
+  "browser": "Chromium with WebGL2 timer queries",
+  "seed": 42,
+  "framesPerView": 180,
+  "portrait": "Desktop mobile viewport emulation at deviceScaleFactor 2.",
+  "measurements": [
+    {
+      "width": 1440,
+      "height": 900,
+      "view": "day",
+      "fps": 60,
+      "frameP95Ms": 16.8,
+      "gpu": {
+        "medianMs": 6.099166,
+        "p95Ms": 9.107124
+      },
+      "cpu": {
+        "medianMs": 2.399999998509884,
+        "p95Ms": 4.800000004470348
+      },
+      "pixelRatio": 1,
+      "draws": 217
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "view": "night",
+      "fps": 60,
+      "frameP95Ms": 16.7,
+      "gpu": {
+        "medianMs": 6.512374,
+        "p95Ms": 10.074625
+      },
+      "cpu": {
+        "medianMs": 2.100000001490116,
+        "p95Ms": 4.600000001490116
+      },
+      "pixelRatio": 1,
+      "draws": 367
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "view": "night dock",
+      "fps": 60,
+      "frameP95Ms": 16.7,
+      "gpu": {
+        "medianMs": 6.777791,
+        "p95Ms": 8.064874
+      },
+      "cpu": {
+        "medianMs": 2.3000000044703484,
+        "p95Ms": 4.899999998509884
+      },
+      "pixelRatio": 1,
+      "draws": 323
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "view": "day",
+      "fps": 60,
+      "frameP95Ms": 16.8,
+      "gpu": {
+        "medianMs": 2.900874,
+        "p95Ms": 6.954124
+      },
+      "cpu": {
+        "medianMs": 2.2999999970197678,
+        "p95Ms": 4.399999998509884
+      },
+      "pixelRatio": 1.35,
+      "draws": 112
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "view": "night",
+      "fps": 60,
+      "frameP95Ms": 16.7,
+      "gpu": {
+        "medianMs": 5.521874,
+        "p95Ms": 6.8355
+      },
+      "cpu": {
+        "medianMs": 2.100000001490116,
+        "p95Ms": 3.899999998509884
+      },
+      "pixelRatio": 1.35,
+      "draws": 107
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "view": "night dock",
+      "fps": 60,
+      "frameP95Ms": 16.7,
+      "gpu": {
+        "medianMs": 2.109291,
+        "p95Ms": 3.791916
+      },
+      "cpu": {
+        "medianMs": 2.100000001490116,
+        "p95Ms": 4.600000001490116
+      },
+      "pixelRatio": 1.35,
+      "draws": 260
+    }
+  ]
+}
